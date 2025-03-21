@@ -7,7 +7,7 @@
     <img src="https://img.shields.io/badge/FastAPI-0.115.11-009688?style=flat&logo=fastapi&logoColor=white" alt="FastAPI"/>
     <img src="https://img.shields.io/badge/SQLAlchemy-2.0.39-a83254?style=flat&logo=SqlAlchemy" alt="SQLAlchemy"/>
     <img src="https://img.shields.io/badge/OpenGATE-10.0.1-0a3e68?style=flat" alt="OpenGATE"/>
-    <img src="https://img.shields.io/badge/License-MIT-green?style=flat" alt="License"/>
+    <img src="https://img.shields.io/badge/License-GPL--3.0-yellow?style=flat" alt="License"/>
 </p>
 
 A full-stack application for computed tomography (CT) research. It uses [FastAPI](https://fastapi.tiangolo.com/) as a web framework to interface with [GATE 10](https://github.com/OpenGATE/opengate).
