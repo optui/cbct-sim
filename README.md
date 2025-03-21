@@ -59,13 +59,19 @@ A full-stack application for computed tomography (CT) research. It uses [FastAPI
     export PYTHONDONTWRITEBYTECODE=1
     ```
 
-2. Run Application
+2. Download Gate 10's Geant4 binaries and handle exports
+
+    ```bash
+    export GLIBC_TUNABLES=glibc.rtld.optional_static_tls=2000000
+    ```
+
+3. Run Application
 
     ```bash
     uvicorn backend.main:app --reload
     ```
 
-3. Interactive API docs
+4. Interactive API docs
 
    Go to either [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) or [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc).
 
