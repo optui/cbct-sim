@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
-from backend.models import Simulation
+from backend.models.simulations import Simulation
 
 class SimulationRepository:
     """Handles database operations for simulations."""

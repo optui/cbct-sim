@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from backend.core.config import get_settings
 from backend.core.database import engine
 from backend.api import api_router
-from backend.models import Base
+from backend.models.simulations import Base
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
