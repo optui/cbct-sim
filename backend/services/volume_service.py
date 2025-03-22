@@ -45,10 +45,10 @@ class VolumeService:
         
         new_volume = gate_sim.volume_manager.add_volume(volume.type, volume.name)
         volume_data = volume.get_volume_props()  # Get volume-specific properties
-        for key, value in volume_data.items():
+        for key, value in volume_data:
             setattr(new_volume, key, value)
 
-        self._process_common_updates(volume, new_volume)
+        process_common_updates(volume, new_volume)
         gate_sim.to_json_file()
 
         return {"name": volume.name}
@@ -80,7 +80,7 @@ class VolumeService:
         for key, value in volume_data.items():
             setattr(existing_volume, key, value)
 
-        self._process_common_updates(update_data, existing_volume)
+        process_common_updates(update_data, existing_volume)
         gate_sim.to_json_file()
 
         return {"message": f"Volume '{volume_name}' updated successfully"}

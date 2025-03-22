@@ -7,8 +7,6 @@ from backend.core.database import engine
 from backend.api import api_router
 from backend.models import Base
 
-import opengate as gate
-
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     async with engine.begin() as conn:
