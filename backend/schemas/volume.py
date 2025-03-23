@@ -1,18 +1,11 @@
-from typing import Optional, List, Literal, Union
+from typing import List, Literal, Optional
 from pydantic import BaseModel, Field
 from enum import Enum
 
 
 class VolumeType(str, Enum):
-    Box = "Box"
-    Sphere = "Sphere"
-    Image = "Image"
-
-
-class UnitType(str, Enum):
-    mm = "mm"
-    cm = "cm"
-    m = "m"
+    BOX = "Box"
+    SPHERE = "Sphere"
 
 
 class Rotation(BaseModel):
@@ -20,70 +13,48 @@ class Rotation(BaseModel):
     angle: float = 0.0
 
 
-class BoxVolumeProps(BaseModel):
-    size: List[float] = Field(default_factory=lambda: [10.0, 10.0, 10.0])
-    size_unit: UnitType = UnitType.mm
+class Box(BaseModel):
+    size: List[float] = Field(default=[10.0, 10.0, 10.0], min_length=3, max_length=3)
 
 
-class SphereVolumeProps(BaseModel):
-    rmin: float = 0.0
-    rmax: float = 10.0
-    radius_unit: UnitType = UnitType.mm
+class Sphere(BaseModel):
+    rmin: float = Field(default=0.0, ge=0.0)
+    rmax: float = Field(default=5.0, gt=0.0)
 
 
-class ImageVolumeProps(BaseModel):
-    image_path: str
-    hu_material_table: Optional[str] = None
-    hu_density_table: Optional[str] = None
-    hu_tolerance: Optional[float] = None
-
-
-class VolumeCreate(BaseModel):
+class VolumeBase(BaseModel):
     name: str
+    mother: str = "world"
+    material: str = "G4_AIR"
+    translation: List[float] = Field(
+        default=[0.0, 0.0, 0.0], min_length=3, max_length=3
+    )
+    rotation: Rotation = Field(default_factory=Rotation)
+    color: List[float] = Field(
+        default=[0.25, 0.25, 0.25, 1.0], min_length=4, max_length=4
+    )
+
+
+class VolumeCreate(VolumeBase):
+    type: VolumeType | None = None
+    box: Box | None = None
+    sphere: Sphere | None = None
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        if self.type == VolumeType.BOX and self.box is None:
+            self.box = Box()
+        elif self.type == VolumeType.SPHERE and self.sphere is None:
+            self.sphere = Sphere()
+
+
+class VolumeUpdate(VolumeBase):
+    type: Optional[VolumeType] = None
+    box: Optional[Box] = None
+    sphere: Optional[Sphere] = None
+
+
+class VolumeRead(VolumeBase):
     type: VolumeType
-    material: Optional[str] = "G4_AIR"
-    translation: Optional[List[float]] = None
-    rotation: Optional[Rotation] = None
-    box: Optional[BoxVolumeProps] = None
-    sphere: Optional[SphereVolumeProps] = None
-    image: Optional[ImageVolumeProps] = None
-
-    def validate_volume_properties(self):
-        if self.type == VolumeType.Box and not self.box:
-            raise ValueError("Box volume requires 'box' properties to be defined.")
-        elif self.type == VolumeType.Sphere and not self.sphere:
-            raise ValueError("Sphere volume requires 'sphere' properties to be defined.")
-        elif self.type == VolumeType.Image and not self.image:
-            raise ValueError("Image volume requires 'image' properties to be defined.")
-
-    def get_volume_props(self) -> Union[BoxVolumeProps, SphereVolumeProps, ImageVolumeProps]:
-        self.validate_volume_properties()
-
-        if self.type == VolumeType.Box:
-            return self.box
-        elif self.type == VolumeType.Sphere:
-            return self.sphere
-        elif self.type == VolumeType.Image:
-            return self.image
-        raise ValueError(f"Invalid volume type: {self.type}")
-
-
-class VolumeUpdate(BaseModel):
-    material: Optional[str] = None
-    translation: Optional[List[float]] = None
-    rotation: Optional[Rotation] = None
-    box: Optional[BoxVolumeProps] = None
-    sphere: Optional[SphereVolumeProps] = None
-    image: Optional[ImageVolumeProps] = None
-
-
-class VolumeRead(BaseModel):
-    name: str
-    type: VolumeType
-    material: Optional[str] = None
-    translation: Optional[List[float]] = None
-    rotation_matrix: Optional[List[List[float]]] = None
-    size: Optional[List[float]] = None  # For Box
-    rmin: Optional[float] = None        # For Sphere
-    rmax: Optional[float] = None        # For Sphere
-    image_path: Optional[str] = None    # For Image
+    box: Optional[Box] = None
+    sphere: Optional[Sphere] = None

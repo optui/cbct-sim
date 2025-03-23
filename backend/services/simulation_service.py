@@ -6,6 +6,7 @@ from backend.schemas.simulation import SimulationCreate, SimulationUpdate
 
 import opengate as gate
 
+
 class SimulationService:
     """Handles business logic for simulations."""
 
@@ -16,25 +17,26 @@ class SimulationService:
         return await self.repository.get_simulations()
 
     async def create_simulation(self, simulation: SimulationCreate):
-        existing_simulation = await self.repository.get_simulation_by_name(simulation.name)
-        if existing_simulation:
-            raise HTTPException(status_code=400, detail="Simulation name in use!")
         session_simulation = await self.repository.create(simulation.name)
+
         if not session_simulation:
-            raise HTTPException(status_code=400, detail="IntegrityError")
-        
+            raise HTTPException(
+                status_code=400,
+                detail=f"Simulation with name '{simulation.name}' already exists.",
+            )
+
         gate_simulation = gate.Simulation(
             name=simulation.name,
             output_dir=f"./output/{simulation.name}",
-            json_archive_filename = f"{simulation.name}.json"
+            json_archive_filename=f"{simulation.name}.json",
         )
-        
+
         gate_simulation.to_json_file()
 
         return session_simulation
 
     async def read_simulation(self, id: int):
-        session_simulation = await self.repository.get_simulation_by_id(id)
+        session_simulation = await self.repository.get_simulation(id)
         if not session_simulation:
             raise HTTPException(status_code=404, detail="Simulation not found")
         return session_simulation
@@ -55,7 +57,11 @@ class SimulationService:
 
     async def _get_gate_simulation(self, id: int) -> gate.Simulation:
         session_simulation = await self.read_simulation(id)
-        path: str = f"{session_simulation.output_dir}/{session_simulation.json_archive_filename}"
+
+        path: str = (
+            f"{session_simulation.output_dir}/{session_simulation.json_archive_filename}"
+        )
+
         gate_simulation = gate.Simulation()
         gate_simulation.from_json_file(path)
         return gate_simulation

@@ -7,6 +7,4 @@ settings = get_settings()
 
 engine = create_async_engine(settings.SQLALCHEMY_DATABASE_URI, echo=True)
 
-AsyncSessionLocal = sessionmaker(
-    engine, expire_on_commit=False, class_=AsyncSession
-)
+AsyncSessionLocal = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)

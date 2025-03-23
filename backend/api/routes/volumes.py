@@ -2,11 +2,12 @@ from fastapi import APIRouter
 from typing import List
 
 from backend.schemas.volume import (
-    VolumeCreate, 
-    VolumeUpdate,
+    VolumeCreate,
     VolumeRead,
+    VolumeUpdate,
 )
 from backend.api.dependencies import VolumeServiceDep
+
 router = APIRouter(tags=["Volumes"])
 
 
@@ -15,19 +16,19 @@ async def read_volumes(service: VolumeServiceDep, id: int):
     return await service.read_volumes(id)
 
 
-@router.get("/{id}/volumes/{name}", response_model=VolumeRead)
-async def read_volume(service: VolumeServiceDep, id: int, name: str):
-    return await service.read_volume(id, name)
-
-
 @router.post("/{id}/volumes", response_model=dict)
 async def create_volume(service: VolumeServiceDep, id: int, volume: VolumeCreate):
     return await service.create_volume(id, volume)
 
 
+@router.get("/{id}/volumes/{name}", response_model=VolumeRead)
+async def read_volume(service: VolumeServiceDep, id: int, name: str):
+    return await service.read_volume(id, name)
+
+
 @router.put("/{id}/volumes/{name}", response_model=dict)
-async def update_volume(service: VolumeServiceDep, id: int, name: str, update_data: VolumeUpdate):
-    return await service.update_volume(id, name, update_data)
+async def update_volume(service: VolumeServiceDep, id: int, volume: VolumeUpdate):
+    return await service.update_volume(id, volume.name, volume)
 
 
 @router.delete("/{id}/volumes/{name}", response_model=dict)

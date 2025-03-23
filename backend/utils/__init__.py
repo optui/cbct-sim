@@ -8,5 +8,5 @@ UNIT_MAP = {
     "cm": gate.g4_units.cm,
     "m": gate.g4_units.m,
     "keV": gate.g4_units.keV,
-    "Bq": gate.g4_units.Bq
+    "Bq": gate.g4_units.Bq,
 }

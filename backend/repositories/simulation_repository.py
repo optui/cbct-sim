@@ -1,7 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
-from backend.models.simulations import Simulation
+from backend.models import Simulation
+
 
 class SimulationRepository:
     """Handles database operations for simulations."""
@@ -12,12 +13,12 @@ class SimulationRepository:
     async def get_simulations(self):
         result = await self.session.execute(select(Simulation))
         return result.scalars().all()
-    
+
     async def create(self, name: str):
         session_simulation = Simulation(
             name=name,
             output_dir=f"./output/{name}",
-            json_archive_filename = f"{name}.json"
+            json_archive_filename=f"{name}.json",
         )
         self.session.add(session_simulation)
         try:
@@ -28,16 +29,14 @@ class SimulationRepository:
             await self.session.rollback()
             return None
 
-    async def get_simulation_by_id(self, id: int) -> Simulation | None:
-        result = await self.session.execute(select(Simulation).where(Simulation.id == id))
-        return result.scalar_one_or_none()
-
-    async def get_simulation_by_name(self, name: str):
-        result = await self.session.execute(select(Simulation).where(Simulation.name == name))
+    async def get_simulation(self, id: int) -> Simulation | None:
+        result = await self.session.execute(
+            select(Simulation).where(Simulation.id == id)
+        )
         return result.scalar_one_or_none()
 
     async def update(self, id: int, name: str):
-        simulation = await self.get_simulation_by_id(id)
+        simulation = await self.get_simulation(id)
         if not simulation:
             return None
         simulation.name = name
@@ -46,10 +45,9 @@ class SimulationRepository:
         return simulation
 
     async def delete(self, id: int):
-        simulation = await self.get_simulation_by_id(id)
+        simulation = await self.get_simulation(id)
         if not simulation:
             return None
         await self.session.delete(simulation)
         await self.session.commit()
         return simulation
-
