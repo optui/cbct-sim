@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from backend.api.dependencies import ActorServiceDep
+from app.api.dependencies import ActorServiceDep
 from typing import List
 
 router = APIRouter(tags=["Actors"])

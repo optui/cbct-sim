@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from backend.api.dependencies import SourceServiceDep
-from backend.schemas.source import SourceCreate
+from app.api.dependencies import SourceServiceDep
+from app.schemas.source import SourceCreate
 from typing import List
 
 router = APIRouter(tags=["Sources"])

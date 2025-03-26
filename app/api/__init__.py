@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from backend.api.routes import simulations, volumes, sources, actors
+from app.api.routes import simulations, volumes, sources, actors
 
 api_router = APIRouter(prefix="/api")
 

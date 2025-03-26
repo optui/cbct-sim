@@ -1,12 +1,12 @@
 from fastapi import APIRouter
 from typing import List
 
-from backend.schemas.volume import (
+from app.schemas.volume import (
     VolumeCreate,
     VolumeRead,
     VolumeUpdate,
 )
-from backend.api.dependencies import VolumeServiceDep
+from app.api.dependencies import VolumeServiceDep
 
 router = APIRouter(tags=["Volumes"])
 

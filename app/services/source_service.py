@@ -1,6 +1,6 @@
 import opengate as gate
 from fastapi import HTTPException
-from backend.schemas.source import SourceCreate
+from app.schemas.source import SourceCreate
 
 
 class SourceService:

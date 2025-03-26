@@ -78,7 +78,7 @@ You can also decide if you want a dynamic (with moving parts) or a static simula
      **Warning:** When running GATE 10 for the first time it'll install its Geant4 dependencies totalling **~11GB**.
 
     ```bash
-    uvicorn backend.main:app --reload
+    uvicorn app.main:app --reload
     ```
 
 4. Interactive API docs
