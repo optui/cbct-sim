@@ -27,8 +27,8 @@ async def read_volume(service: VolumeServiceDep, id: int, name: str):
 
 
 @router.put("/{id}/volumes/{name}", response_model=dict)
-async def update_volume(service: VolumeServiceDep, id: int, volume: VolumeUpdate):
-    return await service.update_volume(id, volume.name, volume)
+async def update_volume(service: VolumeServiceDep, id: int, name: str, volume: VolumeUpdate):
+    return await service.update_volume(id, name, volume)
 
 
 @router.delete("/{id}/volumes/{name}", response_model=dict)
