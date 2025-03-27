@@ -87,49 +87,47 @@ You can also decide if you want a dynamic (with moving parts) or a static simula
 
 ## API Reference
 
-API prefix: `/api/` .
+API prefix: `/api/`
 
 ### Simulations
 
-| Method | Endpoint                    | Description                          | Request Body       | Response                                          |
-|--------|-----------------------------|--------------------------------------|--------------------|---------------------------------------------------|
-| GET    | `/simulations/`             | Get all simulations                  | N/A                | `List[SimulationRead]`                            |
-| POST   | `/simulations/`             | Create a new simulation              | `SimulationCreate` | `SimulationRead`                                  |
-| GET    | `/simulations/{id}/`        | Get details of a specific simulation | N/A                | `SimulationRead`                                  |
-| PUT    | `/simulations/{id}/`        | Update a specific simulation         | `SimulationUpdate` | `SimulationRead`                                  |
-| DELETE | `/simulations/{id}/`        | Delete a specific simulation         | N/A                | `{"message": "Simulation deleted successfully"}`  |
-| POST   | `/simulations/{id}/import`  | Import simulation data               | N/A                | `{"message": "Simulation imported successfully"}` |
-| GET    | `/simulations/{id}/export`  | Export simulation data               | N/A                | File download (simulation data)                   |
-| GET    | `/simulations/{id}/view`    | View the simulation visualization    | N/A                | Visualization opened or processed                 |
-| POST   | `/simulations/{id}/run`     | Run a simulation                     | N/A                | `{"message": "Simulation started."}`              |
+| Method | Endpoint                 | Description                          | Request Body       | Response                                          |
+| ------ | ------------------------ | ------------------------------------ | ------------------ | ------------------------------------------------- |
+| GET    | `/simulations/`          | Get all simulations                  | N/A                | `List[SimulationRead]`                            |
+| POST   | `/simulations/`          | Create a new simulation              | `SimulationCreate` | `SimulationRead`                                  |
+| GET    | `/simulations/{id}/`     | Get details of a specific simulation | N/A                | `SimulationRead`                                  |
+| PUT    | `/simulations/{id}/`     | Update a specific simulation         | `SimulationUpdate` | `SimulationRead`                                  |
+| DELETE | `/simulations/{id}/`     | Delete a specific simulation         | N/A                | `{"message": "Simulation deleted successfully"}`  |
+| GET    | `/simulations/{id}/view` | View simulation visualization        | N/A                | `{"message": "Simulation visualization started"}` |
+| GET    | `/simulations/{id}/run`  | Run a simulation                     | N/A                | `{"message": "Simulation started."}`              |
 
 ### Volumes
 
-| Method | Endpoint                                  | Description                      | Request Body   | Response                                              |
-| ------ | ------------------------------------------| -------------------------------- | -------------- | ----------------------------------------------------- |
-| GET    | `/simulations/{id}/volumes/`              | Get all volumes in a simulation  | N/A            | `List[str]` (List of volume names)                    |
-| POST   | `/simulations/{id}/volumes/`              | Create a new volume              | `VolumeCreate` | `{"name": "volume_name"}`                             |
-| GET    | `/simulations/{id}/volumes/{volume_name}` | Get details of a specific volume | N/A            | `VolumeRead`                                          |
-| PUT    | `/simulations/{id}/volumes/{volume_name}` | Update a specific volume         | `VolumeUpdate` | `{"message": "Volume updated successfully"}`          |
-| DELETE | `/simulations/{id}/volumes/{volume_name}` | Delete a specific volume         | N/A            | `{"message": "Volume '{name}' deleted successfully"}` |
+| Method | Endpoint                                  | Description                      | Request Body   | Response                                                     |
+| ------ | ----------------------------------------- | -------------------------------- | -------------- | ------------------------------------------------------------ |
+| GET    | `/simulations/{id}/volumes`               | Get all volumes in a simulation  | N/A            | `List[str]` (List of volume names)                           |
+| POST   | `/simulations/{id}/volumes`               | Create a new volume              | `VolumeCreate` | `{"name": "volume_name"}`                                    |
+| GET    | `/simulations/{id}/volumes/{volume_name}` | Get details of a specific volume | N/A            | `VolumeRead`                                                 |
+| PUT    | `/simulations/{id}/volumes/{volume_name}` | Update a specific volume         | `VolumeUpdate` | `{"message": "Volume '{volume_name}' updated successfully"}` |
+| DELETE | `/simulations/{id}/volumes/{volume_name}` | Delete a specific volume         | N/A            | `{"message": "Volume '{volume_name}' deleted successfully"}` |
 
 ### Sources
 
-| Method | Endpoint                           | Description                     | Request Body   | Response                                              |
-| ------ | ---------------------------------- | ------------------------------- | -------------- | ----------------------------------------------------- |
-| GET    | `/simulations/{id}/sources/`       | Get all sources in a simulation | N/A            | `List[str]` (List of source names)                    |
-| POST   | `/simulations/{id}/sources/`       | Create a new source             | `SourceCreate` | `{"message": "Source '{name}' created successfully"}` |
-| PUT    | `/simulations/{id}/sources/{name}` | Update a specific source        | `SourceUpdate` | `{"message": "Source updated successfully"}`          |
-| DELETE | `/simulations/{id}/sources/{name}` | Delete a specific source        | N/A            | `{"message": "Source '{name}' deleted successfully"}` |
+| Method | Endpoint                                      | Description                      | Request Body          | Response                                              |
+| ------ | --------------------------------------------- | -------------------------------- | --------------------- | ----------------------------------------------------- |
+| GET    | `/simulations/{simulation_id}/sources`        | Get all sources in a simulation  | N/A                   | `List[str]` (List of source names)                    |
+| POST   | `/simulations/{simulation_id}/sources`        | Create a new source              | `GenericSourceCreate` | `{"name": "source_name"}`                             |
+| GET    | `/simulations/{simulation_id}/sources/{name}` | Get details of a specific source | N/A                   | `GenericSourceRead`                                   |
+| DELETE | `/simulations/{simulation_id}/sources/{name}` | Delete a specific source         | N/A                   | `{"message": "Source '{name}' deleted successfully"}` |
 
 ### Actors
 
-| Method | Endpoint                          | Description                    | Request Body  | Response                                             |
-| ------ | --------------------------------- | ------------------------------ | ------------- | ---------------------------------------------------- |
-| GET    | `/simulations/{id}/actors/`       | Get all actors in a simulation | N/A           | `List[str]` (List of actor names)                    |
-| POST   | `/simulations/{id}/actors/`       | Create a new actor             | `ActorCreate` | `{"message": "Actor created successfully"}`          |
-| PUT    | `/simulations/{id}/actors/{name}` | Update a specific actor        | `ActorUpdate` | `{"message": "Actor updated successfully"}`          |
-| DELETE | `/simulations/{id}/actors/{name}` | Delete a specific actor        | N/A           | `{"message": "Actor '{name}' deleted successfully"}` |
+| Method | Endpoint                                | Description                    | Request Body   | Response                                                   |
+| ------ | --------------------------------------- | ------------------------------ | -------------- | ---------------------------------------------------------- |
+| GET    | `/simulations/{id}/actors`              | Get all actors in a simulation | N/A            | `List[str]` (List of actor names)                          |
+| POST   | `/simulations/{id}/actors/`             | Create a new actor             | `{actor_name}` | `{"message": "Actor '{actor_name}' created successfully"}` |
+| PUT    | `/simulations/{id}/actors/{actor_name}` | Update a specific actor        | `{new_name}`   | `{"message": "Actor '{actor_name}' updated successfully"}` |
+| DELETE | `/simulations/{id}/actors/{actor_name}` | Delete a specific actor        | N/A            | `{"message": "Actor '{actor_name}' deleted successfully"}` |
 
 ## FastAPI Example Request/Response Formats
 
@@ -155,7 +153,7 @@ API prefix: `/api/` .
 }
 ```
 
-### Source Create (POST `/simulations/{id}/sources/`)
+### Volume Create (POST `/simulations/{simulation_id}/volumes/`)
 
 **Request:**
 
@@ -167,7 +165,7 @@ API prefix: `/api/` .
 ```json
 ```
 
-### Volume Create (POST `/simulations/{simulation_id}/volumes/`)
+### Source Create (POST `/simulations/{id}/sources/`)
 
 **Request:**
 
