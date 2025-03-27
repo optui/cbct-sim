@@ -137,7 +137,7 @@ API prefix: `/api/`
 
 ```json
 {
-  "name": "SimulationName",
+  "name": "CT_Simulation_01"
 }
 ```
 
@@ -146,35 +146,77 @@ API prefix: `/api/`
 ```json
 {
   "id": 1,
-  "name": "SimulationName",
+  "name": "CT_Simulation_01",
   "created_at": "2023-03-22T12:00:00Z",
-  "output_dir": "./output/SimulationName",
-  "json_archive_filename": "SimulationName.json"
+  "output_dir": "./output/CT_Simulation_01",
+  "json_archive_filename": "CT_Simulation_01.json"
 }
 ```
 
-### Volume Create (POST `/simulations/{simulation_id}/volumes/`)
+### Volume Create (POST `/simulations/{simulation_id}/volumes`)
 
 **Request:**
 
 ```json
+{
+  "name": "Phantom",
+  "mother": "world",
+  "material": "G4_WATER",
+  "translation": [0.0, 0.0, 0.0],
+  "rotation": {"axis": "z", "angle": 0},
+  "color": [0.5, 0.5, 1.0, 1.0],
+  "shape": {
+    "type": "Box",
+    "size": [30, 30, 30],
+    "unit": "cm"
+  }
+}
 ```
 
 **Response:**
 
 ```json
+{
+  "name": "Phantom"
+}
 ```
 
-### Source Create (POST `/simulations/{id}/sources/`)
+### Source Create (POST `/simulations/{simulation_id}/sources`)
 
 **Request:**
 
 ```json
+{
+  "name": "GammaSource",
+  "attached_to": "Phantom",
+  "particle": "gamma",
+  "position": {
+    "type": "box",
+    "translation": [0.0, 0.0, 10.0],
+    "rotation": {"axis": "z", "angle": 0},
+    "size": [5, 5, 5],
+    "unit": "cm"
+  },
+  "direction": {
+    "type": "focused",
+    "focus_point": [0.0, 0.0, 0.0]
+  },
+  "energy": {
+    "type": "mono",
+    "mono": 140.0,
+    "unit": "keV"
+  },
+  "activity": 37.0,
+  "activity_unit": "MBq"
+}
 ```
 
 **Response:**
 
 ```json
+{
+  "name": "GammaSource"
+}
 ```
 
 ### Actor Create (POST `/simulations/{id}/actors/`)
