@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status
-from app.api.dependencies import SimulationServiceDep
+from app.api.dependencies import SimulationServiceDep, SourceRepositoryDep
 from app.schemas.api import MessageResponse
 from app.schemas.simulation import (
     SimulationCreate,
@@ -83,8 +83,12 @@ async def export_simulation(service: SimulationServiceDep, id: int):
     status_code=status.HTTP_200_OK,
     responses={404: {"model": MessageResponse}},
 )
-async def view_simulation(service: SimulationServiceDep, id: int):
-    return await service.view_simulation(id)
+async def view_simulation(
+    service: SimulationServiceDep, 
+    source_repository: SourceRepositoryDep,
+    id: int
+):
+    return await service.view_simulation(id, source_repository)
 
 
 @router.get(
@@ -92,5 +96,9 @@ async def view_simulation(service: SimulationServiceDep, id: int):
     status_code=status.HTTP_200_OK,
     responses={404: {"model": MessageResponse}},
 )
-async def run_simulation(service: SimulationServiceDep, id: int):
-    return await service.run_simulation(id)
+async def run_simulation(
+    service: SimulationServiceDep,
+    source_repository: SourceRepositoryDep,
+    id: int
+):
+    return await service.run_simulation(id, source_repository)

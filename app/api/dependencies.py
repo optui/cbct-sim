@@ -3,6 +3,7 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import AsyncSessionLocal
 from app.repositories.simulation_repository import SimulationRepository
+from app.repositories.source_repository import SourceRepository
 from app.services.simulation_service import SimulationService
 from app.services.volume_service import VolumeService
 from app.services.source_service import SourceService
@@ -42,11 +43,19 @@ def get_volume_service(
     return VolumeService(simulation_service)
 
 
+# Source Repository dependency
+def get_source_repository(
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> SourceRepository:
+    return SourceRepository(session)
+
+
 # Source Service dependency
 def get_source_service(
     simulation_service: Annotated[SimulationService, Depends(get_simulation_service)],
+    source_repository: Annotated[SourceRepository, Depends(get_source_repository)]
 ) -> SourceService:
-    return SourceService(simulation_service)
+    return SourceService(simulation_service, source_repository)
 
 
 # Actor Service dependency
@@ -58,8 +67,9 @@ def get_actor_service(
 
 # Type aliases
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
-RepositoryDep = Annotated[SimulationRepository, Depends(get_simulation_repository)]
+SimulationRepositoryDep = Annotated[SimulationRepository, Depends(get_simulation_repository)]
 SimulationServiceDep = Annotated[SimulationService, Depends(get_simulation_service)]
 VolumeServiceDep = Annotated[VolumeService, Depends(get_volume_service)]
+SourceRepositoryDep = Annotated[SourceRepository, Depends(get_source_repository)]
 SourceServiceDep = Annotated[SourceService, Depends(get_source_service)]
 ActorServiceDep = Annotated[ActorService, Depends(get_actor_service)]

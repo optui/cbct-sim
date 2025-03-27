@@ -13,7 +13,7 @@ from app.schemas.volume import (
     VolumeUpdate,
 )
 from app.services.simulation_service import SimulationService
-from app.utils import UNIT_MAP, get_gate_simulation
+from app.utils.utils import UNIT_MAP, get_gate_simulation
 
 
 ANSI_ESCAPE_RE = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')

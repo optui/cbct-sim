@@ -1,56 +1,108 @@
+import json
 import opengate as gate
-from fastapi import HTTPException
-from app.schemas.source import SourceCreate
-
+from fastapi import HTTPException, status
+from app.models import Source
+from app.services.simulation_service import SimulationService
+from app.repositories.source_repository import SourceRepository
+from app.utils.utils import get_gate_simulation, UNIT_MAP
+from app.schemas.source import GenericSourceCreate, GenericSourceRead
 
 class SourceService:
-    async def read_sources(self, id: int):
-        gate_simulation = await self._get_gate_simulation(id)
-        sources: list = gate_simulation.source_manager.sources.keys()
-        return sources
+    def __init__(self, simulation_service: SimulationService, source_repository: SourceRepository):
+        self.simulation_service = simulation_service
+        self.source_repository = source_repository
 
-    async def create_source(self, simulation_id: int, source_data: SourceCreate):
-        # Get the simulation object
-        gate_sim = await self._get_gate_simulation(simulation_id)
+    async def read_sources(self, simulation_id: int) -> list[str]:
+        sources = await self.source_repository.read_sources(simulation_id)
+        return [source.name for source in sources]
 
-        # Ensure source name doesn't already exist
-        if source_data.name in gate_sim.source_manager.sources:
+    async def create_source(self, simulation_id: int, source: GenericSourceCreate) -> dict:
+        gate_sim = await get_gate_simulation(simulation_id, self.simulation_service.repository, self.source_repository)
+
+        new_source = gate_sim.add_source("GenericSource", source.name)
+        new_source.particle = source.particle.value
+
+        # Handle Position
+        pos = source.position
+        if pos.type == "box":
+            new_source.position.type = "box"
+            factor = UNIT_MAP[pos.unit]
+            new_source.position.size = [s * factor for s in pos.size]
+            new_source.position.translation = [s * factor for s in pos.translation]
+
+        # Handle Direction
+        direction = source.direction
+        if direction.type == "focused":
+            new_source.direction.type = "focused"
+            new_source.direction.focus_point = [s * factor for s in direction.focus_point]
+
+        # Handle Energy
+        energy = source.energy
+        if energy.type == "mono":
+            energy_factor = UNIT_MAP[energy.unit]
+            new_source.energy.type = "mono"
+            new_source.energy.mono = energy.mono * energy_factor
+
+        # Set activity or n if provided
+        if source.activity:
+            activity_factor = UNIT_MAP[source.activity_unit]
+            new_source.activity = source.activity * activity_factor
+        if source.n:
+            new_source.n = source.n
+
+        # Save simulation config
+        gate_sim.to_json_file()
+
+        # Store source info in DB
+        db_source = Source(
+            simulation_id=simulation_id,
+            name=source.name,
+            attached_to=source.attached_to,
+            particle=source.particle.value,
+            position=json.loads(source.position.model_dump_json()),
+            direction=json.loads(source.direction.model_dump_json()),
+            energy=json.loads(source.energy.model_dump_json()),
+            n=source.n,
+            activity=source.activity,
+            activity_unit=source.activity_unit,
+        )
+        await self.source_repository.create(db_source)
+
+        return {"name": source.name}
+    
+
+    async def read_source(self, simulation_id: int, name: str) -> GenericSourceRead:
+        source = await self.source_repository.read_source_by_name(simulation_id, name)
+        if not source:
             raise HTTPException(
-                status_code=400, detail=f"Source '{source_data.name}' already exists."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Source '{name}' not found in simulation '{simulation_id}'."
+            )
+        return GenericSourceRead.model_validate(source)
+
+
+    async def delete_source(self, simulation_id: int, name: str) -> dict:
+        gate_sim = await get_gate_simulation(simulation_id, self.simulation_service.repository, self.source_repository)
+
+        # Correct check here
+        if name not in gate_sim.source_manager.sources:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Source '{name}' not found in simulation."
             )
 
-        # Create and configure the source
-        source = gate_sim.add_source(source_data.type, source_data.name)
+        # Remove source explicitly and correctly
+        del gate_sim.source_manager.sources[name]
 
-        source.particle = source_data.particle
-        source.energy.mono = source_data.energy_mono  # Set mono energy
+        # Save simulation config
+        gate_sim.to_json_file()
 
-        # Optional energy range configuration
-        if source_data.energy_min and source_data.energy_max:
-            source.energy.min = source_data.energy_min
-            source.energy.max = source_data.energy_max
+        # Delete from DB
+        source_deleted = await self.source_repository.delete(simulation_id, name)
+        if not source_deleted:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Source '{name}' not found in database."
+            )
 
-        source.position.type = source_data.position_type
-        source.position.size = source_data.position_size  # Set position size
-
-        source.direction.type = source_data.direction_type
-        source.direction.focus_point = (
-            source_data.focus_point
-        )  # Set direction focus point
-
-        source.n = (
-            source_data.number_of_particles / gate_sim.number_of_threads
-        )  # Distribute particles across threads
-
-        # Handle activity if present (for now it's just an integer)
-        if source_data.activity:
-            # Integrate the activity in some way (you can refine this logic)
-            source.activity = source_data.activity  # Just an example of using activity
-
-        gate_sim.to_json_file()  # Save the simulation after adding the source
-
-        return {"message": f"Source '{source_data.name}' created successfully"}
-
-    async def _get_gate_simulation(self, simulation_id: int) -> gate.Simulation:
-        # Fetch the simulation from your simulation service
-        return await self.simulation_service._get_gate_simulation(simulation_id)
+        return {"message": f"Source '{name}' deleted successfully"}

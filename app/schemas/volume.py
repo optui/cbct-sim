@@ -8,17 +8,9 @@ class VolumeType(str, Enum):
     SPHERE = "Sphere"
 
 
-
 class Rotation(BaseModel):
     axis: Literal["x", "y", "z"] = "x"
     angle: float = 0.0
-
-    @field_validator("angle")
-    def validate_angle(cls, v):
-        if not -360.0 <= v <= 360.0:
-            raise ValueError("Rotation angle must be between -360 and 360 degrees.")
-        return v
-
 
 
 class BoxShape(BaseModel):

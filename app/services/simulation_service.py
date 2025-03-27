@@ -2,8 +2,9 @@ import os
 import shutil
 from fastapi import HTTPException, status
 from app.repositories.simulation_repository import SimulationRepository
+from app.repositories.source_repository import SourceRepository
 from app.schemas.simulation import SimulationCreate, SimulationRead, SimulationUpdate
-from app.utils import get_gate_simulation
+from app.utils.utils import get_gate_simulation
 import opengate as gate
 
 
@@ -82,14 +83,14 @@ class SimulationService:
             detail="Export functionality not implemented yet",
         )
 
-    async def view_simulation(self, id: int) -> dict:
-        gate_simulation = await get_gate_simulation(id, self.repository)
+    async def view_simulation(self, id: int, source_repository: SourceRepository) -> dict:
+        gate_simulation = await get_gate_simulation(id, self.repository, source_repository)
         gate_simulation.visu = True
         gate_simulation.run(start_new_process=True)
         return {"message": "Simulation visualization started"}
 
-    async def run_simulation(self, id: int) -> dict:
-        gate_simulation = await get_gate_simulation(id, self.repository)
+    async def run_simulation(self, id: int, source_repository: SourceRepository) -> dict:
+        gate_simulation = await get_gate_simulation(id, self.repository, source_repository)
         gate_simulation.visu = False
         gate_simulation.run(start_new_process=True)
         return {"message": "Simulation started"}
