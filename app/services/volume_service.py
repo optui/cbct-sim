@@ -13,7 +13,7 @@ from app.schemas.volume import (
     VolumeUpdate,
 )
 from app.services.simulation_service import SimulationService
-from app.utils.utils import UNIT_MAP, get_gate_simulation
+from app.utils.utils import UNIT_MAP, get_gate_simulation_without_sources
 
 
 ANSI_ESCAPE_RE = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
@@ -29,11 +29,11 @@ class VolumeService:
             new_volume.rotation = mat
 
     async def read_volumes(self, id: int) -> list[str]:
-        gate_sim = await get_gate_simulation(id, self.simulation_service.repository)
+        gate_sim = await get_gate_simulation_without_sources(id, self.simulation_service.repository)
         return gate_sim.volume_manager.volume_names
 
     async def create_volume(self, id: int, volume: VolumeCreate) -> dict:
-        gate_sim = await get_gate_simulation(id, self.simulation_service.repository)
+        gate_sim = await get_gate_simulation_without_sources(id, self.simulation_service.repository)
 
         try:
             new_volume = gate_sim.volume_manager.add_volume(volume.shape.type.value, volume.name)
@@ -63,7 +63,7 @@ class VolumeService:
         return {"name": volume.name}
 
     async def read_volume(self, id: int, volume_name: str) -> VolumeRead:
-        gate_sim = await get_gate_simulation(id, self.simulation_service.repository)
+        gate_sim = await get_gate_simulation_without_sources(id, self.simulation_service.repository)
         gate_volume = gate_sim.volume_manager.volumes.get(volume_name)
 
         if not gate_volume:
@@ -100,7 +100,7 @@ class VolumeService:
         )
         
     async def update_volume(self, id: int, volume_name: str, volume: VolumeUpdate) -> dict:
-        gate_sim = await get_gate_simulation(id, self.simulation_service.repository)
+        gate_sim = await get_gate_simulation_without_sources(id, self.simulation_service.repository)
 
         if volume_name not in gate_sim.volume_manager.volumes:
             raise HTTPException(404, f"Volume '{volume_name}' not found")
@@ -130,7 +130,7 @@ class VolumeService:
         return {"message": f"Volume '{volume_name}' updated successfully"}
 
     async def delete_volume(self, id: int, volume_name: str) -> dict:
-        gate_sim = await get_gate_simulation(id, self.simulation_service.repository)
+        gate_sim = await get_gate_simulation_without_sources(id, self.simulation_service.repository)
         if volume_name not in gate_sim.volume_manager.volumes:
             raise HTTPException(404, "Volume not found")
         gate_sim.volume_manager.remove_volume(volume_name)

@@ -14,11 +14,42 @@ A full-stack application for computed tomography (CT) research. It uses [FastAPI
 
 ## Features
 
-Create, read, update or delete simulations; also export, import, view or run them.  
+OpenCT provides a solution for managing computed tomography (CT) simulations using GATE 10. It offers an API that facilitates simulation configuration, visualization and execution and a frontend for communicating with the API.
 
-For each simulation you can: create, read, update or delete volumes, sources and actors.
+### Simulation Management
 
-You can also decide if you want a dynamic (with moving parts) or a static simulation.
+- Create, read, update and delete GATE 10 simulation instances.
+- Support for both static and dynamic simulation setups.
+
+### Volume Management
+
+- Create and manage geometric volumes such as boxes and spheres.
+- Define physical properties including material, position, rotation, size, and color.
+- Support for unit-aware dimensions (`mm`, `cm`, `m`).
+- Modify or delete volumes programmatically.
+
+### Source Configuration
+
+- Configure sources with parameters including:
+  - Particle type (e.g., gamma)
+  - Emission position (shape, translation, rotation)
+  - Direction (e.g., focused beam)
+  - Energy model (e.g., monoenergetic)
+  - Emission characteristics (activity or number of particles)
+- Attach sources to specific volumes or the simulation world.
+- Update or delete sources through API calls.
+
+### Actor Integration
+
+- Add actors for monitoring or data collection during simulations.
+- Rename or remove actors within the simulation environment.
+- Designed for future support of advanced actor types and output models.
+
+### Execution and Visualization
+
+- Execute simulations directly via HTTP requests to the API.
+- Launch GATE’s built-in visualization to inspect geometry and source placement.
+- Runs in isolated processes, maintaining synchronization with simulation configuration.
 
 ## Setup
 

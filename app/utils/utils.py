@@ -14,6 +14,27 @@ UNIT_MAP = {
     "Bq": gate.g4_units.Bq,
 }
 
+async def get_gate_simulation_without_sources(
+    id: int, 
+    simulation_repository: SimulationRepository,
+) -> gate.Simulation:
+    simulation = await simulation_repository.read_simulation(id)
+    if not simulation:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Simulation with id {id} not found",
+        )
+
+    path = Path(simulation.output_dir) / simulation.json_archive_filename
+    if not path.exists():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Simulation configuration file not found",
+        )
+
+    sim = gate.Simulation()
+    sim.from_json_file(str(path))
+    return sim
 
 async def get_gate_simulation(
     id: int, 
