@@ -1,5 +1,5 @@
 <h1 align="center">
-    OpenCT
+    ProjeCT
 </h1>
 
 <p align="center">
@@ -14,7 +14,7 @@ A full-stack application for computed tomography (CT) research. It uses [FastAPI
 
 ## Features
 
-OpenCT provides a solution for managing computed tomography (CT) simulations using GATE 10. It offers an API that facilitates simulation configuration, visualization and execution and a frontend for communicating with the API.
+ProjeCT provides a solution for managing computed tomography (CT) simulations using GATE 10. It offers an API that facilitates simulation configuration, visualization and execution and a frontend for communicating with the API.
 
 ### Simulation Management
 
@@ -56,8 +56,8 @@ OpenCT provides a solution for managing computed tomography (CT) simulations usi
 1. Clone the Repository
 
     ```bash
-    git clone <repository-url>
-    cd openct
+    git clone https://github.com/optui/ProjeCT.git
+    cd project
     ```
 
 ### Using [uv](https://github.com/astral-sh/uv)
@@ -72,7 +72,7 @@ OpenCT provides a solution for managing computed tomography (CT) simulations usi
 2. Install Dependencies
 
     ```bash
-    uv pip install -r requirements.txt
+    uv sync
     ```
 
 ### Using Traditional Virtual Environment
@@ -92,27 +92,21 @@ OpenCT provides a solution for managing computed tomography (CT) simulations usi
 
 ## Running
 
-1. Optionally Disable pycache
+1. Make run.sh executable
 
     ```bash
-    export PYTHONDONTWRITEBYTECODE=1
+    chmod +x scripts/run.sh
     ```
 
-2. GATE 10 Prerequisite
-
-    ```bash
-    export GLIBC_TUNABLES=glibc.rtld.optional_static_tls=2000000
-    ```
-
-3. Run Application
+2. Run the script
 
      **Warning:** When running GATE 10 for the first time it'll install its Geant4 dependencies totalling **~11GB**.
 
     ```bash
-    uvicorn app.main:app --reload
+    scripts/run.sh
     ```
 
-4. Interactive API docs
+3. Interactive API docs
 
    Go to either [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) or [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc).
 

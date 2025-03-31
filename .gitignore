@@ -6,6 +6,7 @@ database.db
 output/
 .env
 .*
+uv.lock
 
 # Logs
 logs
