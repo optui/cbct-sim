@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List, Literal, Union
+from typing import List, Literal, Union, Annotated
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -38,8 +38,10 @@ class SphereShape(BaseModel):
         return v
 
 
-VolumeShape = Union[BoxShape, SphereShape]
-
+VolumeShape = Annotated[
+    Union[BoxShape, SphereShape],
+    Field(discriminator="type")
+]
 
 
 class VolumeCreate(BaseModel):

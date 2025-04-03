@@ -178,7 +178,7 @@ API prefix: `/api/`
 }
 ```
 
-### Volume Create (POST `/simulations/{simulation_id}/volumes`)
+### Box Volume Create (POST `/simulations/{simulation_id}/volumes`)
 
 **Request:**
 
@@ -203,6 +203,35 @@ API prefix: `/api/`
 ```json
 {
   "name": "Phantom"
+}
+```
+
+### **Sphere Volume Create (POST `/simulations/{simulation_id}/volumes`)**
+
+**Request:**
+
+```json
+{
+  "name": "Phantom_Sphere",
+  "mother": "world",
+  "material": "G4_WATER",
+  "translation": [0.0, 0.0, 0.0],
+  "rotation": {"axis": "z", "angle": 0},
+  "color": [0.5, 0.5, 1.0, 1.0],
+  "shape": {
+    "type": "Sphere",
+    "rmin": 0.0,
+    "rmax": 15.0,
+    "unit": "cm"
+  }
+}
+```
+
+**Response:**
+
+```json
+{
+  "name": "Phantom_Sphere"
 }
 ```
 
@@ -244,16 +273,90 @@ API prefix: `/api/`
 }
 ```
 
-### Actor Create (POST `/simulations/{id}/actors/`)
+### **Actor Create (POST `/simulations/{simulation_id}/actors/`)**
+
+#### 1. **SimulationStatisticsActor Create**
 
 **Request:**
 
 ```json
+{
+  "name": "SimulationStatsActor",
+  "type": "SimulationStatisticsActor",
+  "output_filename": "output/simulation_stats.txt"
+}
 ```
 
 **Response:**
 
 ```json
+{
+  "name": "SimulationStatsActor",
+  "type": "SimulationStatisticsActor",
+  "output_filename": "output/simulation_stats.txt"
+}
+```
+
+---
+
+#### 2. **DigitizerHitsCollectionActor Create**
+
+**Request:**
+
+```json
+{
+  "name": "HitsCollectionActor",
+  "type": "DigitizerHitsCollectionActor",
+  "attached_to": "Phantom",
+  "attributes": ["TotalEnergyDeposit", "PostPosition", "GlobalTime"],
+  "output_filename": "output/hits_collection.root"
+}
+```
+
+**Response:**
+
+```json
+{
+  "name": "HitsCollectionActor",
+  "type": "DigitizerHitsCollectionActor",
+  "attached_to": "Phantom",
+  "attributes": ["TotalEnergyDeposit", "PostPosition", "GlobalTime"],
+  "output_filename": "output/hits_collection.root"
+}
+```
+
+---
+
+#### 3. **DigitizerProjectionActor Create**
+
+**Request:**
+
+```json
+{
+  "name": "ProjectionActor",
+  "type": "DigitizerProjectionActor",
+  "attached_to": "Phantom",
+  "input_digi_collections": ["Hits"],
+  "spacing": [1.0, 1.0],
+  "size": [256, 256],
+  "origin_as_image_center": true,
+  "output_filename": "output/projection.mhd"
+}
+```
+
+**Response:**
+
+```json
+{
+  "name": "ProjectionActor",
+  "type": "DigitizerProjectionActor",
+  "attached_to": "Phantom",
+  "input_digi_collections": ["Hits"],
+  "spacing": [1.0, 1.0],
+  "size": [256, 256],
+  "origin_as_image_center": true,
+  "output_filename": "output/projection.mhd"
+}
 ```
 
 ### License
