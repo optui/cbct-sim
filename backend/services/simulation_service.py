@@ -4,7 +4,7 @@ from fastapi import HTTPException, status
 from backend.repositories.simulation_repository import SimulationRepository
 from backend.repositories.source_repository import SourceRepository
 from backend.schemas.simulation import SimulationCreate, SimulationRead, SimulationUpdate
-from backend.utils.utils import get_gate_simulation
+from backend.utils.utils import get_gate_simulation, compute_run_timing_intervals
 import opengate as gate
 
 
@@ -15,15 +15,23 @@ class SimulationService:
     async def read_simulations(self) -> list:
         return await self.repository.read_simulations()
 
-    async def create_simulation(self, simulation: SimulationCreate) -> dict:
-        session_simulation = await self.repository.create(simulation.name)
+    async def create_simulation(self, simulation: SimulationCreate) -> SimulationRead:
+        session_simulation = await self.repository.create(simulation.name,
+                                                          simulation.num_runs,
+                                                          simulation.run_len)
+
+        run_timing_intervals = compute_run_timing_intervals(simulation.num_runs,
+                                                            simulation.run_len)
 
         gate_simulation = gate.Simulation(
             name=simulation.name,
             output_dir=session_simulation.output_dir,
             json_archive_filename=session_simulation.json_archive_filename,
+            run_timing_intervals=run_timing_intervals
         )
+        
         gate_simulation.to_json_file()
+        
         return session_simulation
 
     async def read_simulation(self, id: int) -> SimulationRead:
@@ -35,7 +43,7 @@ class SimulationService:
             )
         return simulation
 
-    async def update_simulation(self, id: int, simulation: SimulationUpdate) -> dict:
+    async def update_simulation(self, id: int, simulation: SimulationUpdate) -> SimulationRead:
         current = await self.read_simulation(id)
 
         old_dir = current.output_dir

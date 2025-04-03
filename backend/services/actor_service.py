@@ -29,7 +29,6 @@ class ActorService:
 
         actor_instance = gate_sim.add_actor(actor.type, actor.name)
 
-        # Apply config based on actor type
         if isinstance(actor, SimulationStatisticsActorConfig):
             actor_instance.output_filename = actor.output_filename
 
@@ -57,7 +56,6 @@ class ActorService:
             simulation_id, self.simulation_service.repository
         )
         
-        # Fetch the actor
         if actor_name not in gate_sim.actor_manager.actors:
             raise HTTPException(
                 status_code=404,
@@ -66,7 +64,6 @@ class ActorService:
 
         actor_instance = gate_sim.actor_manager.actors[actor_name]
         
-        # Determine the actor type and return its configuration
         if isinstance(actor_instance, gate.opengate.actors.miscactors.SimulationStatisticsActor):
             return SimulationStatisticsActorConfig(
                 name=actor_name,
@@ -97,7 +94,6 @@ class ActorService:
             simulation_id, self.simulation_service.repository
         )
 
-        # Fetch the actor
         if actor_name not in gate_sim.actor_manager.actors:
             raise HTTPException(
                 status_code=404,
@@ -106,11 +102,9 @@ class ActorService:
 
         actor_instance = gate_sim.actor_manager.actors[actor_name]
 
-        # Update name if provided
         if actor_update.name:
             actor_instance.name = actor_update.name
 
-        # Apply config changes if provided
         if actor_update.config:
             if isinstance(actor_update.config, SimulationStatisticsActorConfig):
                 actor_instance.output_filename = actor_update.config.output_filename
@@ -136,9 +130,7 @@ class ActorService:
         Deletes the actor from the simulation by its name.
         """
         try:
-            # Remove the actor from the actors dictionary
             self.remove_actor(actor_name)
-            # Optionally, you can handle cleanup, like saving the simulation state again
             self.simulation.to_json_file()
             return {"message": f"Actor '{actor_name}' has been deleted successfully."}
         except KeyError:

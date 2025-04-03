@@ -13,8 +13,23 @@ UNIT_MAP = {
     "keV": gate.g4_units.keV,
     "Bq": gate.g4_units.Bq,
     "eV": gate.g4_units.eV,
-    "MeV": gate.g4_units.MeV
+    "MeV": gate.g4_units.MeV,
+    "sec": gate.g4_units.second
 }
+
+def compute_run_timing_intervals(num_runs: int, run_len: float) -> list[list[float]]:
+    """
+    Compute a list of run timing intervals for GATE simulations.
+
+    Args:
+        num_runs (int): Number of run intervals to compute.
+        run_len (float): Length of each run in seconds.
+
+    Returns:
+        List[List[float]]: A list of [start, end] time intervals in GATE time units.
+    """
+    sec = gate.g4_units.second
+    return [[i * run_len * sec, (i + 1) * run_len * sec] for i in range(num_runs)]
 
 async def get_gate_simulation_without_sources(
     id: int, 

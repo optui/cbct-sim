@@ -12,6 +12,8 @@ class Simulation(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     output_dir = Column(String)
     json_archive_filename = Column(String)
+    num_runs = Column(Integer)
+    run_len = Column(Float)
 
     sources = relationship("Source", back_populates="simulation", cascade="all, delete-orphan")
 

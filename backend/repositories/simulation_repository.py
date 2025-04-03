@@ -13,11 +13,13 @@ class SimulationRepository:
         result = await self.session.execute(select(Simulation))
         return result.scalars().all()
 
-    async def create(self, name: str) -> Simulation:
+    async def create(self, name: str, num_runs: int, run_len: float) -> Simulation:
         session_simulation = Simulation(
             name=name,
             output_dir=f"./output/{name}",
             json_archive_filename=f"{name}.json",
+            num_runs=num_runs,
+            run_len=run_len
         )
         self.session.add(session_simulation)
         try:
@@ -34,12 +36,14 @@ class SimulationRepository:
         )
         return result.scalar_one_or_none()
 
-    async def update(self, id: int, name: str) -> Simulation:
+    async def update(self, id: int, name: str, num_runs: int, run_len: float) -> Simulation:
         simulation = await self.read_simulation(id)
 
         simulation.name = name
         simulation.output_dir = f"./output/{name}"
         simulation.json_archive_filename = f"{name}.json"
+        simulation.num_runs = num_runs
+        simulation.run_len = run_len
         try:
             await self.session.commit()
             await self.session.refresh(simulation)
