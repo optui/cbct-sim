@@ -2,10 +2,10 @@ from fastapi import APIRouter
 from backend.api.dependencies import ActorServiceDep
 from typing import List
 
-router = APIRouter(tags=["Actors"])
+router = APIRouter(tags=["Actors"], prefix='/simulations')
 
 
-@router.get("/{simulation_id}/actors", response_model=List[str])
+@router.get("/{simulation_id}/actors/", response_model=List[str])
 async def get_actors(service: ActorServiceDep, simulation_id: int):
     return await service.get_actors(simulation_id)
 

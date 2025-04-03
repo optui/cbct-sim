@@ -1,16 +1,18 @@
 from typing import Annotated
 from fastapi import Depends
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from backend.core.database import AsyncSessionLocal
+
 from backend.repositories.simulation_repository import SimulationRepository
 from backend.repositories.source_repository import SourceRepository
+
 from backend.services.simulation_service import SimulationService
 from backend.services.volume_service import VolumeService
 from backend.services.source_service import SourceService
 from backend.services.actor_service import ActorService
 
 
-# Database session dependency
 async def get_session():
     async with AsyncSessionLocal() as session:
         try:
@@ -22,35 +24,30 @@ async def get_session():
             await session.close()
 
 
-# Simulation Repository dependency
 def get_simulation_repository(
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> SimulationRepository:
     return SimulationRepository(session)
 
 
-# Simulation Service dependency
 def get_simulation_service(
     repository: Annotated[SimulationRepository, Depends(get_simulation_repository)],
 ) -> SimulationService:
     return SimulationService(repository)
 
 
-# Volume Service dependency
 def get_volume_service(
     simulation_service: Annotated[SimulationService, Depends(get_simulation_service)],
 ) -> VolumeService:
     return VolumeService(simulation_service)
 
 
-# Source Repository dependency
 def get_source_repository(
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> SourceRepository:
     return SourceRepository(session)
 
 
-# Source Service dependency
 def get_source_service(
     simulation_service: Annotated[SimulationService, Depends(get_simulation_service)],
     source_repository: Annotated[SourceRepository, Depends(get_source_repository)]
@@ -58,7 +55,6 @@ def get_source_service(
     return SourceService(simulation_service, source_repository)
 
 
-# Actor Service dependency
 def get_actor_service(
     simulation_service: Annotated[SimulationService, Depends(get_simulation_service)],
 ) -> ActorService:

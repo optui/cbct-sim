@@ -12,6 +12,8 @@ UNIT_MAP = {
     "m": gate.g4_units.m,
     "keV": gate.g4_units.keV,
     "Bq": gate.g4_units.Bq,
+    "eV": gate.g4_units.eV,
+    "MeV": gate.g4_units.MeV
 }
 
 async def get_gate_simulation_without_sources(

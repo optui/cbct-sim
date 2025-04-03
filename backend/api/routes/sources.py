@@ -8,7 +8,7 @@ from backend.schemas.source import (
 )
 from backend.schemas.api import MessageResponse
 
-router = APIRouter(tags=["Sources"])
+router = APIRouter(tags=["Sources"], prefix='/simulations')
 
 
 @router.get("/{simulation_id}/sources", response_model=List[str])

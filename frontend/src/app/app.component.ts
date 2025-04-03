@@ -1,33 +1,47 @@
-import { Component } from '@angular/core';
+// app.component.ts
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { NavComponent } from './components/shared/nav/nav.component';
+import { SimulationService } from './services/simulation.service';
+import { Simulation } from './models/simulation';
+import { CommonModule } from '@angular/common';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [
-    RouterOutlet,
-    SidebarComponent
-  ],
+  imports: [RouterOutlet, NavComponent, CommonModule],
   template: `
-    <div class="layout-container">
-      <app-sidebar class="sidebar"></app-sidebar>
-      <div class="content">
-        <!-- Displays whatever route we navigate to -->
-        <router-outlet></router-outlet>
-      </div>
-    </div>
+    <main>
+      <app-nav [simulations]="(simulations$ | async) || []" />
+      <router-outlet />
+    </main>
   `,
-  styles: [`
-    .layout-container {
-      display: flex;           /* flex layout to put sidebar and content side by side */
-      height: 100vh;
+  styles: `
+    main {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      flex-flow: row nowrap;
     }
-    .content {
-      flex: 1;
-      overflow: auto;         /* scroll content if needed */
-      background: #222;       /* background color for content area */
-    }
-  `]
+  `,
 })
-export class AppComponent {}
+export class AppComponent implements OnInit {
+  private simulationService = inject(SimulationService);
+
+  simulations$: Observable<Simulation[]>;
+
+  constructor() {
+    this.simulations$ = this.simulationService.simulations$;
+  }
+
+  ngOnInit(): void {
+    this.loadSimulations();    
+  }
+
+  loadSimulations(): void {
+    this.simulationService.getSimulations().subscribe({
+      error: err => console.error('Error fetching simulations:', err),
+    });
+  }
+}

@@ -9,7 +9,7 @@ from backend.schemas.volume import (
 )
 from backend.api.dependencies import VolumeServiceDep
 
-router = APIRouter(tags=["Volumes"])
+router = APIRouter(tags=["Volumes"], prefix='/simulations')
 
 
 @router.get(
