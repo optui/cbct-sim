@@ -10,32 +10,14 @@
     <img src="https://img.shields.io/badge/License-GPL--3.0-yellow?style=flat" alt="License"/>
 </p>
 
-A full-stack application for computed tomography (CT) research. It uses [FastAPI](https://fastapi.tiangolo.com/) as a web framework to interface with [GATE 10](https://github.com/OpenGATE/opengate).
+Full-stack application for computed tomography (CT) research. It uses [FastAPI](https://fastapi.tiangolo.com/) for the backend to interface with [GATE 10](https://github.com/OpenGATE/opengate), and [Angular v19](https://angular.dev/) for the frontend to facilitate communication with the backend.
 
 ## Features
 
-ProjeCT provides a solution for managing computed tomography (CT) simulations using GATE 10. It offers an API that facilitates simulation configuration, visualization, and execution, along with an angular frontend for interacting with the API.
-
-### Simulations
-
-Create, read, update, delete, import & export simulations. Set run timing intervals for them.
-
-#### Volumes
-
-Create, read, update & delete simulation volumes. Set dynamic properties for them.
-
-#### Source
-
-Create, read, update & delete simulation sources.
-
-#### Actor
-
-Create, read, update & delete simulation actors.
-
-#### Execution and Visualization
-
-- Inspect the simulation with GATE’s built-in visualization.
-- Runs in isolated processes, maintaining synchronization with simulation configuration.
+- Create, read, update, delete, import, export, view and run simulations. Set run timing intervals for them.
+- Create, read, update & delete simulation volumes. Set dynamic properties for them.
+- Create, read, update & delete simulation sources.
+- Create, read, update & delete simulation actors.
 
 ## Setup
 
@@ -96,12 +78,6 @@ Create, read, update & delete simulation actors.
 
     - [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
     - [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
-
-## Testing
-
-Tests are written using `pytest` with coverage support.
-
-### Run tests with coverage
 
 ## API Reference
 
