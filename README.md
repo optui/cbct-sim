@@ -14,41 +14,27 @@ A full-stack application for computed tomography (CT) research. It uses [FastAPI
 
 ## Features
 
-ProjeCT provides a solution for managing computed tomography (CT) simulations using GATE 10. It offers an API that facilitates simulation configuration, visualization, and execution, along with a frontend for interacting with the API.
+ProjeCT provides a solution for managing computed tomography (CT) simulations using GATE 10. It offers an API that facilitates simulation configuration, visualization, and execution, along with an angular frontend for interacting with the API.
 
-### Simulation Management
+### Simulations
 
-- Create, read, update and delete GATE 10 simulation instances.
-- Support for both static and dynamic simulation setups.
+Create, read, update, delete, import & export simulations. Set run timing intervals for them.
 
-### Volume Management
+#### Volumes
 
-- Create and manage geometric volumes such as boxes and spheres.
-- Define physical properties including material, position, rotation, size, and color.
-- Support for unit-aware dimensions (`mm`, `cm`, `m`).
-- Modify or delete volumes programmatically.
+Create, read, update & delete simulation volumes. Set dynamic properties for them.
 
-### Source Configuration
+#### Source
 
-- Configure sources with parameters including:
-  - Particle type (e.g., gamma)
-  - Emission position (shape, translation, rotation)
-  - Direction (e.g., focused beam)
-  - Energy model (e.g., monoenergetic)
-  - Emission characteristics (activity or number of particles)
-- Attach sources to specific volumes or the simulation world.
-- Update or delete sources through API calls.
+Create, read, update & delete simulation sources.
 
-### Actor Integration
+#### Actor
 
-- Add actors for monitoring or data collection during simulations.
-- Rename or remove actors within the simulation environment.
-- Designed for future support of advanced actor types and output models.
+Create, read, update & delete simulation actors.
 
-### Execution and Visualization
+#### Execution and Visualization
 
-- Execute simulations directly via HTTP requests to the API.
-- Launch GATE’s built-in visualization to inspect geometry and source placement.
+- Inspect the simulation with GATE’s built-in visualization.
 - Runs in isolated processes, maintaining synchronization with simulation configuration.
 
 ## Setup
