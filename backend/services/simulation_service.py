@@ -3,6 +3,7 @@ import shutil
 from fastapi import HTTPException
 from backend.repositories.simulation_repository import SimulationRepository
 from backend.repositories.source_repository import SourceRepository
+from backend.schemas.api import MessageResponse
 from backend.schemas.simulation import SimulationCreate, SimulationRead, SimulationUpdate
 from backend.utils.utils import UNIT_MAP, get_gate_simulation, handle_directory_rename, to_json_file
 
@@ -32,28 +33,28 @@ class SimulationService:
         to_json_file(updated_sim)
         return updated_sim
 
-    async def delete_simulation(self, id: int) -> dict:
+    async def delete_simulation(self, id: int) -> MessageResponse:
         sim: SimulationRead | None = await self.sim_repo.delete(id)
         if not sim:
             raise HTTPException(status_code=404, detail=f"Simulation with id {id} not found")
         if os.path.exists(sim.output_dir):
             shutil.rmtree(sim.output_dir)
-        return {"detail": "Simulation deleted successfully"}
+        return {"message": "Simulation deleted successfully"}
 
-    async def import_simulation(self, id: int) -> dict:
+    async def import_simulation(self, id: int) -> MessageResponse:
         raise HTTPException(status_code=501, detail="Import functionality not implemented yet")
 
-    async def export_simulation(self, id: int) -> dict:
+    async def export_simulation(self, id: int) -> MessageResponse:
         raise HTTPException(status_code=501, detail="Export functionality not implemented yet")
 
-    async def view_simulation(self, id: int, source_repository: SourceRepository) -> dict:
+    async def view_simulation(self, id: int, source_repository: SourceRepository) -> MessageResponse:
         gate_sim = await get_gate_simulation(id, self.sim_repo, source_repository)
         gate_sim.visu = True
         gate_sim.run(start_new_process=True)
-        return {"detail": "Simulation visualization started"}
+        return {"message": "Simulation visualization ended"}
 
-    async def run_simulation(self, id: int, source_repository: SourceRepository) -> dict:
+    async def run_simulation(self, id: int, source_repository: SourceRepository) -> MessageResponse:
         gate_sim = await get_gate_simulation(id, self.sim_repo, source_repository)
         gate_sim.visu = False
         gate_sim.run(start_new_process=True)
-        return {"detail": "Simulation started"}
+        return {"message": "Simulation finished running"}

@@ -84,9 +84,9 @@ API prefix: `/api/`
 | POST   | `/simulations/`          | Create a new simulation              | `SimulationCreate` | `SimulationRead`                                  |
 | GET    | `/simulations/{id}/`     | Get details of a specific simulation | N/A                | `SimulationRead`                                  |
 | PUT    | `/simulations/{id}/`     | Update a specific simulation         | `SimulationUpdate` | `SimulationRead`                                  |
-| DELETE | `/simulations/{id}/`     | Delete a specific simulation         | N/A                | `{"message": "Simulation deleted successfully"}`  |
-| GET    | `/simulations/{id}/view` | View simulation visualization        | N/A                | `{"message": "Simulation visualization started"}` |
-| GET    | `/simulations/{id}/run`  | Run a simulation                     | N/A                | `{"message": "Simulation started."}`              |
+| DELETE | `/simulations/{id}/`     | Delete a specific simulation         | N/A                | `{"detail": "Simulation deleted successfully"}`   |
+| GET    | `/simulations/{id}/view` | View simulation visualization        | N/A                | `{"detail": "Simulation visualization started"}`  |
+| GET    | `/simulations/{id}/run`  | Run a simulation                     | N/A                | `{"detail": "Simulation started."}`               |
 
 ### Volumes
 

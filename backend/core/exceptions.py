@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 async def handle_http_exception(_: Request, exc: StarletteHTTPException) -> JSONResponse:
     return JSONResponse(
         status_code=exc.status_code,
-        content={"detail": exc.detail},
+        content={"message": exc.detail},
     )
 
 
@@ -23,11 +23,11 @@ async def handle_exception(_: Request, exc: Exception) -> JSONResponse:
                     return JSONResponse(
                         status_code=status.HTTP_409_CONFLICT,
                         content={
-                            "detail": f"Value for {column} in {table} already exists"
+                            "message": f"Value for {column} in {table} already exists"
                         },
                     )
 
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={"detail": "An unexpected error occurred"},
+        content={"message": "An unexpected error occurred"},
     )
