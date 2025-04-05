@@ -12,13 +12,6 @@
 
 Full-stack application for computed tomography (CT) research. It uses [FastAPI](https://fastapi.tiangolo.com/) for the backend to interface with [GATE 10](https://github.com/OpenGATE/opengate), and [Angular v19](https://angular.dev/) for the frontend to facilitate communication with the backend.
 
-## Features
-
-- Create, read, update, delete, import, export, view and run simulations. Set run timing intervals for them.
-- Create, read, update & delete simulation volumes. Set dynamic properties for them.
-- Create, read, update & delete simulation sources.
-- Create, read, update & delete simulation actors.
-
 ## Setup
 
 1. Clone the Repository
