@@ -19,7 +19,7 @@ async def get_session():
             yield session
         except Exception as e:
             await session.rollback()
-            raise e
+            raise
         finally:
             await session.close()
 

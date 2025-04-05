@@ -35,7 +35,7 @@ class SourceService:
         """
 
         gate_sim = await get_gate_simulation_without_sources(
-            simulation_id, self.simulation_service.repository
+            simulation_id, self.simulation_service.sim_repo
         )
 
         # 1. Add the source to Gate's simulation
@@ -114,110 +114,31 @@ class SourceService:
         self,
         simulation_id: int,
         name: str,
-        source_update: GenericSourceUpdate
+        update: GenericSourceUpdate
     ) -> GenericSourceRead:
-        """
-        Update an existing source in Gate and the DB,
-        then return the updated source as `GenericSourceRead`.
-        """
-
-        # 1. Check if source exists in DB
-        existing = await self.source_repository.read_source_by_name(simulation_id, name)
+        # Step 1: Load existing source
+        existing: Source = await self.source_repository.read_source_by_name(simulation_id, name)
         if not existing:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Source '{name}' not found in simulation '{simulation_id}'."
-            )
+            raise HTTPException(status_code=404, detail=f"Source '{name}' not found")
 
-        gate_sim = await get_gate_simulation_without_sources(
-            simulation_id, self.simulation_service.repository
-        )
+        # Step 2: Merge update fields into existing SQLAlchemy model
+        update_data = update.model_dump(exclude_unset=True)
 
-        # 2. Check if source exists in Gate
-        if name not in gate_sim.source_manager.sources:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Source '{name}' not found in Gate simulation."
-            )
+        for field, value in update_data.items():
+            setattr(existing, field, value)
 
-        gate_source = gate_sim.source_manager.sources[name]
+        # Step 3: Save it back to the DB
+        updated = await self.source_repository.update(existing)
 
-        # 3. Update fields if provided
-        if source_update.attached_to is not None:
-            existing.attached_to = source_update.attached_to
-            # Gate doesn't have a direct "attached_to" concept unless you implement it,
-            # but you can handle that if needed.
-
-        if source_update.particle is not None:
-            existing.particle = source_update.particle.value
-            gate_source.particle = source_update.particle.value
-
-        # position
-        if source_update.position is not None:
-            pos = source_update.position
-            factor_position = UNIT_MAP[pos.unit]
-            if pos.type == "box":
-                gate_source.position.type = "box"
-                gate_source.position.size = [s * factor_position for s in pos.size]
-                gate_source.position.translation = [
-                    s * factor_position for s in pos.translation
-                ]
-            # Save position to DB
-            existing.position = json.loads(pos.model_dump_json())
-
-        # direction
-        if source_update.direction is not None:
-            direction = source_update.direction
-            # Possibly same factor as position if needed
-            factor_position = 1  # or UNIT_MAP[...]
-            if direction.type == "focused":
-                gate_source.direction.type = "focused"
-                gate_source.direction.focus_point = [
-                    s * factor_position for s in direction.focus_point
-                ]
-            existing.direction = json.loads(direction.model_dump_json())
-
-        # energy
-        if source_update.energy is not None:
-            energy = source_update.energy
-            factor_energy = UNIT_MAP[energy.unit]
-            if energy.type == "mono":
-                gate_source.energy.type = "mono"
-                gate_source.energy.mono = energy.mono * factor_energy
-            existing.energy = json.loads(energy.model_dump_json())
-
-        # activity
-        if source_update.activity is not None:
-            activity_factor = UNIT_MAP.get(
-                source_update.activity_unit or existing.activity_unit,
-                1
-            )
-            gate_source.activity = source_update.activity * activity_factor
-            existing.activity = source_update.activity
-
-            if source_update.activity_unit is not None:
-                existing.activity_unit = source_update.activity_unit
-
-        # n
-        if source_update.n is not None:
-            gate_source.n = source_update.n
-            existing.n = source_update.n
-
-        # 4. Save Gate config
-        gate_sim.to_json_file()
-
-        # 5. Save changes to DB
-        await self.source_repository.update(existing)  # or whatever your repo method is
-
-        # 6. Return updated version
-        return GenericSourceRead.model_validate(existing)
+        # Step 4: Return the updated object
+        return GenericSourceRead.model_validate(updated)
 
     async def delete_source(self, simulation_id: int, name: str) -> dict:
         """
         Delete the source from Gate and DB, returning a confirmation message.
         """
         gate_sim = await get_gate_simulation_without_sources(
-            simulation_id, self.simulation_service.repository
+            simulation_id, self.simulation_service.sim_repo
         )
 
         # 1. Delete from Gate

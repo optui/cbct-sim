@@ -1,6 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
 
+
 class SimulationBase(BaseModel):
     name: str
     num_runs: int = 1
@@ -10,8 +11,12 @@ class SimulationBase(BaseModel):
 class SimulationCreate(SimulationBase):
     pass
 
+
 class SimulationUpdate(SimulationBase):
-    pass
+    name: str | None = None
+    num_runs: int | None = None
+    run_len: float | None = None
+
 
 class SimulationRead(SimulationBase):
     model_config = ConfigDict(from_attributes=True)

@@ -60,8 +60,20 @@ class VolumeCreate(BaseModel):
         return v
 
 
-class VolumeUpdate(VolumeCreate):
-    pass
+class VolumeUpdate(BaseModel):
+    name: str | None = None
+    mother: str | None = None
+    material: str | None = None
+    translation: List[float] | None = Field(default=None, min_items=3, max_items=3)
+    rotation: Rotation | None = None
+    color: List[float] | None = Field(default=None, min_items=4, max_items=4)
+    shape: VolumeShape | None = None
+
+    @field_validator("color")
+    def validate_color(cls, v):
+        if v is not None and any(not 0.0 <= c <= 1.0 for c in v):
+            raise ValueError("All color components must be in range [0.0, 1.0]")
+        return v
 
 
 class VolumeRead(BaseModel):

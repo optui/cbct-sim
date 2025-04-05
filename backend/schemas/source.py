@@ -64,7 +64,8 @@ class GenericSourceCreate(GenericSourceBase):
     pass
 
 # Update schema (all fields optional for PATCH-like updates)
-class GenericSourceUpdate(BaseModel):    
+class GenericSourceUpdate(BaseModel):
+    name: str | None = None
     attached_to: Optional[str] = None
     particle: Optional[ParticleType] = None
     

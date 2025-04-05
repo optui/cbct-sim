@@ -3,6 +3,8 @@ from backend.api.dependencies import ActorServiceDep
 from backend.schemas.actor import ActorCreate, ActorRead, ActorUpdate
 from typing import List
 
+from backend.schemas.api import MessageResponse
+
 router = APIRouter(tags=["Actors"])
 
 
@@ -20,7 +22,7 @@ async def read_actor(service: ActorServiceDep, simulation_id: int, actor_name: s
     return await service.read_actor(simulation_id, actor_name)
 
 
-@router.put("/{simulation_id}/actors/{actor_name}", response_model=ActorRead)
+@router.put("/{simulation_id}/actors/{actor_name}", response_model=MessageResponse)
 async def update_actor(
     service: ActorServiceDep, simulation_id: int, actor_name: str, actor_update: ActorUpdate
 ):

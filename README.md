@@ -14,7 +14,7 @@ A full-stack application for computed tomography (CT) research. It uses [FastAPI
 
 ## Features
 
-ProjeCT provides a solution for managing computed tomography (CT) simulations using GATE 10. It offers an API that facilitates simulation configuration, visualization and execution and a frontend for communicating with the API.
+ProjeCT provides a solution for managing computed tomography (CT) simulations using GATE 10. It offers an API that facilitates simulation configuration, visualization, and execution, along with a frontend for interacting with the API.
 
 ### Simulation Management
 
@@ -57,7 +57,7 @@ ProjeCT provides a solution for managing computed tomography (CT) simulations us
 
     ```bash
     git clone https://github.com/optui/ProjeCT.git
-    cd project
+    cd ProjeCT
     ```
 
 ### Using [uv](https://github.com/astral-sh/uv)
@@ -66,7 +66,7 @@ ProjeCT provides a solution for managing computed tomography (CT) simulations us
 
     ```bash
     uv venv
-    source .venv/bin/activate # Windows: .venv\Scripts\activate
+    source .venv/bin/activate  # Windows: .venv\Scripts\activate
     ```
 
 2. Install Dependencies
@@ -81,7 +81,7 @@ ProjeCT provides a solution for managing computed tomography (CT) simulations us
 
     ```bash
     python3 -m venv .venv
-    source .venv/bin/activate # Windows: .venv\Scripts\activate
+    source .venv/bin/activate  # Windows: .venv\Scripts\activate
     ```
 
 2. Install Dependencies
@@ -100,15 +100,22 @@ ProjeCT provides a solution for managing computed tomography (CT) simulations us
 
 2. Run the script
 
-     **Warning:** When running GATE 10 for the first time it'll install its Geant4 dependencies totalling **~11GB**.
+    > **Warning:** On first run, GATE 10 will download and install Geant4 (~11GB).
 
     ```bash
     scripts/run.sh
     ```
 
-3. Interactive API docs
+3. Open the interactive API docs
 
-   Go to either [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) or [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc).
+    - [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+    - [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+
+## Testing
+
+Tests are written using `pytest` with coverage support.
+
+### Run tests with coverage
 
 ## API Reference
 
@@ -162,7 +169,9 @@ API prefix: `/api/`
 
 ```json
 {
-  "name": "CT_Simulation_01"
+  "name": "CT_Simulation_01",
+  "num_runs": 180,
+  "run_len": 1
 }
 ```
 
@@ -170,11 +179,13 @@ API prefix: `/api/`
 
 ```json
 {
-  "id": 1,
   "name": "CT_Simulation_01",
-  "created_at": "2023-03-22T12:00:00Z",
-  "output_dir": "./output/CT_Simulation_01",
-  "json_archive_filename": "CT_Simulation_01.json"
+  "num_runs": 1,
+  "run_len": 1,
+  "id": 1,
+  "created_at": "2025-04-04T10:59:39",
+  "output_dir": "./output/CT_Simulation_001",
+  "json_archive_filename": "CT_Simulation_001.json"
 }
 ```
 
@@ -261,7 +272,7 @@ API prefix: `/api/`
     "unit": "keV"
   },
   "activity": 37.0,
-  "activity_unit": "MBq"
+  "activity_unit": "Bq"
 }
 ```
 

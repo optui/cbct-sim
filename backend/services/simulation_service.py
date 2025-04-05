@@ -1,104 +1,59 @@
 import os
 import shutil
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 from backend.repositories.simulation_repository import SimulationRepository
 from backend.repositories.source_repository import SourceRepository
 from backend.schemas.simulation import SimulationCreate, SimulationRead, SimulationUpdate
-from backend.utils.utils import get_gate_simulation, compute_run_timing_intervals
-import opengate as gate
+from backend.utils.utils import UNIT_MAP, get_gate_simulation, handle_directory_rename, to_json_file
 
 
 class SimulationService:
-    def __init__(self, repository: SimulationRepository):
-        self.repository = repository
+    def __init__(self, simulation_repository: SimulationRepository):
+        self.sim_repo = simulation_repository
 
-    async def read_simulations(self) -> list:
-        return await self.repository.read_simulations()
+    async def create_simulation(self, sim_create: SimulationCreate) -> SimulationRead:
+        sim: SimulationRead = await self.sim_repo.create(sim_create)
+        to_json_file(sim)
+        return sim
 
-    async def create_simulation(self, simulation: SimulationCreate) -> SimulationRead:
-        session_simulation = await self.repository.create(simulation.name,
-                                                          simulation.num_runs,
-                                                          simulation.run_len)
-
-        run_timing_intervals = compute_run_timing_intervals(simulation.num_runs,
-                                                            simulation.run_len)
-
-        gate_simulation = gate.Simulation(
-            name=simulation.name,
-            output_dir=session_simulation.output_dir,
-            json_archive_filename=session_simulation.json_archive_filename,
-            run_timing_intervals=run_timing_intervals
-        )
-        
-        gate_simulation.to_json_file()
-        
-        return session_simulation
+    async def read_simulations(self) -> list[SimulationRead]:
+        return await self.sim_repo.read_all()
 
     async def read_simulation(self, id: int) -> SimulationRead:
-        simulation = await self.repository.read_simulation(id)
-        if not simulation:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Simulation with id {id} not found",
-            )
-        return simulation
+        sim: SimulationRead | None = await self.sim_repo.read(id)
+        if not sim:
+            raise HTTPException(status_code=404, detail=f"Simulation with id {id} not found")
+        return sim
 
-    async def update_simulation(self, id: int, simulation: SimulationUpdate) -> SimulationRead:
-        current = await self.read_simulation(id)
-
-        old_dir = current.output_dir
-        new_dir = f"./output/{simulation.name}"
-
-        if old_dir != new_dir and os.path.exists(old_dir):
-            os.rename(old_dir, new_dir)
-            old_json_path = os.path.join(new_dir, current.json_archive_filename)
-            if os.path.exists(old_json_path):
-                os.remove(old_json_path)
-
-        updated = await self.repository.update(id, simulation.name)
-
-        gate_sim = gate.Simulation(
-            name=simulation.name,
-            output_dir=updated.output_dir,
-            json_archive_filename=updated.json_archive_filename,
-        )
-        gate_sim.to_json_file()
-
-        return updated
+    async def update_simulation(self, id: int, sim_update: SimulationUpdate) -> SimulationRead:
+        existing_sim: SimulationRead = await self.read_simulation(id)
+        handle_directory_rename(existing_sim, sim_update.name)
+        updated_sim = await self.sim_repo.update(id, sim_update)
+        to_json_file(updated_sim)
+        return updated_sim
 
     async def delete_simulation(self, id: int) -> dict:
-        simulation = await self.repository.delete(id)
-        if not simulation:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Simulation with id {id} not found",
-            )
-
-        if os.path.exists(simulation.output_dir):
-            shutil.rmtree(simulation.output_dir)
-
+        sim: SimulationRead | None = await self.sim_repo.delete(id)
+        if not sim:
+            raise HTTPException(status_code=404, detail=f"Simulation with id {id} not found")
+        if os.path.exists(sim.output_dir):
+            shutil.rmtree(sim.output_dir)
         return {"detail": "Simulation deleted successfully"}
 
     async def import_simulation(self, id: int) -> dict:
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="Import functionality not implemented yet",
-        )
+        raise HTTPException(status_code=501, detail="Import functionality not implemented yet")
 
     async def export_simulation(self, id: int) -> dict:
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="Export functionality not implemented yet",
-        )
+        raise HTTPException(status_code=501, detail="Export functionality not implemented yet")
 
     async def view_simulation(self, id: int, source_repository: SourceRepository) -> dict:
-        gate_simulation = await get_gate_simulation(id, self.repository, source_repository)
-        gate_simulation.visu = True
-        gate_simulation.run(start_new_process=True)
+        gate_sim = await get_gate_simulation(id, self.sim_repo, source_repository)
+        gate_sim.visu = True
+        gate_sim.run(start_new_process=True)
         return {"detail": "Simulation visualization started"}
 
     async def run_simulation(self, id: int, source_repository: SourceRepository) -> dict:
-        gate_simulation = await get_gate_simulation(id, self.repository, source_repository)
-        gate_simulation.visu = False
-        gate_simulation.run(start_new_process=True)
+        gate_sim = await get_gate_simulation(id, self.sim_repo, source_repository)
+        gate_sim.visu = False
+        gate_sim.run(start_new_process=True)
         return {"detail": "Simulation started"}

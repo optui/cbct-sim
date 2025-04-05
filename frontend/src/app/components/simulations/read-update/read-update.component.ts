@@ -33,6 +33,36 @@ import { FormsModule } from '@angular/forms';
         </div>
         
         <div class="detail-row">
+          <span class="label">Number of Runs:</span>
+          <input 
+            *ngIf="isEditMode()"
+            type="number" 
+            [(ngModel)]="editableSimulation().num_runs" 
+            name="num_runs" 
+            class="name-input"
+            min="1" 
+            required 
+          />
+          <span *ngIf="!isEditMode()" class="value">{{ simulation()!.num_runs }}</span>
+        </div>
+        
+        <div class="detail-row">
+          <span class="label">Run Length (seconds):</span>
+          <input 
+            *ngIf="isEditMode()"
+            type="number" 
+            [(ngModel)]="editableSimulation().run_len" 
+            name="run_len" 
+            class="name-input"
+            step="1.0" 
+            required 
+          />
+          <span *ngIf="!isEditMode()" class="value">
+            {{ simulation()?.run_len !== undefined ? simulation()?.run_len : 'N/A' }}
+          </span>
+        </div>
+        
+        <div class="detail-row">
           <span class="label">Created At:</span>
           <span class="value">{{ simulation()!.created_at | date:'medium' }}</span>
         </div>
@@ -75,7 +105,6 @@ import { FormsModule } from '@angular/forms';
       width: 80vw;
       padding: 5%;
     }
-
     h2 {
       margin-bottom: 24px;
       font-weight: 300;
@@ -84,28 +113,23 @@ import { FormsModule } from '@angular/forms';
       border-bottom: 1px solid rgb(50, 50, 50);
       padding-bottom: 12px;
     }
-
     .simulation-details {
       margin-bottom: 24px;
     }
-
     .detail-row {
       display: flex;
       margin: 16px 0;
       align-items: center;
     }
-
     .label {
       flex: 0 0 150px;
       color: rgb(150, 150, 150);
       font-size: 14px;
     }
-
     .value {
       color: rgb(230, 230, 230);
       font-size: 16px;
     }
-
     .name-input {
       background-color: rgb(40, 40, 40);
       border: 1px solid rgb(60, 60, 60);
@@ -115,27 +139,23 @@ import { FormsModule } from '@angular/forms';
       font-size: 16px;
       transition: all 0.2s ease;
     }
-
     .name-input:focus {
       outline: none;
       border-color: rgb(0, 122, 204);
       box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2);
     }
-
     .name-input.readonly {
       background-color: transparent;
       border-color: transparent;
       padding-left: 0;
       cursor: default;
     }
-
     .actions {
       display: flex;
       justify-content: flex-start;
       gap: 12px;
       margin-top: 24px;
     }
-
     .btn {
       background-color: rgb(40, 40, 40);
       color: rgb(230, 230, 230);
@@ -146,31 +166,24 @@ import { FormsModule } from '@angular/forms';
       cursor: pointer;
       transition: background-color 0.2s ease;
     }
-
     .btn:hover {
       background-color: rgb(60, 60, 60);
     }
-
     .btn.edit {
       background-color: rgb(40, 40, 40);
     }
-
     .btn.save {
       background-color: rgb(0, 122, 204);
     }
-
     .btn.save:hover {
       background-color: rgb(0, 102, 184);
     }
-
     .btn.cancel {
       background-color: rgb(60, 60, 60);
     }
-
     .btn.cancel:hover {
       background-color: rgb(80, 80, 80);
     }
-
     .loading {
       color: rgb(150, 150, 150);
       font-size: 16px;
@@ -185,8 +198,7 @@ export class ReadUpdateComponent implements OnInit {
   private simulationService = inject(SimulationService);
 
   simulation = signal<Simulation | null>(null);
-  editableSimulation = signal<SimulationUpdate>({ name: '' });
-
+  editableSimulation = signal<SimulationUpdate>({ name: '', num_runs: 1, run_len: 0.01 });
   isEditMode = signal(false);
 
   ngOnInit(): void {
@@ -196,7 +208,11 @@ export class ReadUpdateComponent implements OnInit {
         this.simulationService.getSimulation(simulationId).subscribe({
           next: sim => {
             this.simulation.set(sim);
-            this.editableSimulation.set({ name: sim.name });
+            this.editableSimulation.set({
+              name: sim.name,
+              num_runs: sim.num_runs,
+              run_len: sim.run_len
+            });
           },
           error: err => {
             console.error('Error loading simulation:', err);
@@ -209,10 +225,13 @@ export class ReadUpdateComponent implements OnInit {
 
   toggleEditMode(): void {
     this.isEditMode.update(mode => !mode);
-
-    // Reset editable fields when cancelling edit
     if (!this.isEditMode() && this.simulation()) {
-      this.editableSimulation.set({ name: this.simulation()!.name });
+      const sim = this.simulation()!;
+      this.editableSimulation.set({
+        name: sim.name,
+        num_runs: sim.num_runs,
+        run_len: sim.run_len
+      });
     }
   }
 

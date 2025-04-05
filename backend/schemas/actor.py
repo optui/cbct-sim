@@ -47,7 +47,37 @@ ActorCreate = ActorConfig
 
 ActorRead = ActorConfig
 
+class SimulationStatisticsActorUpdateConfig(BaseModel):
+    type: Literal["SimulationStatisticsActor"]
+    output_filename: Optional[str] = None
+
+
+class DigitizerHitsCollectionActorUpdateConfig(BaseModel):
+    type: Literal["DigitizerHitsCollectionActor"]
+    attached_to: Optional[str] = None
+    attributes: Optional[List[str]] = None
+    output_filename: Optional[str] = None
+
+
+class DigitizerProjectionActorUpdateConfig(BaseModel):
+    type: Literal["DigitizerProjectionActor"]
+    attached_to: Optional[str] = None
+    input_digi_collections: Optional[List[str]] = None
+    spacing: Optional[List[float]] = None
+    size: Optional[List[int]] = None
+    origin_as_image_center: Optional[bool] = None
+    output_filename: Optional[str] = None
+
+
+ActorUpdateConfig = Annotated[
+    Union[
+        SimulationStatisticsActorUpdateConfig,
+        DigitizerHitsCollectionActorUpdateConfig,
+        DigitizerProjectionActorUpdateConfig,
+    ],
+    Field(discriminator="type")
+]
 
 class ActorUpdate(BaseModel):
     name: Optional[str] = None
-    config: Optional[ActorConfig] = None
+    config: Optional[ActorUpdateConfig] = None

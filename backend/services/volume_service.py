@@ -28,7 +28,7 @@ class VolumeService:
 
     async def read_volumes(self, simulation_id: int) -> list[str]:
         gate_sim = await get_gate_simulation_without_sources(
-            simulation_id, self.simulation_service.repository
+            simulation_id, self.simulation_service.sim_repo
         )
         return gate_sim.volume_manager.volume_names
 
@@ -38,7 +38,7 @@ class VolumeService:
         representing the newly-created volume.
         """
         gate_sim = await get_gate_simulation_without_sources(
-            simulation_id, self.simulation_service.repository
+            simulation_id, self.simulation_service.sim_repo
         )
 
         # Attempt to add the volume in Gate
@@ -81,7 +81,7 @@ class VolumeService:
 
     async def read_volume(self, simulation_id: int, volume_name: str) -> VolumeRead:
         gate_sim = await get_gate_simulation_without_sources(
-            simulation_id, self.simulation_service.repository
+            simulation_id, self.simulation_service.sim_repo
         )
         gate_volume = gate_sim.volume_manager.volumes.get(volume_name)
 
@@ -128,6 +128,7 @@ class VolumeService:
             shape=shape,
         )
 
+
     async def update_volume(
         self,
         simulation_id: int,
@@ -135,7 +136,7 @@ class VolumeService:
         volume: VolumeUpdate
     ) -> VolumeRead:
         gate_sim = await get_gate_simulation_without_sources(
-            simulation_id, self.simulation_service.repository
+            simulation_id, self.simulation_service.sim_repo
         )
 
         if volume_name not in gate_sim.volume_manager.volumes:
@@ -146,31 +147,58 @@ class VolumeService:
 
         existing = gate_sim.volume_manager.volumes[volume_name]
 
-        # Update basic props
-        existing.mother = volume.mother
-        existing.material = volume.material
-        existing.translation = volume.translation
-        self._apply_rotation(volume.rotation, existing)
+        # Update basic properties
+        if volume.mother is not None:
+            existing.mother = volume.mother
 
-        # Update shape
-        if isinstance(volume.shape, BoxShape):
-            factor = UNIT_MAP[volume.shape.unit]
-            existing.size = [s * factor for s in volume.shape.size]
+        if volume.material is not None:
+            existing.material = volume.material
 
-        elif isinstance(volume.shape, SphereShape):
-            factor = UNIT_MAP[volume.shape.unit]
-            existing.rmin = volume.shape.rmin * factor
-            existing.rmax = volume.shape.rmax * factor
+        if volume.translation is not None:
+            existing.translation = volume.translation
 
-        else:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Unsupported volume type: {volume.shape.type}"
-            )
+        if volume.rotation is not None:
+            self._apply_rotation(volume.rotation, existing)
 
+        # Update shape if needed
+        if volume.shape is not None:
+            if isinstance(volume.shape, BoxShape):
+                factor = UNIT_MAP[volume.shape.unit]
+                existing.size = [s * factor for s in volume.shape.size]
+                existing.rmin = None
+                existing.rmax = None
+            elif isinstance(volume.shape, SphereShape):
+                factor = UNIT_MAP[volume.shape.unit]
+                existing.rmin = volume.shape.rmin * factor
+                existing.rmax = volume.shape.rmax * factor
+                existing.size = None
+            else:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Unsupported volume shape type: {getattr(volume.shape, 'type', 'unknown')}"
+                )
+
+        # First save the updated volume with the current name
         gate_sim.to_json_file()
-        # Return the updated volume representation
+
+        # THEN handle renaming (after save)
+        if volume.name is not None and volume.name != volume_name:
+            if volume.name in gate_sim.volume_manager.volumes:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Volume '{volume.name}' already exists."
+                )
+
+            # Update internal name and rekey in volumes dict
+            existing.name = volume.name
+            gate_sim.volume_manager.volumes[volume.name] = gate_sim.volume_manager.volumes.pop(volume_name)
+            volume_name = volume.name  # Update reference for read_volume
+
+            # Save again under new name (optional but safe)
+            gate_sim.to_json_file()
+
         return await self.read_volume(simulation_id, volume_name)
+
 
     async def delete_volume(
         self,
@@ -178,7 +206,7 @@ class VolumeService:
         volume_name: str
     ) -> dict:
         gate_sim = await get_gate_simulation_without_sources(
-            simulation_id, self.simulation_service.repository
+            simulation_id, self.simulation_service.sim_repo
         )
         if volume_name not in gate_sim.volume_manager.volumes:
             raise HTTPException(status_code=404, detail="Volume not found")
@@ -186,4 +214,4 @@ class VolumeService:
         gate_sim.volume_manager.remove_volume(volume_name)
         gate_sim.to_json_file()
 
-        return {"message": f"Volume '{volume_name}' deleted successfully"}
+        return {"detail": f"Volume '{volume_name}' deleted successfully"}

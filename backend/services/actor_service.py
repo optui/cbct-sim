@@ -5,9 +5,12 @@ from backend.schemas.actor import (
     ActorCreate,
     ActorRead,
     ActorUpdate,
+    DigitizerHitsCollectionActorUpdateConfig,
+    DigitizerProjectionActorUpdateConfig,
     SimulationStatisticsActorConfig,
     DigitizerHitsCollectionActorConfig,
     DigitizerProjectionActorConfig,
+    SimulationStatisticsActorUpdateConfig,
 )
 import opengate as gate
 
@@ -18,13 +21,13 @@ class ActorService:
 
     async def get_actors(self, simulation_id: int):
         gate_sim = await get_gate_simulation_without_sources(
-            simulation_id, self.simulation_service.repository
+            simulation_id, self.simulation_service.sim_repo
         )
         return list(gate_sim.actor_manager.actors.keys())
 
     async def create_actor(self, simulation_id: int, actor: ActorCreate):
         gate_sim = await get_gate_simulation_without_sources(
-            simulation_id, self.simulation_service.repository
+            simulation_id, self.simulation_service.sim_repo
         )
 
         actor_instance = gate_sim.add_actor(actor.type, actor.name)
@@ -49,11 +52,11 @@ class ActorService:
             raise HTTPException(status_code=400, detail="Unsupported actor type")
 
         gate_sim.to_json_file()
-        return {"message": f"Actor '{actor.name}' of type '{actor.type}' created."}
+        return {"detail": f"Actor '{actor.name}' of type '{actor.type}' created."}
 
     async def read_actor(self, simulation_id: int, actor_name: str):
         gate_sim = await get_gate_simulation_without_sources(
-            simulation_id, self.simulation_service.repository
+            simulation_id, self.simulation_service.sim_repo
         )
         
         if actor_name not in gate_sim.actor_manager.actors:
@@ -89,9 +92,16 @@ class ActorService:
         else:
             raise HTTPException(status_code=400, detail="Unsupported actor type")
 
-    async def update_actor(self, simulation_id: int, actor_name: str, actor_update: ActorUpdate):
+
+    async def update_actor(
+        self,
+        simulation_id: int,
+        actor_name: str,
+        actor_update: ActorUpdate
+    ):
+        print("Received update config:", actor_update.config)
         gate_sim = await get_gate_simulation_without_sources(
-            simulation_id, self.simulation_service.repository
+            simulation_id, self.simulation_service.sim_repo
         )
 
         if actor_name not in gate_sim.actor_manager.actors:
@@ -102,28 +112,57 @@ class ActorService:
 
         actor_instance = gate_sim.actor_manager.actors[actor_name]
 
-        if actor_update.name:
-            actor_instance.name = actor_update.name
-
+        # Update actor config fields if present
         if actor_update.config:
-            if isinstance(actor_update.config, SimulationStatisticsActorConfig):
-                actor_instance.output_filename = actor_update.config.output_filename
-            elif isinstance(actor_update.config, DigitizerHitsCollectionActorConfig):
-                actor_instance.attached_to = actor_update.config.attached_to
-                actor_instance.attributes = actor_update.config.attributes
-                actor_instance.output_filename = actor_update.config.output_filename
-            elif isinstance(actor_update.config, DigitizerProjectionActorConfig):
-                actor_instance.attached_to = actor_update.config.attached_to
-                actor_instance.input_digi_collections = actor_update.config.input_digi_collections
-                actor_instance.spacing = actor_update.config.spacing
-                actor_instance.size = actor_update.config.size
-                actor_instance.origin_as_image_center = actor_update.config.origin_as_image_center
-                actor_instance.output_filename = actor_update.config.output_filename
+            if isinstance(actor_update.config, SimulationStatisticsActorUpdateConfig):
+                if actor_update.config.output_filename is not None:
+                    actor_instance.output_filename = actor_update.config.output_filename
+
+            elif isinstance(actor_update.config, DigitizerHitsCollectionActorUpdateConfig):
+                if actor_update.config.attached_to is not None:
+                    actor_instance.attached_to = actor_update.config.attached_to
+                if actor_update.config.attributes is not None:
+                    actor_instance.attributes = actor_update.config.attributes
+                if actor_update.config.output_filename is not None:
+                    actor_instance.output_filename = actor_update.config.output_filename
+
+            elif isinstance(actor_update.config, DigitizerProjectionActorUpdateConfig):
+                if actor_update.config.attached_to is not None:
+                    actor_instance.attached_to = actor_update.config.attached_to
+                if actor_update.config.input_digi_collections is not None:
+                    actor_instance.input_digi_collections = actor_update.config.input_digi_collections
+                if actor_update.config.spacing is not None:
+                    actor_instance.spacing = actor_update.config.spacing
+                if actor_update.config.size is not None:
+                    actor_instance.size = actor_update.config.size
+                if actor_update.config.origin_as_image_center is not None:
+                    actor_instance.origin_as_image_center = actor_update.config.origin_as_image_center
+                if actor_update.config.output_filename is not None:
+                    actor_instance.output_filename = actor_update.config.output_filename
+
             else:
                 raise HTTPException(status_code=400, detail="Unsupported actor type for update")
 
+        # Save the updated actor before rename
         gate_sim.to_json_file()
-        return {"message": f"Actor '{actor_name}' updated successfully."}
+
+        # Then handle renaming (after save)
+        if actor_update.name and actor_update.name != actor_name:
+            if actor_update.name in gate_sim.actor_manager.actors:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Actor '{actor_update.name}' already exists."
+                )
+
+            # Update internal name first
+            actor_instance.name = actor_update.name
+            gate_sim.actor_manager.actors[actor_update.name] = gate_sim.actor_manager.actors.pop(actor_name)
+            actor_name = actor_update.name
+
+            gate_sim.to_json_file()  # Save again after rename
+
+        return {"detail": f"Actor '{actor_name}' updated successfully."}
+
 
     def delete_actor(self, actor_name):
         """
@@ -132,7 +171,7 @@ class ActorService:
         try:
             self.remove_actor(actor_name)
             self.simulation.to_json_file()
-            return {"message": f"Actor '{actor_name}' has been deleted successfully."}
+            return {"detail": f"Actor '{actor_name}' has been deleted successfully."}
         except KeyError:
             raise HTTPException(
                 status_code=404,

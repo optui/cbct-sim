@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from fastapi import HTTPException, status
 import opengate as gate
@@ -17,6 +18,26 @@ UNIT_MAP = {
     "sec": gate.g4_units.second
 }
 
+def handle_directory_rename(current, new_name: str) -> None:
+    old_dir = current.output_dir
+    new_dir = f"./output/{new_name}"
+
+    if old_dir != new_dir and os.path.exists(old_dir):
+        os.rename(old_dir, new_dir)
+        old_json_path = os.path.join(new_dir, current.json_archive_filename)
+        if os.path.exists(old_json_path):
+            os.remove(old_json_path)
+
+def to_json_file(sim) -> None:
+    run_intervals = compute_run_timing_intervals(sim.num_runs, sim.run_len)
+    gate_sim = gate.Simulation(
+        name=sim.name,
+        output_dir=sim.output_dir,
+        json_archive_filename=sim.json_archive_filename,
+        run_timing_intervals=run_intervals,
+    )
+    gate_sim.to_json_file()
+
 def compute_run_timing_intervals(num_runs: int, run_len: float) -> list[list[float]]:
     """
     Compute a list of run timing intervals for GATE simulations.
@@ -28,14 +49,13 @@ def compute_run_timing_intervals(num_runs: int, run_len: float) -> list[list[flo
     Returns:
         List[List[float]]: A list of [start, end] time intervals in GATE time units.
     """
-    sec = gate.g4_units.second
-    return [[i * run_len * sec, (i + 1) * run_len * sec] for i in range(num_runs)]
+    return [[i * run_len * UNIT_MAP["sec"], (i + 1) * run_len * UNIT_MAP["sec"]] for i in range(num_runs)]
 
 async def get_gate_simulation_without_sources(
     id: int, 
     simulation_repository: SimulationRepository,
 ) -> gate.Simulation:
-    simulation = await simulation_repository.read_simulation(id)
+    simulation = await simulation_repository.read(id)
     if not simulation:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -58,7 +78,7 @@ async def get_gate_simulation(
     simulation_repository: SimulationRepository,
     source_repository: SourceRepository
 ) -> gate.Simulation:
-    simulation = await simulation_repository.read_simulation(id)
+    simulation = await simulation_repository.read(id)
     if not simulation:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
