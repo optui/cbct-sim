@@ -30,7 +30,13 @@ Full-stack application for computed tomography (CT) research. It uses [FastAPI](
     source .venv/bin/activate  # Windows: .venv\Scripts\activate
     ```
 
-2. Install Dependencies
+2. Change to the backend directory
+
+    ```bash
+    cd backend
+    ```
+
+3. Install Dependencies
 
     ```bash
     uv sync
