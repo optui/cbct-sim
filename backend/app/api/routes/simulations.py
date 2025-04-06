@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status
-from backend.api.dependencies import SimulationServiceDep, SourceRepositoryDep
-from backend.schemas.api import MessageResponse
-from backend.schemas.simulation import (
+from app.api.dependencies import SimulationServiceDep, SourceRepositoryDep
+from app.schemas.api import MessageResponse
+from app.schemas.simulation import (
     SimulationCreate,
     SimulationUpdate,
     SimulationRead,
@@ -9,14 +9,6 @@ from backend.schemas.simulation import (
 from typing import List
 
 router = APIRouter(prefix="/simulations", tags=["Simulations"])
-
-
-@router.get(
-    "/",
-    response_model=List[SimulationRead]
-)
-async def read_simulations(service: SimulationServiceDep):
-    return await service.read_simulations()
 
 
 @router.post(
@@ -29,6 +21,14 @@ async def create_simulation(
     service: SimulationServiceDep, simulation: SimulationCreate
 ):
     return await service.create_simulation(simulation)
+
+
+@router.get(
+    "/",
+    response_model=List[SimulationRead]
+)
+async def read_simulations(service: SimulationServiceDep):
+    return await service.read_simulations()
 
 
 @router.get(

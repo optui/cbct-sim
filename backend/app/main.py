@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from backend.api import api_router
+from app.api import api_router
 from contextlib import asynccontextmanager
-from backend.core.database import engine
-from backend.models import Base
-from backend.core.exceptions import handle_exception, handle_http_exception
+from app.core.database import engine
+from app.models import Base
+from app.core.exceptions import handle_exception, handle_http_exception
 from fastapi.middleware.cors import CORSMiddleware
 
 

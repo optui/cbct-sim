@@ -2,7 +2,7 @@ from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
-from backend.models import Source
+from app.models import Source
 
 class SourceRepository:
     def __init__(self, session: AsyncSession):

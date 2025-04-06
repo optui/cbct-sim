@@ -2,9 +2,13 @@ import os
 from pathlib import Path
 from fastapi import HTTPException, status
 import opengate as gate
-from backend.models import Source
-from backend.repositories.simulation_repository import SimulationRepository
-from backend.repositories.source_repository import SourceRepository
+from app.models import Source
+from app.repositories.simulation_repository import SimulationRepository
+from app.repositories.source_repository import SourceRepository
+from app.schemas.volume import BoxShape, Rotation, SphereShape, VolumeShape, VolumeType
+from opengate.geometry.volumes import VolumeBase
+from scipy.spatial.transform import Rotation as R
+
 
 UNIT_MAP = {
     "nm": gate.g4_units.nm,
@@ -51,29 +55,51 @@ def compute_run_timing_intervals(num_runs: int, run_len: float) -> list[list[flo
     """
     return [[i * run_len * UNIT_MAP["sec"], (i + 1) * run_len * UNIT_MAP["sec"]] for i in range(num_runs)]
 
-async def get_gate_simulation_without_sources(
-    id: int, 
-    simulation_repository: SimulationRepository,
-) -> gate.Simulation:
-    simulation = await simulation_repository.read(id)
-    if not simulation:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Simulation with id {id} not found",
+def extract_volume_shape(gate_volume) -> VolumeShape:
+    factor = UNIT_MAP["cm"]
+    gate_class = gate_volume.__class__.__name__
+
+    if "Box" in gate_class:
+        return BoxShape(
+            type=VolumeType.BOX,
+            size=[s / factor for s in getattr(gate_volume, "size", [0.0, 0.0, 0.0])],
+            unit="cm",
         )
-
-    path = Path(simulation.output_dir) / simulation.json_archive_filename
-    if not path.exists():
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Simulation configuration file not found",
+    elif "Sphere" in gate_class:
+        return SphereShape(
+            type=VolumeType.SPHERE,
+            rmin=getattr(gate_volume, "rmin", 0.0) / factor,
+            rmax=getattr(gate_volume, "rmax", 0.0) / factor,
+            unit="cm",
         )
+    else:
+        raise HTTPException(status_code=500, detail=f"Unknown volume type: {gate_class}")
 
-    sim = gate.Simulation()
-    sim.from_json_file(str(path))
-    return sim
+def extract_rotation(gate_volume) -> Rotation:
+    rotation_matrix = getattr(gate_volume, "rotation", None)
+    if rotation_matrix is None:
+        return Rotation(axis="x", angle=0.0)
 
-async def get_gate_simulation(
+    r = R.from_matrix(rotation_matrix)
+    axis_angle = r.as_rotvec()
+    axis_map = {0: "x", 1: "y", 2: "z"}
+    axis_index = max(range(3), key=lambda i: abs(axis_angle[i]))
+    axis = axis_map[axis_index]
+    angle = axis_angle[axis_index] * 180 / 3.1415926  # radians to degrees
+    return Rotation(axis=axis, angle=angle)
+
+def assign_volume_shape(vol: VolumeBase, shape: VolumeShape):
+    factor = UNIT_MAP[shape.unit]
+    if isinstance(shape, BoxShape):
+        vol.size = [s * factor for s in shape.size]
+    elif isinstance(shape, SphereShape):
+        vol.rmin = shape.rmin * factor
+        vol.rmax = shape.rmax * factor
+    else:
+        raise HTTPException(status_code=400, detail=f"Unsupported volume shape: {shape}")
+
+
+async def get_gate_sim(
     id: int, 
     simulation_repository: SimulationRepository,
     source_repository: SourceRepository

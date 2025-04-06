@@ -2,15 +2,15 @@ from typing import Annotated
 from fastapi import Depends
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from backend.core.database import AsyncSessionLocal
+from app.core.database import AsyncSessionLocal
 
-from backend.repositories.simulation_repository import SimulationRepository
-from backend.repositories.source_repository import SourceRepository
+from app.repositories.simulation_repository import SimulationRepository
+from app.repositories.source_repository import SourceRepository
 
-from backend.services.simulation_service import SimulationService
-from backend.services.volume_service import VolumeService
-from backend.services.source_service import SourceService
-from backend.services.actor_service import ActorService
+from app.services.simulation_service import SimulationService
+from app.services.volume_service import VolumeService
+from app.services.source_service import SourceService
+from app.services.actor_service import ActorService
 
 
 async def get_session():

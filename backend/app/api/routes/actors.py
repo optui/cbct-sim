@@ -1,9 +1,9 @@
 from fastapi import APIRouter
-from backend.api.dependencies import ActorServiceDep
-from backend.schemas.actor import ActorCreate, ActorRead, ActorUpdate
+from app.api.dependencies import ActorServiceDep
+from app.schemas.actor import ActorCreate, ActorRead, ActorUpdate
 from typing import List
 
-from backend.schemas.api import MessageResponse
+from app.schemas.api import MessageResponse
 
 router = APIRouter(tags=["Actors"])
 

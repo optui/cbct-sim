@@ -1,23 +1,15 @@
 from fastapi import APIRouter, status
 from typing import List
 
-from backend.schemas.api import MessageResponse
-from backend.schemas.volume import (
+from app.schemas.api import MessageResponse
+from app.schemas.volume import (
     VolumeCreate,
     VolumeRead,
     VolumeUpdate,
 )
-from backend.api.dependencies import VolumeServiceDep
+from app.api.dependencies import VolumeServiceDep
 
 router = APIRouter(tags=["Volumes"], prefix='/simulations')
-
-
-@router.get(
-    "/{simulation_id}/volumes",
-    response_model=List[str]
-)
-async def read_volumes(service: VolumeServiceDep, simulation_id: int):
-    return await service.read_volumes(simulation_id)
 
 
 @router.post(
@@ -32,6 +24,14 @@ async def create_volume(
 
 
 @router.get(
+    "/{simulation_id}/volumes",
+    response_model=List[str]
+)
+async def read_volumes(service: VolumeServiceDep, simulation_id: int):
+    return await service.read_volumes(simulation_id)
+
+
+@router.get(
     "/{simulation_id}/volumes/{name}",
     response_model=VolumeRead,
     responses={404: {"model": MessageResponse}}
@@ -40,10 +40,7 @@ async def read_volume(service: VolumeServiceDep, simulation_id: int, name: str):
     return await service.read_volume(simulation_id, name)
 
 
-@router.put(
-    "/{simulation_id}/volumes/{name}",
-    response_model=VolumeRead
-)
+@router.put("/{simulation_id}/volumes/{name}", response_model=VolumeRead)
 async def update_volume(
     service: VolumeServiceDep, simulation_id: int, name: str, volume: VolumeUpdate
 ):

@@ -2,7 +2,7 @@ from sqlalchemy import AsyncAdaptedQueuePool
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from backend.core.config import get_settings
+from app.core.config import get_settings
 
 settings = get_settings()
 

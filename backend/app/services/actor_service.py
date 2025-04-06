@@ -1,7 +1,6 @@
 from fastapi import HTTPException, status
-from backend.utils.utils import get_gate_simulation_without_sources
-from backend.services.simulation_service import SimulationService
-from backend.schemas.actor import (
+from app.services.simulation_service import SimulationService
+from app.schemas.actor import (
     ActorCreate,
     ActorRead,
     ActorUpdate,
@@ -17,18 +16,14 @@ import opengate as gate
 
 class ActorService:
     def __init__(self, simulation_service: SimulationService):
-        self.simulation_service = simulation_service
+        self.sim_service = simulation_service
 
-    async def get_actors(self, simulation_id: int):
-        gate_sim = await get_gate_simulation_without_sources(
-            simulation_id, self.simulation_service.sim_repo
-        )
+    async def get_actors(self, sim_id: int):
+        gate_sim = await self.sim_service.read_simulation(sim_id)
         return list(gate_sim.actor_manager.actors.keys())
 
-    async def create_actor(self, simulation_id: int, actor: ActorCreate):
-        gate_sim = await get_gate_simulation_without_sources(
-            simulation_id, self.simulation_service.sim_repo
-        )
+    async def create_actor(self, sim_id: int, actor: ActorCreate):
+        gate_sim = await self.sim_service.read_simulation(sim_id)
 
         actor_instance = gate_sim.add_actor(actor.type, actor.name)
 
@@ -54,15 +49,13 @@ class ActorService:
         gate_sim.to_json_file()
         return {"detail": f"Actor '{actor.name}' of type '{actor.type}' created."}
 
-    async def read_actor(self, simulation_id: int, actor_name: str):
-        gate_sim = await get_gate_simulation_without_sources(
-            simulation_id, self.simulation_service.sim_repo
-        )
+    async def read_actor(self, sim_id: int, actor_name: str):
+        gate_sim = await self.sim_service.read_simulation(sim_id)
         
         if actor_name not in gate_sim.actor_manager.actors:
             raise HTTPException(
                 status_code=404,
-                detail=f"Actor '{actor_name}' not found in simulation '{simulation_id}'"
+                detail=f"Actor '{actor_name}' not found in simulation '{sim_id}'"
             )
 
         actor_instance = gate_sim.actor_manager.actors[actor_name]
@@ -95,19 +88,17 @@ class ActorService:
 
     async def update_actor(
         self,
-        simulation_id: int,
+        sim_id: int,
         actor_name: str,
         actor_update: ActorUpdate
     ):
         print("Received update config:", actor_update.config)
-        gate_sim = await get_gate_simulation_without_sources(
-            simulation_id, self.simulation_service.sim_repo
-        )
+        gate_sim = await self.sim_service.read_simulation(sim_id)
 
         if actor_name not in gate_sim.actor_manager.actors:
             raise HTTPException(
                 status_code=404,
-                detail=f"Actor '{actor_name}' not found in simulation '{simulation_id}'"
+                detail=f"Actor '{actor_name}' not found in simulation '{sim_id}'"
             )
 
         actor_instance = gate_sim.actor_manager.actors[actor_name]

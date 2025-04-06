@@ -2,8 +2,8 @@ from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
-from backend.models import Simulation
-from backend.schemas.simulation import SimulationCreate, SimulationUpdate
+from app.models import Simulation
+from app.schemas.simulation import SimulationCreate, SimulationUpdate
 
 
 class SimulationRepository:

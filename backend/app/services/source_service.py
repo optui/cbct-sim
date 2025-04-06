@@ -1,15 +1,15 @@
 import json
 import opengate as gate
 from fastapi import HTTPException, status
-from backend.models import Source
-from backend.services.simulation_service import SimulationService
-from backend.repositories.source_repository import SourceRepository
-from backend.schemas.source import (
+from app.models import Source
+from app.services.simulation_service import SimulationService
+from app.repositories.source_repository import SourceRepository
+from app.schemas.source import (
     GenericSourceCreate,
     GenericSourceRead,
     GenericSourceUpdate,
 )
-from backend.utils.utils import get_gate_simulation_without_sources, UNIT_MAP
+from app.utils.utils import UNIT_MAP
 
 class SourceService:
     def __init__(
@@ -17,16 +17,16 @@ class SourceService:
         simulation_service: SimulationService,
         source_repository: SourceRepository
     ):
-        self.simulation_service = simulation_service
+        self.sim_service = simulation_service
         self.source_repository = source_repository
 
-    async def read_sources(self, simulation_id: int) -> list[str]:
-        sources = await self.source_repository.read_sources(simulation_id)
+    async def read_sources(self, sim_id: int) -> list[str]:
+        sources = await self.source_repository.read_sources(sim_id)
         return [source.name for source in sources]
 
     async def create_source(
         self,
-        simulation_id: int,
+        sim_id: int,
         source_data: GenericSourceCreate
     ) -> GenericSourceRead:
         """
@@ -34,9 +34,7 @@ class SourceService:
         Return the newly created source details as GenericSourceRead.
         """
 
-        gate_sim = await get_gate_simulation_without_sources(
-            simulation_id, self.simulation_service.sim_repo
-        )
+        gate_sim = await self.sim_service.read_simulation(sim_id)
 
         # 1. Add the source to Gate's simulation
         new_source = gate_sim.add_source("GenericSource", source_data.name)
@@ -82,7 +80,7 @@ class SourceService:
 
         # 3. Store source info in DB
         db_source = Source(
-            simulation_id=simulation_id,
+            sim_id=sim_id,
             name=source_data.name,
             attached_to=source_data.attached_to,
             particle=source_data.particle.value,
@@ -96,28 +94,28 @@ class SourceService:
         await self.source_repository.create(db_source)
 
         # 4. Return the newly created source, but in a `GenericSourceRead` format
-        return await self.read_source(simulation_id, source_data.name)
+        return await self.read_source(sim_id, source_data.name)
 
-    async def read_source(self, simulation_id: int, name: str) -> GenericSourceRead:
+    async def read_source(self, sim_id: int, name: str) -> GenericSourceRead:
         """
         Load the source from DB and return it as GenericSourceRead.
         """
-        source = await self.source_repository.read_source_by_name(simulation_id, name)
+        source = await self.source_repository.read_source_by_name(sim_id, name)
         if not source:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Source '{name}' not found in simulation '{simulation_id}'."
+                detail=f"Source '{name}' not found in simulation '{sim_id}'."
             )
         return GenericSourceRead.model_validate(source)
 
     async def update_source(
         self,
-        simulation_id: int,
+        sim_id: int,
         name: str,
         update: GenericSourceUpdate
     ) -> GenericSourceRead:
         # Step 1: Load existing source
-        existing: Source = await self.source_repository.read_source_by_name(simulation_id, name)
+        existing: Source = await self.source_repository.read_source_by_name(sim_id, name)
         if not existing:
             raise HTTPException(status_code=404, detail=f"Source '{name}' not found")
 
@@ -133,13 +131,11 @@ class SourceService:
         # Step 4: Return the updated object
         return GenericSourceRead.model_validate(updated)
 
-    async def delete_source(self, simulation_id: int, name: str) -> dict:
+    async def delete_source(self, sim_id: int, name: str) -> dict:
         """
         Delete the source from Gate and DB, returning a confirmation message.
         """
-        gate_sim = await get_gate_simulation_without_sources(
-            simulation_id, self.simulation_service.sim_repo
-        )
+        gate_sim = await self.sim_service.get_gate_sim_without_sources(sim_id)
 
         # 1. Delete from Gate
         if name not in gate_sim.source_manager.sources:
@@ -152,7 +148,7 @@ class SourceService:
         gate_sim.to_json_file()
 
         # 2. Delete from DB
-        source_deleted = await self.source_repository.delete(simulation_id, name)
+        source_deleted = await self.source_repository.delete(sim_id, name)
         if not source_deleted:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
