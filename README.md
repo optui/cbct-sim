@@ -4,9 +4,9 @@
 
 <p align="center">
     <img src="https://img.shields.io/badge/Python-3.10+-blue?style=flat&logo=python&logoColor=white" alt="Python"/>
-    <img src="https://img.shields.io/badge/FastAPI-0.115.11-009688?style=flat&logo=fastapi&logoColor=white" alt="FastAPI"/>
-    <img src="https://img.shields.io/badge/SQLAlchemy-2.0.39-a83254?style=flat&logo=SqlAlchemy" alt="SQLAlchemy"/>
-    <img src="https://img.shields.io/badge/OpenGATE-10.0.1-0a3e68?style=flat" alt="OpenGATE"/>
+    <img src="https://img.shields.io/badge/FastAPI-0.115.12-009688?style=flat&logo=fastapi&logoColor=white" alt="FastAPI"/>
+    <img src="https://img.shields.io/badge/SQLAlchemy-2.0.40-a83254?style=flat&logo=SqlAlchemy" alt="SQLAlchemy"/>
+    <img src="https://img.shields.io/badge/OpenGATE-10.0.2-0a3e68?style=flat" alt="OpenGATE"/>
     <img src="https://img.shields.io/badge/Angular-19.2.4-f12286?style=flat&logo=angular" alt="OpenGATE"/>
     <img src="https://img.shields.io/badge/License-GPL--3.0-orange?style=flat" alt="License"/>
 </p>

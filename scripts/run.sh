@@ -11,5 +11,5 @@ source ./backend/venv/bin/activate
 
 # Run the backend with uvicorn
 echo "Starting FastAPI backend..."
-export PYTHONPATH=$PYTHONPATH:./backend
+cd backend/
 uvicorn app.main:app --reload
