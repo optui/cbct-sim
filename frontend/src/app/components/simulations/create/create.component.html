@@ -1,0 +1,25 @@
+<form class="simulation-container" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="simulation-details">
+      <h2>Create Simulation</h2>
+      <div class="detail-row">
+        <span class="label">Name</span>
+        <input formControlName="name" class="name-input" />
+      </div>
+      <div *ngIf="form.get('name')?.invalid && form.get('name')?.touched" class="error-message">
+        Name is required.
+      </div>
+      <div class="detail-row">
+        <span class="label">Runs</span>
+        <input type="number" formControlName="num_runs" class="name-input" />
+      </div>
+
+      <div class="detail-row">
+        <span class="label">Run Length</span>
+        <input type="number" formControlName="run_len" class="name-input" />
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn save" type="submit" [disabled]="form.invalid">Create</button>
+      <button class="btn cancel" type="button" (click)="cancel()">Cancel</button>
+    </div>
+  </form>

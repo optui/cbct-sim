@@ -19,12 +19,14 @@ nav {
         padding: 3%;
         gap: 0.5rem;
 
-        span {
+        a {
+            color: inherit;
+            text-decoration: none;
             font-size: 1.5rem;
             transition: 0.15s ease-in-out;
         }
 
-        span:hover {
+        a:hover {
             cursor: pointer;
             transform: scale(1.25);
         }

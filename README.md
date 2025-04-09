@@ -11,36 +11,22 @@
     <img src="https://img.shields.io/badge/License-GPL--3.0-orange?style=flat" alt="License"/>
 </p>
 
-Full-stack application for computed tomography (CT) research. It uses [FastAPI](https://fastapi.tiangolo.com/) for the backend to interface with [GATE 10](https://github.com/OpenGATE/opengate), and [Angular](https://angular.dev/) for the frontend to facilitate communication with the backend.
+Full-stack application for creating tomographic projections. It uses [FastAPI](https://fastapi.tiangolo.com/) for the backend to interface with [GATE 10](https://github.com/OpenGATE/opengate), and [Angular](https://angular.dev/) for the frontend to facilitate communication with the backend.
 
 ## Setup
 
-1. Clone the Repository
+- Clone the repository
 
     ```bash
     git clone https://github.com/optui/ProjeCT.git
     cd ProjeCT
     ```
 
-### Backend
+### Backend Setup
 
 #### Environment
 
 This project includes a pre-configured `backend/.env` file for local development - no manual setup is required.
-
-The file contains non-sensitive defaults such as:
-
-| Variable                  | Description                            | Example Value                        |
-| ------------------------- | -------------------------------------- | ------------------------------------ |
-| `TITLE`                   | Name of the application                | `ProjeCT`                            |
-| `DESCRIPTION`             | Short description used in API metadata | `Computed Tomography Simulator`      |
-| `SQLALCHEMY_DATABASE_URI` | URI for the local SQLite database      | `sqlite+aiosqlite:///../database.db` |
-
-If you ever accidentally delete or modify it, you can restore it with:
-
-  ```bash
-  git restore backend/.env
-  ```
 
 #### Using [uv](https://github.com/astral-sh/uv) package & project manager
 
@@ -50,14 +36,14 @@ If you ever accidentally delete or modify it, you can restore it with:
     cd backend
     ```
 
-2. Create & Activate Virtual Environment
+2. Create & activate virtual environment
 
     ```bash
     uv venv
     source .venv/bin/activate  # Windows: .venv\Scripts\activate
     ```
 
-3. Install Dependencies
+3. Install dependencies
 
     ```bash
     uv sync
@@ -71,20 +57,36 @@ If you ever accidentally delete or modify it, you can restore it with:
     cd backend
     ```
 
-2. Create & Activate Virtual Environment
+2. Create & activate virtual environment
 
     ```bash
     python3 -m venv .venv
     source .venv/bin/activate  # Windows: .venv\Scripts\activate
     ```
 
-3. Install Dependencies
+3. Install dependencies
 
     ```bash
     pip install -r requirements.txt
     ```
 
+### Frontend Setup
+
+1. Go to the frontend directory
+
+    ```bash
+    cd frontend
+    ```
+
+2. Install dependencies
+
+    ```bash
+    npm install
+    ```
+
 ## Running
+
+### Backend
 
 1. Make run.sh executable
 
@@ -104,6 +106,14 @@ If you ever accidentally delete or modify it, you can restore it with:
 
     - [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
     - [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+
+### Frontend
+
+- Run the frontend server
+
+    ```bash
+    ng serve
+    ```
 
 ## Documentation
 

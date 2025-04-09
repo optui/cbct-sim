@@ -21,5 +21,5 @@ export interface SimulationUpdate {
 }
 
 export interface MessageResponse {
-  detail: string;
+  message: string;
 }

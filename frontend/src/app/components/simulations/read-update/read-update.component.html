@@ -1,0 +1,59 @@
+<div class="simulation-container" *ngIf="simulation(); else loading">
+    <h2>Simulation Details</h2>
+
+    <div class="simulation-details">
+        <div class="detail-row">
+            <span class="label">ID:</span>
+            <span class="value">{{ simulation()!.id }}</span>
+        </div>
+
+        <div class="detail-row">
+            <span class="label">Name:</span>
+            <input type="text" [(ngModel)]="editableSimulation().name" name="name" [readOnly]="!isEditMode()"
+                class="name-input" [class.readonly]="!isEditMode()" required />
+        </div>
+
+        <div class="detail-row">
+            <span class="label">Number of Runs:</span>
+            <input *ngIf="isEditMode()" type="number" [(ngModel)]="editableSimulation().num_runs" name="num_runs"
+                class="name-input" min="1" required />
+            <span *ngIf="!isEditMode()" class="value">{{ simulation()!.num_runs }}</span>
+        </div>
+
+        <div class="detail-row">
+            <span class="label">Run Length (seconds):</span>
+            <input *ngIf="isEditMode()" type="number" [(ngModel)]="editableSimulation().run_len" name="run_len"
+                class="name-input" step="1.0" required />
+            <span *ngIf="!isEditMode()" class="value">
+                {{ simulation()?.run_len !== undefined ? simulation()?.run_len : 'N/A' }}
+            </span>
+        </div>
+
+        <div class="detail-row">
+            <span class="label">Created At:</span>
+            <span class="value">{{ simulation()!.created_at | date:'medium' }}</span>
+        </div>
+
+        <div class="detail-row">
+            <span class="label">Output Directory:</span>
+            <span class="value">{{ simulation()!.output_dir }}</span>
+        </div>
+
+        <div class="detail-row">
+            <span class="label">JSON File:</span>
+            <span class="value">{{ simulation()!.json_archive_filename }}</span>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button *ngIf="isEditMode()" class="btn save" (click)="updateSimulation()">
+            Save Changes
+        </button>
+        <button class="btn" [class.cancel]="isEditMode()" [class.edit]="!isEditMode()" (click)="toggleEditMode()">
+            {{ isEditMode() ? 'Cancel' : 'Edit' }}
+        </button>
+    </div>
+</div>
+<ng-template #loading>
+    <div class="loading">Loading simulation details...</div>
+</ng-template>

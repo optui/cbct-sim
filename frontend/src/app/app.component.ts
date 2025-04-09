@@ -1,11 +1,7 @@
-// app.component.ts
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NavComponent } from './components/shared/nav/nav.component';
-import { SimulationService } from './services/simulation.service';
-import { Simulation } from './models/simulation';
 import { CommonModule } from '@angular/common';
-import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +9,7 @@ import { Observable } from 'rxjs';
   imports: [RouterOutlet, NavComponent, CommonModule],
   template: `
     <main>
-      <app-nav [simulations]="(simulations$ | async) || []" />
+      <app-nav />
       <router-outlet />
     </main>
   `,
@@ -26,22 +22,4 @@ import { Observable } from 'rxjs';
     }
   `,
 })
-export class AppComponent implements OnInit {
-  private simulationService = inject(SimulationService);
-
-  simulations$: Observable<Simulation[]>;
-
-  constructor() {
-    this.simulations$ = this.simulationService.simulations$;
-  }
-
-  ngOnInit(): void {
-    this.loadSimulations();    
-  }
-
-  loadSimulations(): void {
-    this.simulationService.getSimulations().subscribe({
-      error: err => console.error('Error fetching simulations:', err),
-    });
-  }
-}
+export class AppComponent {}
