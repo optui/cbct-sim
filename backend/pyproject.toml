@@ -1,9 +1,14 @@
+[build-system]
+requires        = ["setuptools>=68", "wheel"]
+build-backend   = "setuptools.build_meta"
+
 [project]
-name = "ProjeCT"
-description = "A full-stack application for computed tomography (CT) research."
-readme = "README.md"
+name            = "ProjeCT"
+description     = "A full-stack application for computed tomography (CT) research."
+version         = "0.5.0"
+readme          = "README.md"
 requires-python = ">=3.10"
-dependencies = [
+dependencies    = [
     "aiosqlite>=0.21.0",
     "fastapi[standard]>=0.115.12",
     "httpx>=0.28.1",

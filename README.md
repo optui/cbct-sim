@@ -47,7 +47,7 @@ Full-stack (FastAPI + Angular) application for creating tomographic projections 
     source .venv/bin/activate  # Windows: .venv\Scripts\activate
     ```
 
-3. Install dependencies
+3. Install & lock dependencies
 
     ```bash
     uv sync
@@ -71,7 +71,7 @@ Full-stack (FastAPI + Angular) application for creating tomographic projections 
 3. Install dependencies
 
     ```bash
-    pip install -r requirements.txt
+    pip install -e .
     ```
 
 ### Frontend Setup

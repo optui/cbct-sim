@@ -14,7 +14,7 @@ engine = create_async_engine(
     max_overflow=10,           # Maximum additional connections to create
     pool_timeout=30,           # Seconds to wait before timeout
     pool_recycle=1800,         # Recycle connections after 30 minutes
-    pool_pre_ping=True,         # Verify connection health before use
+    pool_pre_ping=True,        # Verify connection health before use
     connect_args={
         "timeout": 15          # SQLite-specific connection timeout in seconds
     }

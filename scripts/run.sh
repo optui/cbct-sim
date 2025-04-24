@@ -7,7 +7,7 @@ export PYTHONDONTWRITEBYTECODE=1
 export GLIBC_TUNABLES=glibc.rtld.optional_static_tls=2000000
 
 # Enable virtual environment
-source ./backend/venv/bin/activate
+source ./backend/.venv/bin/activate
 
 # Run the backend with uvicorn
 echo "Starting FastAPI backend..."

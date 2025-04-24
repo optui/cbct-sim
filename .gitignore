@@ -6,6 +6,7 @@ database.db
 output/
 uv.lock
 .env
+*.egg-info
 
 # Logs
 logs
