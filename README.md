@@ -8,10 +8,10 @@
     <img src="https://img.shields.io/badge/SQLAlchemy-2.0.40-a83254?style=flat&logo=SqlAlchemy" alt="SQLAlchemy"/>
     <img src="https://img.shields.io/badge/OpenGATE-10.0.2-0a3e68?style=flat" alt="OpenGATE"/>
     <img src="https://img.shields.io/badge/Angular-19.2.4-f12286?style=flat&logo=angular" alt="OpenGATE"/>
-    <img src="https://img.shields.io/badge/License-GPL--3.0-bd0000?style=flat" alt="License"/>
+    <img src="https://img.shields.io/badge/License-GPL--3.0-blue?style=flat" alt="License"/>
 </p>
 
-Full-stack (FastAPI + Angular) application for creating tomographic projections with GATE 10. It uses [FastAPI](https://fastapi.tiangolo.com/) for the backend to interface with [GATE 10](https://github.com/OpenGATE/opengate), and [Angular](https://angular.dev/) for the frontend to facilitate communication with the backend.
+Full-stack application for creating tomographic projections. It uses [FastAPI](https://fastapi.tiangolo.com/) for the backend to interface with [GATE 10](https://github.com/OpenGATE/opengate), and [Angular](https://angular.dev/) for the frontend.
 
 ## Setup
 

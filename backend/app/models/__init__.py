@@ -22,7 +22,7 @@ class Source(Base):
     __table_args__ = (UniqueConstraint("simulation_id", "name"),)
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    simulation_id = Column(Integer, ForeignKey("simulations.id"), nullable=False)
+    simulation_id = Column(Integer, ForeignKey("simulations.id"), index=True, nullable=False)
 
     name = Column(String, index=True)
     attached_to = Column(String, default="world")
