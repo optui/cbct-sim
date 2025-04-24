@@ -11,7 +11,7 @@
     <img src="https://img.shields.io/badge/License-GPL--3.0-bd0000?style=flat" alt="License"/>
 </p>
 
-Full-stack application for creating tomographic projections. It uses [FastAPI](https://fastapi.tiangolo.com/) for the backend to interface with [GATE 10](https://github.com/OpenGATE/opengate), and [Angular](https://angular.dev/) for the frontend to facilitate communication with the backend.
+Full-stack (FastAPI + Angular) application for creating tomographic projections with GATE 10. It uses [FastAPI](https://fastapi.tiangolo.com/) for the backend to interface with [GATE 10](https://github.com/OpenGATE/opengate), and [Angular](https://angular.dev/) for the frontend to facilitate communication with the backend.
 
 ## Setup
 
@@ -26,9 +26,13 @@ Full-stack application for creating tomographic projections. It uses [FastAPI](h
 
 #### Environment
 
-This project includes a pre-configured `backend/.env` file for local development - no manual setup is required.
+- Copy the template
 
-#### Using [uv](https://github.com/astral-sh/uv) package & project manager
+    ```bash
+    cp backend/.env.example backend/.env
+    ```
+
+#### Using [uv](https://github.com/astral-sh/uv)
 
 1. Go to the backend directory
 
@@ -49,7 +53,7 @@ This project includes a pre-configured `backend/.env` file for local development
     uv sync
     ```
 
-#### Using Traditional Virtual Environment
+#### Using [virtualenv](https://virtualenv.pypa.io/en/latest/)
 
 1. Go to the backend directory
 
@@ -117,7 +121,7 @@ This project includes a pre-configured `backend/.env` file for local development
 
 ## Documentation
 
-See the [backend README](./backend/README.md) for API details and examples.
+See the backend's [README](./backend/README.md) for API details and examples.
 
 ## License
 

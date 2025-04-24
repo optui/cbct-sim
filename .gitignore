@@ -5,6 +5,7 @@ venv
 database.db
 output/
 uv.lock
+.env
 
 # Logs
 logs
