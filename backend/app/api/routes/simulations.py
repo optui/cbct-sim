@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status
 from app.api.dependencies import SimulationServiceDep, SourceRepositoryDep
-from app.schemas.api import MessageResponse
+from app.schemas.message import MessageResponse
 from app.schemas.simulation import (
     SimulationCreate,
     SimulationUpdate,
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/simulations", tags=["Simulations"])
 
 @router.post(
     "/",
-    response_model=SimulationRead,
+    response_model=MessageResponse,
     status_code=status.HTTP_201_CREATED,
     responses={409: {"model": MessageResponse}},
 )
@@ -42,8 +42,11 @@ async def read_simulation(service: SimulationServiceDep, simulation_id: int):
 
 @router.put(
     "/{simulation_id}",
-    response_model=SimulationRead,
-    responses={404: {"model": MessageResponse}, 409: {"model": MessageResponse}},
+    response_model=MessageResponse,
+    responses={
+        404: {"model": MessageResponse},
+        409: {"model": MessageResponse}
+    },
 )
 async def update_simulation(
     service: SimulationServiceDep, simulation_id: int, simulation: SimulationUpdate
@@ -60,7 +63,7 @@ async def delete_simulation(service: SimulationServiceDep, simulation_id: int):
     return await service.delete_simulation(simulation_id)
 
 
-@router.get(
+@router.post(
     "/{simulation_id}/import",
     status_code=status.HTTP_501_NOT_IMPLEMENTED,
     responses={501: {"model": MessageResponse}},
@@ -69,7 +72,7 @@ async def import_simulation(service: SimulationServiceDep, simulation_id: int):
     return await service.import_simulation(simulation_id)
 
 
-@router.get(
+@router.post(
     "/{simulation_id}/export",
     status_code=status.HTTP_501_NOT_IMPLEMENTED,
     responses={501: {"model": MessageResponse}},
@@ -78,7 +81,7 @@ async def export_simulation(service: SimulationServiceDep, simulation_id: int):
     return await service.export_simulation(simulation_id)
 
 
-@router.get(
+@router.post(
     "/{simulation_id}/view",
     status_code=status.HTTP_200_OK,
     responses={404: {"model": MessageResponse}},
@@ -91,7 +94,7 @@ async def view_simulation(
     return await service.view_simulation(simulation_id, source_repository)
 
 
-@router.get(
+@router.post(
     "/{simulation_id}/run",
     status_code=status.HTTP_200_OK,
     responses={404: {"model": MessageResponse}},

@@ -6,7 +6,7 @@ from app.schemas.source import (
     GenericSourceRead,
     GenericSourceUpdate,
 )
-from app.schemas.api import MessageResponse
+from app.schemas.message import MessageResponse
 
 router = APIRouter(tags=["Sources"], prefix='/simulations')
 

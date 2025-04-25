@@ -15,5 +15,5 @@ dependencies    = [
     "opengate>=10.0.2",
     "pydantic-settings>=2.8.1",
     "pyvista>=0.44.2",
-    "sqlalchemy>=2.0.40",
+    "sqlalchemy>=2.0.40"
 ]

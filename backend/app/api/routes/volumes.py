@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status
 from typing import List
 
-from app.schemas.api import MessageResponse
+from app.schemas.message import MessageResponse
 from app.schemas.volume import (
     VolumeCreate,
     VolumeRead,
