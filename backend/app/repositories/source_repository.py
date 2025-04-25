@@ -4,6 +4,7 @@ from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
 from app.models import Source
 
+
 class SourceRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
@@ -27,12 +28,11 @@ class SourceRepository:
     async def read_source_by_name(self, simulation_id: int, name: str) -> Source | None:
         result = await self.session.execute(
             select(Source).where(
-                Source.simulation_id == simulation_id,
-                Source.name == name
+                Source.simulation_id == simulation_id, Source.name == name
             )
         )
         return result.scalar_one_or_none()
-    
+
     async def update(self, source: Source) -> Source:
         self.session.add(source)
         await self.session.commit()

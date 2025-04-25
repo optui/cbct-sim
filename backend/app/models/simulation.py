@@ -11,11 +11,12 @@ from sqlalchemy.orm import relationship
 
 from .base import Base
 
+
 class Simulation(Base):
     __tablename__ = "simulations"
     __table_args__ = (
-        CheckConstraint('num_runs > 0', name='ck_simulation_num_runs_positive'),
-        CheckConstraint('run_len > 0', name='ck_simulation_run_len_positive')
+        CheckConstraint("num_runs > 0", name="ck_simulation_num_runs_positive"),
+        CheckConstraint("run_len > 0", name="ck_simulation_run_len_positive"),
     )
 
     id = Column(Integer, primary_key=True, autoincrement=True)

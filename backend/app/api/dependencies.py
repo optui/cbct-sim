@@ -50,7 +50,7 @@ def get_source_repository(
 
 def get_source_service(
     simulation_service: Annotated[SimulationService, Depends(get_simulation_service)],
-    source_repository: Annotated[SourceRepository, Depends(get_source_repository)]
+    source_repository: Annotated[SourceRepository, Depends(get_source_repository)],
 ) -> SourceService:
     return SourceService(simulation_service, source_repository)
 
@@ -63,7 +63,9 @@ def get_actor_service(
 
 # Type aliases
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
-SimulationRepositoryDep = Annotated[SimulationRepository, Depends(get_simulation_repository)]
+SimulationRepositoryDep = Annotated[
+    SimulationRepository, Depends(get_simulation_repository)
+]
 SimulationServiceDep = Annotated[SimulationService, Depends(get_simulation_service)]
 VolumeServiceDep = Annotated[VolumeService, Depends(get_volume_service)]
 SourceRepositoryDep = Annotated[SourceRepository, Depends(get_source_repository)]

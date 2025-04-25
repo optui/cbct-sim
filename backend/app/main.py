@@ -13,6 +13,7 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     async with engine.begin() as conn:
@@ -25,7 +26,7 @@ app = FastAPI(
     lifespan=lifespan,
     version="0.5.0",
     title=settings.TITLE,
-    description=settings.DESCRIPTION
+    description=settings.DESCRIPTION,
 )
 
 app.add_middleware(
@@ -41,8 +42,10 @@ app.add_exception_handler(IntegrityError, handle_integrity_error)
 app.add_exception_handler(RequestValidationError, handle_validation_error)
 app.add_exception_handler(Exception, handle_exception)
 
+
 @app.get("/", include_in_schema=False)
 async def root():
     return RedirectResponse("/docs")
+
 
 app.include_router(api_router)

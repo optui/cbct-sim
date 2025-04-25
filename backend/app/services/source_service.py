@@ -11,11 +11,10 @@ from app.schemas.source import (
 )
 from app.utils.utils import UNIT_MAP
 
+
 class SourceService:
     def __init__(
-        self,
-        simulation_service: SimulationService,
-        source_repository: SourceRepository
+        self, simulation_service: SimulationService, source_repository: SourceRepository
     ):
         self.sim_service = simulation_service
         self.source_repository = source_repository
@@ -25,9 +24,7 @@ class SourceService:
         return [source.name for source in sources]
 
     async def create_source(
-        self,
-        sim_id: int,
-        source_data: GenericSourceCreate
+        self, sim_id: int, source_data: GenericSourceCreate
     ) -> GenericSourceRead:
         """
         Create a new Gate source and save it in the database.
@@ -104,18 +101,17 @@ class SourceService:
         if not source:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Source '{name}' not found in simulation '{sim_id}'."
+                detail=f"Source '{name}' not found in simulation '{sim_id}'.",
             )
         return GenericSourceRead.model_validate(source)
 
     async def update_source(
-        self,
-        sim_id: int,
-        name: str,
-        update: GenericSourceUpdate
+        self, sim_id: int, name: str, update: GenericSourceUpdate
     ) -> GenericSourceRead:
         # Step 1: Load existing source
-        existing: Source = await self.source_repository.read_source_by_name(sim_id, name)
+        existing: Source = await self.source_repository.read_source_by_name(
+            sim_id, name
+        )
         if not existing:
             raise HTTPException(status_code=404, detail=f"Source '{name}' not found")
 
@@ -141,7 +137,7 @@ class SourceService:
         if name not in gate_sim.source_manager.sources:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Source '{name}' not found in Gate simulation."
+                detail=f"Source '{name}' not found in Gate simulation.",
             )
         del gate_sim.source_manager.sources[name]
 
@@ -152,7 +148,7 @@ class SourceService:
         if not source_deleted:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Source '{name}' not found in DB."
+                detail=f"Source '{name}' not found in DB.",
             )
 
         return {"message": f"Source '{name}' deleted successfully"}

@@ -19,8 +19,9 @@ UNIT_MAP = {
     "Bq": gate.g4_units.Bq,
     "eV": gate.g4_units.eV,
     "MeV": gate.g4_units.MeV,
-    "sec": gate.g4_units.second
+    "sec": gate.g4_units.second,
 }
+
 
 def handle_directory_rename(current, new_name: str) -> None:
     old_dir = current.output_dir
@@ -32,6 +33,7 @@ def handle_directory_rename(current, new_name: str) -> None:
         if os.path.exists(old_json_path):
             os.remove(old_json_path)
 
+
 def to_json_file(sim) -> None:
     run_intervals = compute_run_timing_intervals(sim.num_runs, sim.run_len)
     gate_sim = gate.Simulation(
@@ -41,6 +43,7 @@ def to_json_file(sim) -> None:
         run_timing_intervals=run_intervals,
     )
     gate_sim.to_json_file()
+
 
 def compute_run_timing_intervals(num_runs: int, run_len: float) -> list[list[float]]:
     """
@@ -53,7 +56,11 @@ def compute_run_timing_intervals(num_runs: int, run_len: float) -> list[list[flo
     Returns:
         List[List[float]]: A list of [start, end] time intervals in GATE time units.
     """
-    return [[i * run_len * UNIT_MAP["sec"], (i + 1) * run_len * UNIT_MAP["sec"]] for i in range(num_runs)]
+    return [
+        [i * run_len * UNIT_MAP["sec"], (i + 1) * run_len * UNIT_MAP["sec"]]
+        for i in range(num_runs)
+    ]
+
 
 def extract_volume_shape(gate_volume) -> VolumeShape:
     factor = UNIT_MAP["cm"]
@@ -73,7 +80,10 @@ def extract_volume_shape(gate_volume) -> VolumeShape:
             unit="cm",
         )
     else:
-        raise HTTPException(status_code=500, detail=f"Unknown volume type: {gate_class}")
+        raise HTTPException(
+            status_code=500, detail=f"Unknown volume type: {gate_class}"
+        )
+
 
 def extract_rotation(gate_volume) -> Rotation:
     rotation_matrix = getattr(gate_volume, "rotation", None)
@@ -88,6 +98,7 @@ def extract_rotation(gate_volume) -> Rotation:
     angle = axis_angle[axis_index] * 180 / 3.1415926  # radians to degrees
     return Rotation(axis=axis, angle=angle)
 
+
 def assign_volume_shape(vol: VolumeBase, shape: VolumeShape):
     factor = UNIT_MAP[shape.unit]
     if isinstance(shape, BoxShape):
@@ -96,13 +107,15 @@ def assign_volume_shape(vol: VolumeBase, shape: VolumeShape):
         vol.rmin = shape.rmin * factor
         vol.rmax = shape.rmax * factor
     else:
-        raise HTTPException(status_code=400, detail=f"Unsupported volume shape: {shape}")
+        raise HTTPException(
+            status_code=400, detail=f"Unsupported volume shape: {shape}"
+        )
 
 
 async def get_gate_sim(
-    id: int, 
+    id: int,
     simulation_repository: SimulationRepository,
-    source_repository: SourceRepository
+    source_repository: SourceRepository,
 ) -> gate.Simulation:
     simulation = await simulation_repository.read(id)
     if not simulation:
@@ -120,7 +133,7 @@ async def get_gate_sim(
 
     sim = gate.Simulation()
     sim.from_json_file(str(path))
-    
+
     sources: list[Source] = await source_repository.read_sources(id)
     for src in sources:
         gate_source = sim.add_source("GenericSource", src.name)
@@ -132,13 +145,17 @@ async def get_gate_sim(
         if pos["type"] == "box":
             gate_source.position.type = "box"
             gate_source.position.size = [s * pos_factor for s in pos["size"]]
-            gate_source.position.translation = [t * pos_factor for t in pos["translation"]]
+            gate_source.position.translation = [
+                t * pos_factor for t in pos["translation"]
+            ]
 
         # Reconstruct direction
         direction = src.direction
         if direction["type"] == "focused":
             gate_source.direction.type = "focused"
-            gate_source.direction.focus_point = [fp * pos_factor for fp in direction["focus_point"]]
+            gate_source.direction.focus_point = [
+                fp * pos_factor for fp in direction["focus_point"]
+            ]
 
         # Reconstruct energy
         energy = src.energy
@@ -153,5 +170,5 @@ async def get_gate_sim(
             gate_source.activity = src.activity * activity_factor
         if src.n:
             gate_source.n = src.n
-    
+
     return sim

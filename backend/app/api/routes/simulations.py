@@ -23,10 +23,7 @@ async def create_simulation(
     return await service.create_simulation(simulation)
 
 
-@router.get(
-    "/",
-    response_model=List[SimulationRead]
-)
+@router.get("/", response_model=List[SimulationRead])
 async def read_simulations(service: SimulationServiceDep):
     return await service.read_simulations()
 
@@ -34,7 +31,7 @@ async def read_simulations(service: SimulationServiceDep):
 @router.get(
     "/{simulation_id}",
     response_model=SimulationRead,
-    responses={404: {"model": MessageResponse}}
+    responses={404: {"model": MessageResponse}},
 )
 async def read_simulation(service: SimulationServiceDep, simulation_id: int):
     return await service.read_simulation(simulation_id)
@@ -43,10 +40,7 @@ async def read_simulation(service: SimulationServiceDep, simulation_id: int):
 @router.put(
     "/{simulation_id}",
     response_model=MessageResponse,
-    responses={
-        404: {"model": MessageResponse},
-        409: {"model": MessageResponse}
-    },
+    responses={404: {"model": MessageResponse}, 409: {"model": MessageResponse}},
 )
 async def update_simulation(
     service: SimulationServiceDep, simulation_id: int, simulation: SimulationUpdate
@@ -87,9 +81,9 @@ async def export_simulation(service: SimulationServiceDep, simulation_id: int):
     responses={404: {"model": MessageResponse}},
 )
 async def view_simulation(
-    service: SimulationServiceDep, 
+    service: SimulationServiceDep,
     source_repository: SourceRepositoryDep,
-    simulation_id: int
+    simulation_id: int,
 ):
     return await service.view_simulation(simulation_id, source_repository)
 
@@ -102,6 +96,6 @@ async def view_simulation(
 async def run_simulation(
     service: SimulationServiceDep,
     source_repository: SourceRepositoryDep,
-    simulation_id: int
+    simulation_id: int,
 ):
     return await service.run_simulation(simulation_id, source_repository)

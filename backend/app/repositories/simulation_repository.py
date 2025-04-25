@@ -9,7 +9,7 @@ from app.schemas.simulation import SimulationCreate, SimulationUpdate
 class SimulationRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
-        
+
     async def create(self, sim_create: SimulationCreate) -> Simulation:
         session_sim = Simulation(
             **sim_create.model_dump(),
@@ -40,7 +40,7 @@ class SimulationRepository:
         for key, value in sim_update.items():
             setattr(session_sim, key, value)
 
-        if 'name' in sim_update:
+        if "name" in sim_update:
             session_sim.output_dir = f"./output/{session_sim.name}"
             session_sim.json_archive_filename = f"{session_sim.name}.json"
 

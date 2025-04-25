@@ -9,13 +9,13 @@ from app.schemas.volume import (
 )
 from app.api.dependencies import VolumeServiceDep
 
-router = APIRouter(tags=["Volumes"], prefix='/simulations')
+router = APIRouter(tags=["Volumes"], prefix="/simulations")
 
 
 @router.post(
     "/{simulation_id}/volumes",
     response_model=VolumeRead,
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
 )
 async def create_volume(
     service: VolumeServiceDep, simulation_id: int, volume: VolumeCreate
@@ -23,10 +23,7 @@ async def create_volume(
     return await service.create_volume(simulation_id, volume)
 
 
-@router.get(
-    "/{simulation_id}/volumes",
-    response_model=List[str]
-)
+@router.get("/{simulation_id}/volumes", response_model=List[str])
 async def read_volumes(service: VolumeServiceDep, simulation_id: int):
     return await service.read_volumes(simulation_id)
 
@@ -34,7 +31,7 @@ async def read_volumes(service: VolumeServiceDep, simulation_id: int):
 @router.get(
     "/{simulation_id}/volumes/{name}",
     response_model=VolumeRead,
-    responses={404: {"model": MessageResponse}}
+    responses={404: {"model": MessageResponse}},
 )
 async def read_volume(service: VolumeServiceDep, simulation_id: int, name: str):
     return await service.read_volume(simulation_id, name)

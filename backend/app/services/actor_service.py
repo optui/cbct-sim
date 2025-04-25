@@ -51,28 +51,33 @@ class ActorService:
 
     async def read_actor(self, sim_id: int, actor_name: str):
         gate_sim = await self.sim_service.read_simulation(sim_id)
-        
+
         if actor_name not in gate_sim.actor_manager.actors:
             raise HTTPException(
                 status_code=404,
-                detail=f"Actor '{actor_name}' not found in simulation '{sim_id}'"
+                detail=f"Actor '{actor_name}' not found in simulation '{sim_id}'",
             )
 
         actor_instance = gate_sim.actor_manager.actors[actor_name]
-        
-        if isinstance(actor_instance, gate.opengate.actors.miscactors.SimulationStatisticsActor):
+
+        if isinstance(
+            actor_instance, gate.opengate.actors.miscactors.SimulationStatisticsActor
+        ):
             return SimulationStatisticsActorConfig(
-                name=actor_name,
-                output_filename=actor_instance.output_filename
+                name=actor_name, output_filename=actor_instance.output_filename
             )
-        elif isinstance(actor_instance, gate.opengate.actors.digitizers.DigitizerHitsCollectionActor):
+        elif isinstance(
+            actor_instance, gate.opengate.actors.digitizers.DigitizerHitsCollectionActor
+        ):
             return DigitizerHitsCollectionActorConfig(
                 name=actor_name,
                 attached_to=actor_instance.attached_to,
                 attributes=actor_instance.attributes,
-                output_filename=actor_instance.output_filename
+                output_filename=actor_instance.output_filename,
             )
-        elif isinstance(actor_instance, gate.opengate.actors.digitizers.DigitizerProjectionActor):
+        elif isinstance(
+            actor_instance, gate.opengate.actors.digitizers.DigitizerProjectionActor
+        ):
             return DigitizerProjectionActorConfig(
                 name=actor_name,
                 attached_to=actor_instance.attached_to,
@@ -80,17 +85,13 @@ class ActorService:
                 spacing=actor_instance.spacing,
                 size=actor_instance.size,
                 origin_as_image_center=actor_instance.origin_as_image_center,
-                output_filename=actor_instance.output_filename
+                output_filename=actor_instance.output_filename,
             )
         else:
             raise HTTPException(status_code=400, detail="Unsupported actor type")
 
-
     async def update_actor(
-        self,
-        sim_id: int,
-        actor_name: str,
-        actor_update: ActorUpdate
+        self, sim_id: int, actor_name: str, actor_update: ActorUpdate
     ):
         print("Received update config:", actor_update.config)
         gate_sim = await self.sim_service.read_simulation(sim_id)
@@ -98,7 +99,7 @@ class ActorService:
         if actor_name not in gate_sim.actor_manager.actors:
             raise HTTPException(
                 status_code=404,
-                detail=f"Actor '{actor_name}' not found in simulation '{sim_id}'"
+                detail=f"Actor '{actor_name}' not found in simulation '{sim_id}'",
             )
 
         actor_instance = gate_sim.actor_manager.actors[actor_name]
@@ -109,7 +110,9 @@ class ActorService:
                 if actor_update.config.output_filename is not None:
                     actor_instance.output_filename = actor_update.config.output_filename
 
-            elif isinstance(actor_update.config, DigitizerHitsCollectionActorUpdateConfig):
+            elif isinstance(
+                actor_update.config, DigitizerHitsCollectionActorUpdateConfig
+            ):
                 if actor_update.config.attached_to is not None:
                     actor_instance.attached_to = actor_update.config.attached_to
                 if actor_update.config.attributes is not None:
@@ -121,18 +124,24 @@ class ActorService:
                 if actor_update.config.attached_to is not None:
                     actor_instance.attached_to = actor_update.config.attached_to
                 if actor_update.config.input_digi_collections is not None:
-                    actor_instance.input_digi_collections = actor_update.config.input_digi_collections
+                    actor_instance.input_digi_collections = (
+                        actor_update.config.input_digi_collections
+                    )
                 if actor_update.config.spacing is not None:
                     actor_instance.spacing = actor_update.config.spacing
                 if actor_update.config.size is not None:
                     actor_instance.size = actor_update.config.size
                 if actor_update.config.origin_as_image_center is not None:
-                    actor_instance.origin_as_image_center = actor_update.config.origin_as_image_center
+                    actor_instance.origin_as_image_center = (
+                        actor_update.config.origin_as_image_center
+                    )
                 if actor_update.config.output_filename is not None:
                     actor_instance.output_filename = actor_update.config.output_filename
 
             else:
-                raise HTTPException(status_code=400, detail="Unsupported actor type for update")
+                raise HTTPException(
+                    status_code=400, detail="Unsupported actor type for update"
+                )
 
         # Save the updated actor before rename
         gate_sim.to_json_file()
@@ -142,18 +151,19 @@ class ActorService:
             if actor_update.name in gate_sim.actor_manager.actors:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"Actor '{actor_update.name}' already exists."
+                    detail=f"Actor '{actor_update.name}' already exists.",
                 )
 
             # Update internal name first
             actor_instance.name = actor_update.name
-            gate_sim.actor_manager.actors[actor_update.name] = gate_sim.actor_manager.actors.pop(actor_name)
+            gate_sim.actor_manager.actors[actor_update.name] = (
+                gate_sim.actor_manager.actors.pop(actor_name)
+            )
             actor_name = actor_update.name
 
             gate_sim.to_json_file()  # Save again after rename
 
         return {"detail": f"Actor '{actor_name}' updated successfully."}
-
 
     def delete_actor(self, actor_name):
         """
@@ -166,5 +176,5 @@ class ActorService:
         except KeyError:
             raise HTTPException(
                 status_code=404,
-                detail=f"Actor '{actor_name}' not found in the simulation."
+                detail=f"Actor '{actor_name}' not found in the simulation.",
             )

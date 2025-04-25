@@ -32,10 +32,7 @@ class SphereShape(ShapeBase):
     rmax: float = Field(1.0, gt=0.0)
 
 
-VolumeShape = Annotated[
-    Union[BoxShape, SphereShape],
-    Field(discriminator="type")
-]
+VolumeShape = Annotated[Union[BoxShape, SphereShape], Field(discriminator="type")]
 
 
 class VolumeBase(BaseModel):

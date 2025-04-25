@@ -11,11 +11,17 @@ from app.schemas.volume import (
     VolumeUpdate,
 )
 from app.services.simulation_service import SimulationService
-from app.utils.utils import UNIT_MAP, assign_volume_shape, extract_rotation, extract_volume_shape
+from app.utils.utils import (
+    UNIT_MAP,
+    assign_volume_shape,
+    extract_rotation,
+    extract_volume_shape,
+)
 from opengate.geometry.volumes import VolumeBase
 
 
-ANSI_ESCAPE_RE = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
+ANSI_ESCAPE_RE = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
+
 
 class VolumeService:
     def __init__(self, simulation_service: SimulationService):
@@ -30,8 +36,10 @@ class VolumeService:
         gate_sim = await self.sim_service.get_gate_sim_without_sources(sim_id)
 
         if vol_create.name in gate_sim.volume_manager.volume_names:
-            raise HTTPException(status_code=409, detail="Volume with {name} already exists")
-        
+            raise HTTPException(
+                status_code=409, detail="Volume with {name} already exists"
+            )
+
         vol: VolumeBase | None = gate_sim.add_volume(
             vol_create.shape.type.value, vol_create.name
         )
@@ -46,7 +54,7 @@ class VolumeService:
         gate_sim.to_json_file()
 
         return await self.read_volume(sim_id, vol_create.name)
-    
+
     async def read_volumes(self, sim_id: int) -> list[str]:
         gate_sim = await self.sim_service.get_gate_sim_without_sources(sim_id)
         return gate_sim.volume_manager.volume_names
@@ -69,17 +77,13 @@ class VolumeService:
         )
 
     async def update_volume(
-        self,
-        sim_id: int,
-        volume_name: str,
-        volume: VolumeUpdate
+        self, sim_id: int, volume_name: str, volume: VolumeUpdate
     ) -> VolumeRead:
         gate_sim = await self.sim_service.get_gate_sim_without_sources(sim_id)
 
         if volume_name not in gate_sim.volume_manager.volumes:
             raise HTTPException(
-                status_code=404,
-                detail=f"Volume '{volume_name}' not found"
+                status_code=404, detail=f"Volume '{volume_name}' not found"
             )
 
         existing = gate_sim.volume_manager.volumes[volume_name]
@@ -107,7 +111,7 @@ class VolumeService:
             else:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"Unsupported volume shape type: {getattr(volume.shape, 'type', 'unknown')}"
+                    detail=f"Unsupported volume shape type: {getattr(volume.shape, 'type', 'unknown')}",
                 )
 
         gate_sim.to_json_file()
@@ -115,23 +119,19 @@ class VolumeService:
         if volume.name is not None and volume.name != volume_name:
             if volume.name in gate_sim.volume_manager.volumes:
                 raise HTTPException(
-                    status_code=400,
-                    detail=f"Volume '{volume.name}' already exists."
+                    status_code=400, detail=f"Volume '{volume.name}' already exists."
                 )
             existing.name = volume.name
-            gate_sim.volume_manager.volumes[volume.name] = gate_sim.volume_manager.volumes.pop(volume_name)
+            gate_sim.volume_manager.volumes[volume.name] = (
+                gate_sim.volume_manager.volumes.pop(volume_name)
+            )
             volume_name = volume.name  # Update reference for read_volume
 
             gate_sim.to_json_file()
 
         return await self.read_volume(sim_id, volume_name)
 
-
-    async def delete_volume(
-        self,
-        sim_id: int,
-        volume_name: str
-    ) -> dict:
+    async def delete_volume(self, sim_id: int, volume_name: str) -> dict:
         gate_sim = await self.sim_service.get_gate_sim_without_sources(sim_id)
         if volume_name not in gate_sim.volume_manager.volumes:
             raise HTTPException(status_code=404, detail="Volume not found")
