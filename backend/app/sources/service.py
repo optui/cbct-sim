@@ -1,15 +1,15 @@
 import json
 import opengate as gate
 from fastapi import HTTPException, status
-from app.models import Source
-from app.services.simulation_service import SimulationService
-from app.repositories.source_repository import SourceRepository
-from app.schemas.source import (
+from app.sources.model import Source
+from app.simulations.service import SimulationService
+from app.sources.repository import SourceRepository
+from app.sources.schema import (
     GenericSourceCreate,
     GenericSourceRead,
     GenericSourceUpdate,
 )
-from app.utils.utils import UNIT_MAP
+from app.shared.utils import UNIT_MAP
 
 
 class SourceService:

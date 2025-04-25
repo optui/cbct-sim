@@ -1,13 +1,13 @@
 from fastapi import APIRouter, status
 from typing import List
 
-from app.schemas.message import MessageResponse
-from app.schemas.volume import (
+from app.shared.message import MessageResponse
+from app.volumes.schema import (
     VolumeCreate,
     VolumeRead,
     VolumeUpdate,
 )
-from app.api.dependencies import VolumeServiceDep
+from app.volumes.dependencies import VolumeServiceDep
 
 router = APIRouter(tags=["Volumes"], prefix="/simulations")
 

@@ -1,14 +1,15 @@
 from fastapi import APIRouter, status
-from app.api.dependencies import SimulationServiceDep, SourceRepositoryDep
-from app.schemas.message import MessageResponse
-from app.schemas.simulation import (
+from app.simulations.dependencies import SimulationServiceDep
+from app.sources.dependencies import SourceRepositoryDep
+from app.shared.message import MessageResponse
+from app.simulations.schema import (
     SimulationCreate,
     SimulationUpdate,
     SimulationRead,
 )
 from typing import List
 
-router = APIRouter(prefix="/simulations", tags=["Simulations"])
+router = APIRouter(tags=["Simulations"], prefix="/simulations")
 
 
 @router.post(

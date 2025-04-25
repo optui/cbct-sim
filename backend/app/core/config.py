@@ -8,6 +8,7 @@ class Settings(BaseSettings):
 
     TITLE: str
     DESCRIPTION: str
+    VERSION: str
     SQLALCHEMY_DATABASE_URI: str
 
 

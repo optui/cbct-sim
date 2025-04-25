@@ -2,10 +2,10 @@ import os
 from pathlib import Path
 from fastapi import HTTPException, status
 import opengate as gate
-from app.models import Source
-from app.repositories.simulation_repository import SimulationRepository
-from app.repositories.source_repository import SourceRepository
-from app.schemas.volume import BoxShape, Rotation, SphereShape, VolumeShape, VolumeType
+from app.sources.model import Source
+from app.simulations.repository import SimulationRepository
+from app.sources.repository import SourceRepository
+from app.volumes.schema import BoxShape, Rotation, SphereShape, VolumeShape, VolumeType
 from opengate.geometry.volumes import VolumeBase
 from scipy.spatial.transform import Rotation as R
 

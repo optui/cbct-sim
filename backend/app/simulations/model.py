@@ -9,7 +9,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 
-from .base import Base
+from app.core.base import Base
 
 
 class Simulation(Base):

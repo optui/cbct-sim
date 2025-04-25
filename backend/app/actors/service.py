@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status
-from app.services.simulation_service import SimulationService
-from app.schemas.actor import (
+from app.simulations.service import SimulationService
+from app.actors.schema import (
     ActorCreate,
     ActorRead,
     ActorUpdate,
@@ -19,7 +19,7 @@ class ActorService:
         self.sim_service = simulation_service
 
     async def get_actors(self, sim_id: int):
-        gate_sim = await self.sim_service.read_simulation(sim_id)
+        gate_sim = await self.sim_service.get_gate_sim_without_sources(sim_id)
         return list(gate_sim.actor_manager.actors.keys())
 
     async def create_actor(self, sim_id: int, actor: ActorCreate):

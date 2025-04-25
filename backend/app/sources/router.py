@@ -1,12 +1,12 @@
 from fastapi import APIRouter, status
 from typing import List
-from app.api.dependencies import SourceServiceDep
-from app.schemas.source import (
+from app.sources.dependencies import SourceServiceDep
+from app.sources.schema import (
     GenericSourceCreate,
     GenericSourceRead,
     GenericSourceUpdate,
 )
-from app.schemas.message import MessageResponse
+from app.shared.message import MessageResponse
 
 router = APIRouter(tags=["Sources"], prefix="/simulations")
 

@@ -1,11 +1,11 @@
 from fastapi import APIRouter
-from app.api.dependencies import ActorServiceDep
-from app.schemas.actor import ActorCreate, ActorRead, ActorUpdate
+from app.actors.dependencies import ActorServiceDep
+from app.actors.schema import ActorCreate, ActorRead, ActorUpdate
 from typing import List
 
-from app.schemas.message import MessageResponse
+from app.shared.message import MessageResponse
 
-router = APIRouter(tags=["Actors"])
+router = APIRouter(tags=["Actors"], prefix="/simulations")
 
 
 @router.get("/{simulation_id}/actors", response_model=List[str])

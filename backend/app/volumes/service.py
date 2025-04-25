@@ -1,7 +1,7 @@
 import re
 from fastapi import HTTPException
 from scipy.spatial.transform import Rotation as R
-from app.schemas.volume import (
+from app.volumes.schema import (
     VolumeCreate,
     VolumeRead,
     VolumeType,
@@ -10,8 +10,8 @@ from app.schemas.volume import (
     Rotation,
     VolumeUpdate,
 )
-from app.services.simulation_service import SimulationService
-from app.utils.utils import (
+from app.simulations.service import SimulationService
+from app.shared.utils import (
     UNIT_MAP,
     assign_volume_shape,
     extract_rotation,

@@ -1,11 +1,11 @@
 import os
 import shutil
 from fastapi import HTTPException
-from app.repositories.simulation_repository import SimulationRepository
-from app.repositories.source_repository import SourceRepository
-from app.schemas.message import MessageResponse
-from app.schemas.simulation import SimulationCreate, SimulationRead, SimulationUpdate
-from app.utils.utils import get_gate_sim, handle_directory_rename, to_json_file
+from app.simulations.repository import SimulationRepository
+from app.sources.repository import SourceRepository
+from app.shared.message import MessageResponse
+from app.simulations.schema import SimulationCreate, SimulationRead, SimulationUpdate
+from app.shared.utils import get_gate_sim, handle_directory_rename, to_json_file
 import opengate as gate
 
 

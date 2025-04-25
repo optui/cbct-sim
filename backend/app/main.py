@@ -1,21 +1,28 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.responses import RedirectResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
+from fastapi.exceptions import RequestValidationError
 from sqlalchemy.exc import IntegrityError
-from app.api import api_router
 from contextlib import asynccontextmanager
-from app.core.database import engine
-from app.models import Base
-from app.core.exceptions import *
-from fastapi.middleware.cors import CORSMiddleware
 
-from app.core.config import get_settings
+from app.core import (
+    engine,
+    Base,
+    get_settings,
+    api_router,
+    handle_http_exception,
+    handle_integrity_error,
+    handle_validation_error,
+    handle_exception,
+)
+
+from fastapi.middleware.cors import CORSMiddleware
 
 settings = get_settings()
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI):
+async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
@@ -24,14 +31,14 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(
     lifespan=lifespan,
-    version="0.5.0",
     title=settings.TITLE,
     description=settings.DESCRIPTION,
+    version=settings.VERSION,
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins="http://localhost:4200",
+    allow_origins=["http://localhost:4200"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
