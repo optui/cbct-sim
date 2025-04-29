@@ -14,7 +14,7 @@ router = APIRouter(tags=["Volumes"], prefix="/simulations")
 
 @router.post(
     "/{simulation_id}/volumes",
-    response_model=VolumeRead,
+    response_model=MessageResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_volume(
@@ -37,7 +37,7 @@ async def read_volume(service: VolumeServiceDep, simulation_id: int, name: str):
     return await service.read_volume(simulation_id, name)
 
 
-@router.put("/{simulation_id}/volumes/{name}", response_model=VolumeRead)
+@router.put("/{simulation_id}/volumes/{name}", response_model=MessageResponse)
 async def update_volume(
     service: VolumeServiceDep, simulation_id: int, name: str, volume: VolumeUpdate
 ):

@@ -31,9 +31,8 @@ VolumeShape = Annotated[Union[BoxShape, SphereShape], Field(discriminator="type"
 
 class DynamicParams(BaseModel):
     enabled: bool = False
-    translations: List[Vector3] | None = None
-    translation_unit: Unit = Unit.MM
-    rotations: List[Rotation] | None = None
+    translation_end: Vector3 | None = None
+    angle_end: float | None = None
 
 
 class VolumeBase(BaseModel):

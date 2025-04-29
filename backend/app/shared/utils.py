@@ -9,10 +9,7 @@ from fastapi import HTTPException, status
 from app.sources.model import Source
 from app.simulations.repository import SimulationRepository
 from app.sources.repository import SourceRepository
-from app.shared.primitives import Rotation, UNIT_TO_GATE, Unit
-
-
-UNIT_MAP = {u.value: UNIT_TO_GATE[u] for u in Unit}
+from app.shared.primitives import Rotation, Unit, UNIT_TO_GATE
 
 
 def handle_directory_rename(current, new_name: str) -> None:
@@ -66,7 +63,7 @@ async def get_gate_sim(
     sim = gate.Simulation()
     sim.from_json_file(str(cfg))
 
-    for src in await source_repository.read_sources(id):
+    for src in await source_repository.read_all(id):
         gs = sim.add_source("GenericSource", src.name)
         gs.particle = src.particle
 

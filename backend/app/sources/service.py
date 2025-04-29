@@ -9,7 +9,6 @@ from app.sources.schema import (
     GenericSourceRead,
     GenericSourceUpdate,
 )
-from app.shared.utils import UNIT_MAP
 
 
 class SourceService:
@@ -20,7 +19,7 @@ class SourceService:
         self.source_repository = source_repository
 
     async def read_sources(self, sim_id: int) -> list[str]:
-        sources = await self.source_repository.read_sources(sim_id)
+        sources = await self.source_repository.read_all(sim_id)
         return [source.name for source in sources]
 
     async def create_source(
@@ -97,7 +96,7 @@ class SourceService:
         """
         Load the source from DB and return it as GenericSourceRead.
         """
-        source = await self.source_repository.read_source_by_name(sim_id, name)
+        source = await self.source_repository.read(sim_id, name)
         if not source:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -109,7 +108,7 @@ class SourceService:
         self, sim_id: int, name: str, update: GenericSourceUpdate
     ) -> GenericSourceRead:
         # Step 1: Load existing source
-        existing: Source = await self.source_repository.read_source_by_name(
+        existing: Source = await self.source_repository.read(
             sim_id, name
         )
         if not existing:
