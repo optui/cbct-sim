@@ -1,9 +1,13 @@
 import { Routes } from '@angular/router';
-import { ReadUpdateComponent } from './components/simulations/read-update/read-update.component';
-import { CreateComponent } from './components/simulations/create/create.component';
+import { SimulationListComponent } from './components/simulations/simulation-list.component';
+import { SimulationDetailComponent } from './components/simulations/simulation-detail.component';
+import { SimulationCreateComponent } from './components/simulations/simulation-create.component';
+import { HomeComponent } from './components/home/home.component';
 
 export const routes: Routes = [
-    { path: '', redirectTo:'', pathMatch: 'full' },
-    { path: 'read/:id', component: ReadUpdateComponent },
-    { path: 'create', component: CreateComponent }
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  { path: 'home', component: HomeComponent },
+  { path: 'simulations', component: SimulationListComponent },
+  { path: 'simulations/create', component: SimulationCreateComponent },
+  { path: 'simulations/:id', component: SimulationDetailComponent },
 ];

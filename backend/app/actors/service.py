@@ -1,4 +1,4 @@
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 from app.simulations.service import SimulationService
 from app.actors.schema import (
     ActorCreate,

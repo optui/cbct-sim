@@ -1,67 +1,77 @@
-__pycache__
-.venv
-venv
-.idea
-database.db
-output/
-uv.lock
-.env
-*.egg-info
+# ─── Node / Angular build artifacts ─────────────────────────────────────────────
+frontend/node_modules/
+/dist/
+/out-tsc/
+/.bazel-out/
+/frontend/dist/
+/frontend/out-tsc/
+/frontend/.angular/
+/.angular/cache/
 
-# Logs
-logs
-*.log
+# ─── Logs & temp ────────────────────────────────────────────────────────────────
 npm-debug.log*
-yarn-debug.log*
 yarn-error.log*
+yarn-debug.log*
 pnpm-debug.log*
-lerna-debug.log*
+*.log
+/tmp/
+/connect.lock
+testem.log
 
-node_modules
-dist
-dist-ssr
-*.local
+# ─── Coverage & reports ─────────────────────────────────────────────────────────
+/coverage/
+/test-results/
+/junit.xml
 
-# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+# ─── TypeScript / typings ───────────────────────────────────────────────────────
+/typings/
+*.d.ts
 
-# Compiled output
-/dist
-/tmp
-/out-tsc
-/bazel-out
+# ─── Python / Ruff ──────────────────────────────────────────────────────────────
+__pycache__/
+/*.py[cod]
+*.egg-info/
+.venv
+/.venv/
+/venv/
+/.ruff_cache/
 
-# Node
-/node_modules
-npm-debug.log
-yarn-error.log
+# ─── Environment & secrets ──────────────────────────────────────────────────────
+.env
+.env.*.local
+*.local.ts
+database.db
 
-# IDEs and editors
-.idea/
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
-
-# Visual Studio Code
-.vscode
+# ─── IDEs & Editors ─────────────────────────────────────────────────────────────
+# VS Code
+.vscode/
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-.history/*
-.editorconfig
+.history/
 
-# Miscellaneous
-.angular
-.sass-cache/
-/connect.lock
-/coverage
-/libpeerconnection.log
-testem.log
-/typings
+# JetBrains (WebStorm, IDEA)
+/.idea/
+/*.iml
 
-# System files
+# Eclipse, Cloud9, Sublime, vim backups
+.project
+.classpath
+.c9/
+.settings/
+*.launch
+*.sublime-workspace
+*~
+.*.swp
+
+# ─── OS system files ────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+Desktop.ini
+ehthumbs.db
+
+# ─── Miscellaneous ──────────────────────────────────────────────────────────────
+output/
+uv.lock
+*.bak

@@ -1,39 +1,39 @@
-import { Injectable, inject, signal, resource } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { MessageResponse, Simulation, SimulationCreate, SimulationUpdate } from '../models/simulation';
+import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
+import {
+  SimulationRead,
+  SimulationCreate,
+  SimulationUpdate,
+  MessageResponse,
+} from '../interfaces/simulation';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SimulationService {
-  private readonly http = inject(HttpClient);
-  private readonly url = 'http://127.0.0.1:8000/api/simulations';
+  private base = environment.apiBaseUrl + 'simulations/';
 
-  create(simulation: SimulationCreate) {
-    return this.http.post<Simulation>(this.url, simulation);
-  }  
+  constructor(private http: HttpClient) {}
 
-  simulations() {
-    return this.http.get<Simulation[]>(this.url);
-  }
-  
-  simulation(id: number) {
-    return this.http.get<Simulation>(`${this.url}/${id}`);
+  list(): Observable<SimulationRead[]> {
+    return this.http.get<SimulationRead[]>(this.base);
   }
 
-  update(id: number, simulation: SimulationUpdate) {
-    return this.http.put<Simulation>(`${this.url}/${id}`, simulation);
+  get(id: number): Observable<SimulationRead> {
+    return this.http.get<SimulationRead>(`${this.base}${id}`);
   }
 
-  delete(id: number) {
-    return this.http.delete<MessageResponse>(`${this.url}/${id}`);
+  create(payload: SimulationCreate): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(this.base, payload);
   }
 
-  view(id: number) {
-    return this.http.get<MessageResponse>(`${this.url}/${id}/view`);
+  update(id: number, payload: SimulationUpdate): Observable<MessageResponse> {
+    return this.http.put<MessageResponse>(`${this.base}${id}`, payload);
   }
 
-  run(id: number) {
-    return this.http.get<MessageResponse>(`${this.url}/${id}/run`);
+  delete(id: number): Observable<MessageResponse> {
+    return this.http.delete<MessageResponse>(`${this.base}${id}`);
   }
 }

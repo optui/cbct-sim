@@ -1,19 +1,19 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
-from starlette.exceptions import HTTPException as StarletteHTTPException
+from starlette.exceptions import HTTPException
 from fastapi.exceptions import RequestValidationError
 from sqlalchemy.exc import IntegrityError
 from contextlib import asynccontextmanager
 
 from app.core import (
-    engine,
     Base,
-    get_settings,
+    engine,
     api_router,
+    get_settings,
+    handle_exception,
     handle_http_exception,
     handle_integrity_error,
     handle_validation_error,
-    handle_exception,
 )
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -44,7 +44,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.add_exception_handler(StarletteHTTPException, handle_http_exception)
+app.add_exception_handler(HTTPException, handle_http_exception)
 app.add_exception_handler(IntegrityError, handle_integrity_error)
 app.add_exception_handler(RequestValidationError, handle_validation_error)
 app.add_exception_handler(Exception, handle_exception)

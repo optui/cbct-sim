@@ -52,7 +52,7 @@ class SimulationService:
             )
         if os.path.exists(sim.output_dir):
             shutil.rmtree(sim.output_dir)
-        return {"message": "Simulation deleted successfully"}
+        return {"message": f"Simulation '{sim.name}' deleted successfully"}
 
     async def import_simulation(self, id: int) -> MessageResponse:
         return MessageResponse(message="Import functionality not implemented yet")

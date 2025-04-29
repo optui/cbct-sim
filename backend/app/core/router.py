@@ -8,6 +8,6 @@ from app.volumes.router import router as volumes_router
 api_router = APIRouter(prefix="/api")
 
 api_router.include_router(simulations_router)
-api_router.include_router(actors_router)
-api_router.include_router(sources_router)
 api_router.include_router(volumes_router)
+api_router.include_router(sources_router)
+api_router.include_router(actors_router)

@@ -1,25 +1,27 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { NavComponent } from './components/shared/nav/nav.component';
 import { CommonModule } from '@angular/common';
+import { NavComponent } from './components/nav/nav.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavComponent, CommonModule],
+  imports: [RouterOutlet, CommonModule, NavComponent],
   template: `
-    <main>
-      <app-nav />
+    <app-nav></app-nav>
+
+    <main class="container">
       <router-outlet />
     </main>
+
+
+    <footer class="container">
+      <p>&copy; ProjeCT 2025</p>
+    </footer>
+
   `,
-  styles: `
-    main {
-      height: 100%;
-      width: 100%;
-      display: flex;
-      flex-flow: row nowrap;
-    }
-  `,
+  styles: []
 })
-export class AppComponent {}
+export class AppComponent {
+
+}

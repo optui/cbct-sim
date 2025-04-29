@@ -1,15 +1,14 @@
 from sqlalchemy import (
-    Column,
-    Integer,
-    String,
-    Float,
     JSON,
+    Float,
+    Column,
+    String,
+    Integer,
     ForeignKey,
     UniqueConstraint,
 )
 from sqlalchemy.orm import relationship
-
-from app.core.base import Base
+from app.core import Base
 
 
 class Source(Base):
