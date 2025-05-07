@@ -1,35 +1,60 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { SimulationService } from '../../services/simulation.service';
-import { SimulationRead } from '../../interfaces/simulation';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router }               from '@angular/router';
+import { CommonModule }         from '@angular/common';
+import { NgFor }                from '@angular/common';
+import { SimulationRead }       from '../../interfaces/simulation';
+import { SimulationService }    from '../../services/simulation.service';
 
 @Component({
   selector: 'app-simulation-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, NgFor],
   template: `
-    <h2>Simulations</h2>
-
     <ul>
-      <li *ngFor="let sim of sims()">
-        <a [routerLink]="['/simulations', sim.id]">
-          {{ sim.name }}
-        </a>
+      <li *ngFor="let sim of simulations">
+        {{ sim.name }} 
+        (runs: {{ sim.num_runs }}, length: {{ sim.run_len }})
+        <button (click)="detail(sim.id)">Detail</button>
+        <button (click)="edit(sim.id)">Edit</button>
+        <button (click)="delete(sim.id)">Delete</button>
       </li>
     </ul>
 
-    <p>
-      <a routerLink="/simulations/create" class="contrast">Create New Simulation</a>
-    </p>
+    <button (click)="create()">+ New Simulation</button>
   `
 })
 export class SimulationListComponent implements OnInit {
-  sims = signal<SimulationRead[]>([]);
+  simulations: SimulationRead[] = [];
 
-  constructor(private svc: SimulationService) {}
+  constructor(
+    private simulationService: SimulationService,
+    private router: Router
+  ) {}
 
-  ngOnInit() {
-    this.svc.list().subscribe(data => this.sims.set(data));
+  ngOnInit(): void {
+    this.loadSimulations();
+  }
+
+  loadSimulations(): void {
+    this.simulationService.list()
+      .subscribe(data => this.simulations = data);
+  }
+
+  detail(id: number): void {
+    this.router.navigate(['/simulations', id]);
+  }
+
+  edit(id: number): void {
+    this.router.navigate(['/simulations', id, 'edit']);
+  }
+
+  delete(id: number): void {
+    if (!confirm('Delete this simulation?')) return;
+    this.simulationService.delete(id)
+      .subscribe(() => this.loadSimulations());
+  }
+
+  create(): void {
+    this.router.navigate(['/simulations/create']);
   }
 }

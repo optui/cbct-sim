@@ -1,54 +1,45 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, FormGroupDirective, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { SimulationService } from '../../services/simulation.service';
 import { SimulationCreate } from '../../interfaces/simulation';
-import { Router, RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-simulation-create',
-  standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
-  template: `
-    <h2>Create New Simulation</h2>
-
-    <form (ngSubmit)="create()">
-      <label>
-        Name:
-        <input [ngModel]="form().name" (ngModelChange)="updateField('name', $event)" name="name" required />
-      </label>
-
-      <label>
-        Number of Runs:
-        <input type="number" [ngModel]="form().num_runs" (ngModelChange)="updateField('num_runs', $event)" name="num_runs" required />
-      </label>
-
-      <label>
-        Run Length:
-        <input type="number" [ngModel]="form().run_len" (ngModelChange)="updateField('run_len', $event)" name="run_len" required />
-      </label>
-
-      <button type="submit">Create Simulation</button>
-    </form>
-  `
+    selector: 'app-simulation-create',
+    imports: [ReactiveFormsModule],
+    template: `
+        <form [formGroup]="form" (ngSubmit)="submit()">
+            <label>Name:<input formControlName="name" /></label>
+            <label>Number of runs:<input type="number" formControlName="num_runs" /></label>
+            <label>Run length:<input type="number" formControlName="run_len" /></label>
+            <button type="submit" [disabled]="form.invalid">Create</button>
+            <button type="button" (click)="router.navigate(['/simulations'])">Cancel</button>
+        </form>
+    `
 })
-export class SimulationCreateComponent {
-  form = signal<SimulationCreate>({
-    name: '',
-    num_runs: 1,
-    run_len: 100
-  });
+export class SimulationCreateComponent implements OnInit {
+    form!: FormGroup;
 
-  constructor(private svc: SimulationService, private router: Router) {}
+    constructor(
+        private fb: FormBuilder,
+        private simulationService: SimulationService,
+        public router: Router
+    ) { }
 
-  updateField(field: keyof SimulationCreate, value: any) {
-    this.form.update(current => ({ ...current, [field]: value }));
-  }
+    ngOnInit(): void {
+        this.form = this.fb.group({
+            name: ['', Validators.required],
+            num_runs: [1, [Validators.required, Validators.min(1)]],
+            run_len: [1, [Validators.required, Validators.min(1)]],
+        });
+    }
 
-  create() {
-    this.svc.create(this.form()).subscribe(() => {
-      alert('Simulation created successfully!');
-      this.router.navigate(['/simulations']);
-    });
-  }
+    submit(): void {
+        if (this.form.valid) {
+            const payload: SimulationCreate = this.form.value;
+            this.simulationService.create(payload).subscribe(() =>
+                this.router.navigate(['/simulations'])
+            );
+        }
+    }
 }

@@ -1,65 +1,71 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { SimulationService } from '../../services/simulation.service';
-import { SimulationRead, SimulationUpdate } from '../../interfaces/simulation';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit }          from '@angular/core';
+import { ActivatedRoute, Router }     from '@angular/router';
+import { CommonModule, NgIf }         from '@angular/common';
+import { RouterOutlet }               from '@angular/router';
+
+import { SimulationRead }             from '../../interfaces/simulation';
+import { SimulationService }          from '../../services/simulation.service';
+
+import { VolumeListComponent }        from '../volumes/volume-list.component';
+import { SourceListComponent }        from '../sources/source-list.component';
+import { ActorListComponent }         from '../actors/actor-list.component';
 
 @Component({
   selector: 'app-simulation-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [
+    CommonModule,
+    NgIf,
+    RouterOutlet,
+    VolumeListComponent,
+    SourceListComponent,
+    ActorListComponent
+  ],
   template: `
-    <div *ngIf="simulation() as sim">
-      <h2>Edit Simulation</h2>
-      <form (ngSubmit)="save()">
-        <label>
-          Name:
-          <input [(ngModel)]="sim.name" name="name" required />
-        </label>
-        <label>
-          Number of Runs:
-          <input type="number" [(ngModel)]="sim.num_runs" name="num_runs" required />
-        </label>
-        <label>
-          Run Length:
-          <input type="number" [(ngModel)]="sim.run_len" name="run_len" required />
-        </label>
+    <div *ngIf="simulation; else loading">
+      <button (click)="back()">← Back to list</button>
 
-        <button type="submit">Save</button>
-      </form>
+      <h2>{{ simulation.name }}</h2>
+      <p><strong>Number of runs:</strong> {{ simulation.num_runs }}</p>
+      <p><strong>Run length:</strong> {{ simulation.run_len }}</p>
+      <p><strong>Created at:</strong> {{ simulation.created_at }}</p>
+      <p><strong>Output dir:</strong> {{ simulation.output_dir }}</p>
+      <p><strong>Archive file:</strong> {{ simulation.json_archive_filename }}</p>
+
+      <!-- inline lists -->
+      <app-volume-list [simulationId]="simulation.id"></app-volume-list>
+
+      <h3>Sources</h3>
+      <app-source-list [simulationId]="simulation.id"></app-source-list>
+
+      <h3>Actors</h3>
+      <app-actor-list [simulationId]="simulation.id"></app-actor-list>
+
+      <!-- nested child routes -->
+      <router-outlet></router-outlet>
     </div>
 
-    <p *ngIf="!simulation()">Loading...</p>
+    <ng-template #loading>
+      <p>Loading simulation…</p>
+    </ng-template>
   `
 })
 export class SimulationDetailComponent implements OnInit {
-  simulation = signal<SimulationRead | null>(null);
+  simulation?: SimulationRead;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private svc: SimulationService
+    private simulationService: SimulationService
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.svc.get(id).subscribe(data => this.simulation.set(data));
+    this.simulationService.get(id)
+      .subscribe(sim => this.simulation = sim);
   }
 
-  save() {
-    if (!this.simulation()) return;
-
-    const id = this.simulation()!.id;
-    const payload: SimulationUpdate = {
-      name: this.simulation()!.name,
-      num_runs: this.simulation()!.num_runs,
-      run_len: this.simulation()!.run_len,
-    };
-
-    this.svc.update(id, payload).subscribe(() => {
-      alert('Simulation updated successfully!');
-      this.router.navigate(['/simulations']);
-    });
+  back(): void {
+    this.router.navigate(['/simulations']);
   }
 }
