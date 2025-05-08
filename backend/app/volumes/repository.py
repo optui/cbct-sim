@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -11,83 +12,56 @@ class VolumeRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create(self, simulation_id: int, payload: VolumeCreate) -> Volume:
-        # Convert payload → raw dict, replacing Enums with their values
-        data = payload.dict()
-        # Primitive fields go straight in; enums need .value
-        data["translation_unit"] = payload.translation_unit.value
-        data["shape"] = payload.shape.dict()          # JSON column
-        data["dynamic_params"] = payload.dynamic_params.dict()
-        data["rotation"] = {
-            "axis": payload.rotation.axis.value,
-            "angle": payload.rotation.angle,
-        }
-        # Duck-type the JSON columns in the DB model
-        db_vol = Volume(
-            simulation_id=simulation_id,
-            name=payload.name,
-            mother=payload.mother,
-            material=payload.material,
-            translation=data["translation"],
-            translation_unit=data["translation_unit"],
-            rotation=data["rotation"],
-            shape=data["shape"],
-            dynamic_params=data["dynamic_params"],
-        )
-
-        self.session.add(db_vol)
+    async def create(self, sim_id: int, vol_create: VolumeCreate) -> Volume:
+        session_vol = Volume(
+            simulation_id=sim_id,
+            **vol_create.model_dump(mode='json'))
+        self.session.add(session_vol)
         try:
             await self.session.commit()
-            await self.session.refresh(db_vol)
-            return db_vol
+            await self.session.refresh(session_vol)
+            return session_vol
         except IntegrityError:
             await self.session.rollback()
             raise
 
-    async def read_all(self, simulation_id: int) -> List[Volume]:
-        q = await self.session.execute(
-            select(Volume).where(Volume.simulation_id == simulation_id)
+    async def read_all(self, sim_id: int) -> List[Volume]:
+        vol_list = await self.session.execute(
+            select(Volume).where(Volume.simulation_id == sim_id)
         )
-        return q.scalars().all()
+        return vol_list.scalars().all()
 
-    async def read(self, simulation_id: int, name: str) -> Volume | None:
-        q = await self.session.execute(
+    async def read(self, sim_id: int, name: str) -> Volume | None:
+        vol = await self.session.execute(
             select(Volume).where(
-                Volume.simulation_id == simulation_id, Volume.name == name
+                Volume.simulation_id == sim_id, Volume.name == name
             )
         )
-        return q.scalar_one_or_none()
+        return vol.scalar_one_or_none()
 
 
-    async def update(self, simulation_id: int, name: str, payload: VolumeUpdate) -> Volume:
-        vol = await self.read(simulation_id, name)
-        if not vol:
-            return None
+    async def update(self, sim_id: int, name: str, vol_update: VolumeUpdate) -> Volume:
+        vol = await self.read(sim_id, name)
+        vol_update: dict = vol_update.model_dump(exclude_unset=True)
 
-        data = payload.model_dump(exclude_unset=True)
-        # Map any enums/dicts into the JSON columns
-        if "translation" in data:
-            vol.translation = data["translation"]
-        if "translation_unit" in data:
-            vol.translation["unit"] = data["translation_unit"].value
-        if "rotation" in data:
-            vol.rotation = {"axis": data["rotation"].axis.value,
-                            "angle": data["rotation"].angle}
-        if "shape" in data:
-            vol.shape = data["shape"].dict()
-        if "dynamic_params" in data:
-            vol.dynamic_params = data["dynamic_params"].dict()
-        # Simple scalars
-        for attr in ("name", "mother", "material"):
-            if attr in data:
-                setattr(vol, attr, data[attr])
+        for key, value in vol_update.items():
+            if key in {"rotation", "shape", "dynamic_params"} and value is not None:
+                setattr(vol, key, value)
+            elif key == "translation_unit" and isinstance(value, Enum):
+                setattr(vol, key, value.value)
+            else:
+                setattr(vol, key, value)
 
-        await self.session.commit()
-        await self.session.refresh(vol)
-        return vol
+        try:
+            await self.session.commit()
+            await self.session.refresh(vol)
+            return vol
+        except IntegrityError:
+            await self.session.rollback()
+            raise
 
-    async def delete(self, simulation_id: int, name: str) -> Volume | None:
-        vol = await self.read(simulation_id, name)
+    async def delete(self, sim_id: int, name: str) -> Volume | None:
+        vol = await self.read(sim_id, name)
         if vol:
             await self.session.delete(vol)
             await self.session.commit()

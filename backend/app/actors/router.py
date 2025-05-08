@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, status
 from app.actors.dependencies import ActorServiceDep
 from app.actors.schema import ActorCreate, ActorRead, ActorUpdate
 from typing import List
@@ -13,7 +13,9 @@ async def get_actors(service: ActorServiceDep, simulation_id: int):
     return await service.get_actors(simulation_id)
 
 
-@router.post("/{simulation_id}/actors")
+@router.post("/{simulation_id}/actors",
+             status_code=status.HTTP_201_CREATED,
+             response_model=MessageResponse)
 async def create_actor(
     service: ActorServiceDep, simulation_id: int, actor: ActorCreate
 ):

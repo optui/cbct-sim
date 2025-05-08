@@ -7,11 +7,13 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [RouterOutlet, CommonModule],
   template: `
+    <nav class="navbar navbar-dark bg-dark">
+      <div class="container-fluid">
+        <span class="navbar-brand mb-0 h1">ProjeCT</span>
+      </div>
+    </nav>
     <router-outlet />
   `,
-  styles: [`
-  `]
+  styles: []
 })
-export class AppComponent {
-
-}
+export class AppComponent {}

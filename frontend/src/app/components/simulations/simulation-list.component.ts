@@ -1,27 +1,37 @@
 import { Component, OnInit } from '@angular/core';
-import { Router }               from '@angular/router';
-import { CommonModule }         from '@angular/common';
-import { NgFor }                from '@angular/common';
-import { SimulationRead }       from '../../interfaces/simulation';
-import { SimulationService }    from '../../services/simulation.service';
+import { Router, RouterModule } from '@angular/router';
+import { CommonModule, NgFor, NgIf } from '@angular/common';
+import { SimulationRead } from '../../interfaces/simulation';
+import { SimulationService } from '../../services/simulation.service';
 
 @Component({
   selector: 'app-simulation-list',
   standalone: true,
-  imports: [CommonModule, NgFor],
+  imports: [CommonModule, NgFor, RouterModule, NgIf],
   template: `
-    <ul>
-      <li *ngFor="let sim of simulations">
-        {{ sim.name }} 
-        (runs: {{ sim.num_runs }}, length: {{ sim.run_len }})
-        <button (click)="detail(sim.id)">Detail</button>
-        <button (click)="edit(sim.id)">Edit</button>
-        <button (click)="delete(sim.id)">Delete</button>
-      </li>
-    </ul>
+    <div class="container py-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Simulations</h2>
+        <a routerLink="/simulations/create" class="btn btn-primary">+ New Simulation</a>
+      </div>
 
-    <button (click)="create()">+ New Simulation</button>
-  `
+      <ul class="list-group mb-3">
+        <li *ngFor="let sim of simulations" class="list-group-item d-flex justify-content-between align-items-center">
+          <span class="fw-medium">{{ sim.name }}</span>
+          <div class="btn-group" role="group">
+            <button class="btn btn-outline-primary btn-sm" (click)="detail(sim.id)">Detail</button>
+            <button class="btn btn-outline-secondary btn-sm" (click)="edit(sim.id)">Edit</button>
+            <button class="btn btn-outline-danger btn-sm" (click)="delete(sim.id)">Delete</button>
+          </div>
+        </li>
+      </ul>
+
+      <div *ngIf="simulations.length === 0" class="alert alert-warning text-center">
+        No simulations found. Create one!
+      </div>
+    </div>
+  `,
+  styles: []
 })
 export class SimulationListComponent implements OnInit {
   simulations: SimulationRead[] = [];
@@ -52,9 +62,5 @@ export class SimulationListComponent implements OnInit {
     if (!confirm('Delete this simulation?')) return;
     this.simulationService.delete(id)
       .subscribe(() => this.loadSimulations());
-  }
-
-  create(): void {
-    this.router.navigate(['/simulations/create']);
   }
 }

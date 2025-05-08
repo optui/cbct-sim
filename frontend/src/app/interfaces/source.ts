@@ -39,7 +39,7 @@ export interface GenericSourceBase {
     energy: EnergyConfig;
     n?: number;
     activity?: number;
-    activity_unit: 'Bq' | 'kBq' | 'MBq';
+    activity_unit?: 'Bq' | 'kBq' | 'MBq';
 }
 
 export interface GenericSourceCreate extends GenericSourceBase { }

@@ -13,3 +13,5 @@ source ./backend/.venv/bin/activate
 echo "Starting FastAPI backend..."
 cd backend/
 uvicorn app.main:app --reload
+
+deactivate

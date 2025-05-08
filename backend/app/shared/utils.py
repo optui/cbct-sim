@@ -12,35 +12,6 @@ from app.sources.repository import SourceRepository
 from app.shared.primitives import Rotation, Unit, UNIT_TO_GATE
 
 
-def handle_directory_rename(current, new_name: str) -> None:
-    old_dir, new_dir = current.output_dir, f"./output/{new_name}"
-    if old_dir != new_dir and os.path.exists(old_dir):
-        os.rename(old_dir, new_dir)
-        old_json = os.path.join(new_dir, current.json_archive_filename)
-        if os.path.exists(old_json):
-            os.remove(old_json)
-
-
-def to_json_file(sim) -> None:
-    run_intervals = compute_run_timing_intervals(sim.num_runs, sim.run_len)
-    gate.Simulation(
-        name=sim.name,
-        output_dir=sim.output_dir,
-        json_archive_filename=sim.json_archive_filename,
-        run_timing_intervals=run_intervals,
-    ).to_json_file()
-
-
-def compute_run_timing_intervals(num_runs: int, run_len: float) -> list[list[float]]:
-    return [
-        [
-            i * run_len * UNIT_TO_GATE[Unit.SEC],
-            (i + 1) * run_len * UNIT_TO_GATE[Unit.SEC],
-        ]
-        for i in range(num_runs)
-    ]
-
-
 async def get_gate_sim(
     id: int,
     simulation_repository: SimulationRepository,

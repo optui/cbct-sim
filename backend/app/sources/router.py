@@ -19,7 +19,7 @@ async def read_sources(service: SourceServiceDep, simulation_id: int):
 @router.post(
     "/{simulation_id}/sources",
     status_code=status.HTTP_201_CREATED,
-    response_model=GenericSourceRead,
+    response_model=MessageResponse,
 )
 async def create_source(
     service: SourceServiceDep, simulation_id: int, source: GenericSourceCreate
@@ -32,7 +32,7 @@ async def read_source(service: SourceServiceDep, simulation_id: int, name: str):
     return await service.read_source(simulation_id, name)
 
 
-@router.put("/{simulation_id}/sources/{name}", response_model=GenericSourceRead)
+@router.put("/{simulation_id}/sources/{name}", response_model=MessageResponse)
 async def update_source(
     service: SourceServiceDep,
     simulation_id: int,

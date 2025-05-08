@@ -44,11 +44,11 @@ export class SimulationService {
     return this.http.post<MessageResponse>(`${this.baseUrl}${id}/export`, {});
   }
 
-  viewSimulation(id: number): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}${id}/view`, {});
+  viewSimulation(id: number): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.baseUrl}${id}/view`, {});
   }
 
-  runSimulation(id: number): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}${id}/run`, {});
+  runSimulation(id: number): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.baseUrl}${id}/run`, {});
   }
 }

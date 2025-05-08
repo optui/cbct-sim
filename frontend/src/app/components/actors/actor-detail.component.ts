@@ -8,12 +8,27 @@ import { ActorRead } from '../../interfaces/actor';
 @Component({
   standalone: true,
   selector: 'app-actor-detail',
-  imports: [CommonModule, NgIf, RouterModule, RouterOutlet],
+  imports: [CommonModule, NgIf, RouterModule],
   template: `
+
     <div *ngIf="actor; else loading">
       <h3>{{ actor.name }}</h3>
-      <pre>{{ actor | json }}</pre>
-
+      <div *ngIf="actor.type === 'SimulationStatisticsActor'">
+        <p>Output Filename: {{ actor.output_filename }}</p>
+      </div>
+      <div *ngIf="actor.type === 'DigitizerHitsCollectionActor'">
+        <p>Attached To: {{ actor.attached_to }}</p>
+        <p>Attributes: {{ actor.attributes?.join(', ') }}</p>
+        <p>Output Filename: {{ actor.output_filename }}</p>
+      </div>
+      <div *ngIf="actor.type === 'DigitizerProjectionActor'">
+        <p>Attached To: {{ actor.attached_to }}</p>
+        <p>Input Digi Collections: {{ actor.input_digi_collections.join(', ') }}</p>
+        <p>Spacing: {{ actor.spacing.join(', ') }}</p>
+        <p>Size: {{ actor.size.join(', ') }}</p>
+        <p>Origin as Image Center: {{ actor.origin_as_image_center }}</p>
+        <p>Output Filename: {{ actor.output_filename }}</p>
+      </div>
       <button
         (click)="router.navigate(['create'], { relativeTo: route })">
         + New Actor
@@ -23,10 +38,10 @@ import { ActorRead } from '../../interfaces/actor';
         ✎ Edit Actor
       </button>
       <button (click)="back()">Back to Simulation</button>
-
-      <!-- child routes render here -->
-      <router-outlet></router-outlet>
     </div>
+
+
+
     <ng-template #loading><p>Loading…</p></ng-template>
   `
 })

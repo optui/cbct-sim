@@ -1,5 +1,5 @@
 import { Component, OnInit }          from '@angular/core';
-import { ActivatedRoute, Router }     from '@angular/router';
+import { ActivatedRoute, Router, RouterLink }     from '@angular/router';
 import { CommonModule, NgIf }         from '@angular/common';
 import { RouterOutlet }               from '@angular/router';
 
@@ -16,37 +16,35 @@ import { ActorListComponent }         from '../actors/actor-list.component';
   imports: [
     CommonModule,
     NgIf,
-    RouterOutlet,
-    VolumeListComponent,
-    SourceListComponent,
-    ActorListComponent
+    RouterLink
   ],
   template: `
-    <div *ngIf="simulation; else loading">
-      <button (click)="back()">← Back to list</button>
+    <div *ngIf="simulation; else loading" class="container py-4">
+      <button (click)="back()" class="btn btn-secondary mb-3">← Back to list</button>
 
-      <h2>{{ simulation.name }}</h2>
-      <p><strong>Number of runs:</strong> {{ simulation.num_runs }}</p>
-      <p><strong>Run length:</strong> {{ simulation.run_len }}</p>
-      <p><strong>Created at:</strong> {{ simulation.created_at }}</p>
-      <p><strong>Output dir:</strong> {{ simulation.output_dir }}</p>
-      <p><strong>Archive file:</strong> {{ simulation.json_archive_filename }}</p>
-
-      <!-- inline lists -->
-      <app-volume-list [simulationId]="simulation.id"></app-volume-list>
-
-      <h3>Sources</h3>
-      <app-source-list [simulationId]="simulation.id"></app-source-list>
-
-      <h3>Actors</h3>
-      <app-actor-list [simulationId]="simulation.id"></app-actor-list>
-
-      <!-- nested child routes -->
-      <router-outlet></router-outlet>
+      <div class="card">
+        <div class="card-body">
+          <h3 class="card-title">{{ simulation.name }}</h3>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Number of runs:</strong> {{ simulation.num_runs }}</li>
+            <li class="list-group-item"><strong>Run length:</strong> {{ simulation.run_len }}</li>
+            <li class="list-group-item"><strong>Created at:</strong> {{ simulation.created_at }}</li>
+            <li class="list-group-item"><strong>Output dir:</strong> {{ simulation.output_dir }}</li>
+            <li class="list-group-item"><strong>Archive file:</strong> {{ simulation.json_archive_filename }}</li>
+          </ul>
+          <div class="mt-3 d-flex gap-3">
+            <a [routerLink]="['/simulations', simulation.id, 'volumes']" class="btn btn-outline-primary">View Volumes</a>
+            <a [routerLink]="['/simulations', simulation.id, 'sources']" class="btn btn-outline-primary">View Sources</a>
+            <a [routerLink]="['/simulations', simulation.id, 'actors']" class="btn btn-outline-primary">View Actors</a>
+          </div>
+        </div>
+      </div>
     </div>
 
     <ng-template #loading>
-      <p>Loading simulation…</p>
+      <div class="container py-4">
+        <div class="alert alert-info">Loading simulation…</div>
+      </div>
     </ng-template>
   `
 })

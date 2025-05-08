@@ -13,17 +13,19 @@ from app.actors.schema import (
 )
 import opengate as gate
 
+from app.shared.message import MessageResponse
+
 
 class ActorService:
     def __init__(self, simulation_service: SimulationService):
         self.sim_service = simulation_service
 
-    async def get_actors(self, sim_id: int):
+    async def get_actors(self, sim_id: int) -> list[str]:
         gate_sim = await self.sim_service.get_gate_sim_without_sources(sim_id)
         return list(gate_sim.actor_manager.actors.keys())
 
-    async def create_actor(self, sim_id: int, actor: ActorCreate):
-        gate_sim = await self.sim_service.read_simulation(sim_id)
+    async def create_actor(self, sim_id: int, actor: ActorCreate) -> MessageResponse:
+        gate_sim = await self.sim_service.get_gate_sim_without_sources(sim_id)
 
         actor_instance = gate_sim.add_actor(actor.type, actor.name)
 

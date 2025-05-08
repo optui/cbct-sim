@@ -11,16 +11,16 @@ class SimulationRepository:
         self.session = session
 
     async def create(self, sim_create: SimulationCreate) -> Simulation:
-        session_sim = Simulation(
-            **sim_create.model_dump(),
+        sim = Simulation(
+            **sim_create.model_dump(mode='json'),
             output_dir=f"./output/{sim_create.name}",
             json_archive_filename=f"{sim_create.name}.json",
         )
-        self.session.add(session_sim)
+        self.session.add(sim)
         try:
             await self.session.commit()
-            await self.session.refresh(session_sim)
-            return session_sim
+            await self.session.refresh(sim)
+            return sim
         except IntegrityError:
             await self.session.rollback()
             raise
@@ -34,20 +34,20 @@ class SimulationRepository:
         return sim.scalar_one_or_none()
 
     async def update(self, id: int, sim_update: SimulationUpdate) -> Simulation:
-        session_sim = await self.read(id)
+        sim = await self.read(id)
         sim_update: dict = sim_update.model_dump(exclude_unset=True)
 
         for key, value in sim_update.items():
-            setattr(session_sim, key, value)
+            setattr(sim, key, value)
 
         if "name" in sim_update:
-            session_sim.output_dir = f"./output/{session_sim.name}"
-            session_sim.json_archive_filename = f"{session_sim.name}.json"
+            sim.output_dir = f"./output/{sim.name}"
+            sim.json_archive_filename = f"{sim.name}.json"
 
         try:
             await self.session.commit()
-            await self.session.refresh(session_sim)
-            return session_sim
+            await self.session.refresh(sim)
+            return sim
         except IntegrityError:
             await self.session.rollback()
             raise

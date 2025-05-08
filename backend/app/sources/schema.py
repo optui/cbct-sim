@@ -86,4 +86,6 @@ class GenericSourceUpdate(BaseModel):
 
 # Read schema includes ID
 class GenericSourceRead(GenericSourceBase):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int

@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Annotated, Literal, Union, List
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.shared.primitives import Vector3, Rotation, Unit
 
@@ -17,7 +17,7 @@ class BaseShape(BaseModel):
 
 class BoxShape(BaseShape):
     type: Literal[VolumeType.BOX] = Field(VolumeType.BOX, frozen=True)
-    size: Vector3
+    size: Vector3 = Field(default_factory=lambda: [10.0, 10.0, 10.0])
 
 
 class SphereShape(BaseShape):
@@ -36,6 +36,7 @@ class DynamicParams(BaseModel):
 
 
 class VolumeBase(BaseModel):
+    name: str
     mother: str | None = Field("world")
     material: str = Field("G4_AIR")
     translation: Vector3 = Field(default_factory=lambda: [0.0, 0.0, 0.0])
@@ -46,7 +47,7 @@ class VolumeBase(BaseModel):
 
 
 class VolumeCreate(VolumeBase):
-    name: str
+    pass
 
 
 class VolumeUpdate(BaseModel):
@@ -61,4 +62,7 @@ class VolumeUpdate(BaseModel):
 
 
 class VolumeRead(VolumeBase):
-    name: str
+    model_config = ConfigDict(from_attributes=True)
+    
+    id: int
+    simulation_id: int

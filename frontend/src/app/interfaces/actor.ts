@@ -10,7 +10,7 @@ export interface SimulationStatisticsActorConfig extends ActorBase {
 export interface DigitizerHitsCollectionActorConfig extends ActorBase {
     type: 'DigitizerHitsCollectionActor';
     attached_to: string;
-    attributes: string[];
+    attributes?: string[];
     output_filename: string;
 }
 
@@ -18,9 +18,9 @@ export interface DigitizerProjectionActorConfig extends ActorBase {
     type: 'DigitizerProjectionActor';
     attached_to: string;
     input_digi_collections: string[];
-    spacing: number[];
-    size: number[];
-    origin_as_image_center: boolean;
+    spacing: [number, number];
+    size: [number, number, number];
+    origin_as_image_center?: boolean;
     output_filename: string;
 }
 

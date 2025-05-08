@@ -8,6 +8,8 @@ from .exceptions import (
     handle_exception,
 )
 from .router import api_router
+from ..volumes.events import _insert_world_volume
+
 
 __all__ = [
     "get_settings",
