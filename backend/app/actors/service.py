@@ -14,6 +14,7 @@ from app.actors.schema import (
 import opengate as gate
 
 from app.shared.message import MessageResponse
+from app.shared.primitives import UNIT_TO_GATE, Unit
 
 
 class ActorService:
@@ -40,7 +41,7 @@ class ActorService:
         elif isinstance(actor, DigitizerProjectionActorConfig):
             actor_instance.attached_to = actor.attached_to
             actor_instance.input_digi_collections = actor.input_digi_collections
-            actor_instance.spacing = actor.spacing
+            actor_instance.spacing = [actor.spacing[0] * UNIT_TO_GATE[Unit.MM], actor.spacing[1] * UNIT_TO_GATE[Unit.MM]]
             actor_instance.size = actor.size
             actor_instance.origin_as_image_center = actor.origin_as_image_center
             actor_instance.output_filename = actor.output_filename
@@ -49,7 +50,7 @@ class ActorService:
             raise HTTPException(status_code=400, detail="Unsupported actor type")
 
         gate_sim.to_json_file()
-        return {"detail": f"Actor '{actor.name}' of type '{actor.type}' created."}
+        return {"message": f"Actor '{actor.name}' of type '{actor.type}' created."}
 
     async def read_actor(self, sim_id: int, actor_name: str):
         gate_sim = await self.sim_service.read_simulation(sim_id)
@@ -140,6 +141,7 @@ class ActorService:
                 if actor_update.config.output_filename is not None:
                     actor_instance.output_filename = actor_update.config.output_filename
 
+
             else:
                 raise HTTPException(
                     status_code=400, detail="Unsupported actor type for update"
@@ -165,16 +167,17 @@ class ActorService:
 
             gate_sim.to_json_file()  # Save again after rename
 
-        return {"detail": f"Actor '{actor_name}' updated successfully."}
+        return {"message": f"Actor '{actor_name}' updated successfully."}
 
-    def delete_actor(self, actor_name):
+    async def delete_actor(self, sim_id, actor_name):
         """
         Deletes the actor from the simulation by its name.
         """
         try:
-            self.remove_actor(actor_name)
-            self.simulation.to_json_file()
-            return {"detail": f"Actor '{actor_name}' has been deleted successfully."}
+            gate_sim: gate.Simulation = await self.sim_service.get_gate_sim_without_sources(sim_id)
+            gate_sim.actor_manager.remove_actor(actor_name)
+            gate_sim.to_json_file()
+            return {"message": f"Actor '{actor_name}' has been deleted successfully."}
         except KeyError:
             raise HTTPException(
                 status_code=404,

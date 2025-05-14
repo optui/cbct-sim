@@ -89,13 +89,7 @@ class VolumeService:
                 for a in angles
             ]
 
-            if vol.dynamic_params.translation_end is not None:
-                translation_start = np.array(vol.translation, dtype=float) * translation_unit
-                translation_end   = np.array(vol.dynamic_params.translation_end, dtype=float) * translation_unit
-                translations = np.linspace(translation_start, translation_end, num_runs).tolist()
-                gate_vol.add_dynamic_parametrisation(rotation=rotations, translation=translations)
-            else:
-                gate_vol.add_dynamic_parametrisation(rotation=rotations)
+            gate_vol.add_dynamic_parametrisation(rotation=rotations)
 
     async def read_volumes(self, sim_id: int) -> list[str]:
         vols = await self.vol_repo.read_all(sim_id)
@@ -111,12 +105,16 @@ class VolumeService:
         self, sim_id: int, name: str, vol_update: VolumeUpdate
     ) -> MessageResponse:
         # 1) ensure it exists (throws 404 if not)
-        await self.read_volume(sim_id, name)
+        vol = await self.read_volume(sim_id, name)
+        vol_read = VolumeRead.model_validate(vol)
 
         # 2) load the Gate simulation and volume handle
         gate_sim = await self.sim_service.get_gate_sim_without_sources(sim_id)
         if name not in gate_sim.volume_manager.volume_names:
-            raise HTTPException(404, f"Gate volume '{name}' not found")
+            data = vol_read.model_dump(mode="json", exclude={"id", "simulation_id"})
+            vol_create = VolumeCreate.model_validate(data)
+            await self.create_volume(sim_id, vol_create)
+        
         gate_vol = gate_sim.volume_manager.get_volume(name)
 
         # 3) re-process the volume into Gate using the Pydantic update model

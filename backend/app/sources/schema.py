@@ -1,63 +1,38 @@
-from enum import Enum
 from pydantic import BaseModel, ConfigDict, Field
-from typing import Annotated, List, Literal, Optional, Union
+from typing import List, Literal
+from app.shared.primitives import Unit
 
 
-class ParticleType(str, Enum):
-    GAMMA = "gamma"
-
-
-class Rotation(BaseModel):
-    axis: Literal["x", "y", "z"] = "x"
-    angle: float = 0.0
-
-
-# --- Positions ---
 class BoxPosition(BaseModel):
     type: Literal["box"]
     translation: List[float] = Field(
         default_factory=lambda: [0.0, 0.0, 0.0], min_items=3, max_items=3
     )
-    rotation: Rotation = Field(default_factory=Rotation)
-    size: List[float] = Field(..., min_items=3, max_items=3)
-    unit: Literal["nm", "mm", "cm", "m"] = "mm"
+    size: List[float] = Field(
+        default_factory=lambda: [0.0, 0.0, 0.0], min_items=3, max_items=3
+    )
+    unit: Unit = Unit.MM
 
 
-PositionConfig = Annotated[Union[BoxPosition], Field(discriminator="type")]
-
-
-# --- Directions ---
-class FocusedDirection(BaseModel):
-    type: Literal["focused"]
-    focus_point: List[float] = Field(..., min_items=3, max_items=3)
-
-
-DirectionConfig = Annotated[Union[FocusedDirection], Field(discriminator="type")]
-
-
-# --- Energies ---
 class MonoEnergy(BaseModel):
-    type: Literal["mono"]
-    mono: float
-    unit: Literal["keV", "MeV", "eV"] = "keV"
+    energy: float = 60.0
+    unit: Unit = Unit.KEV
 
 
-EnergyConfig = Annotated[Union[MonoEnergy], Field(discriminator="type")]
-
-
-# --- Base Source ---
 class GenericSourceBase(BaseModel):
     name: str
     attached_to: str = "world"
-    particle: ParticleType = ParticleType.GAMMA
+    particle: str = "gamma"
 
-    position: PositionConfig
-    direction: DirectionConfig
-    energy: EnergyConfig
+    position: BoxPosition
+    focus_point: List[float] = Field(
+        default_factory=lambda: [0.0, 0.0, 0.0],
+        min_items=3, max_items=3
+    )
+    energy: MonoEnergy
 
-    n: Optional[int] = None
-    activity: Optional[float] = None
-    activity_unit: Literal["Bq", "kBq", "MBq"] = "Bq"
+    activity: float = 60.0
+    unit: Unit = Unit.BQ
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -69,19 +44,19 @@ class GenericSourceCreate(GenericSourceBase):
 
 # Update schema (all fields optional for PATCH-like updates)
 class GenericSourceUpdate(BaseModel):
-    name: str | None = None
-    attached_to: Optional[str] = None
-    particle: Optional[ParticleType] = None
-
-    position: Optional[PositionConfig] = None
-    direction: Optional[DirectionConfig] = None
-    energy: Optional[EnergyConfig] = None
-
-    n: Optional[int] = None
-    activity: Optional[float] = None
-    activity_unit: Optional[Literal["Bq", "kBq", "MBq"]] = None
-
     model_config = ConfigDict(from_attributes=True)
+
+    name: str | None = None
+    attached_to: str | None = None
+    particle: str | None = "gamma"
+
+    position: BoxPosition | None = None
+    focus_point: List[float] | None = Field(None, min_items=3, max_items=3)
+    energy: MonoEnergy | None = None
+
+    activity: float | None = None
+    activity_unit: Unit | None = None
+
 
 
 # Read schema includes ID

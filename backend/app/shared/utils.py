@@ -1,15 +1,13 @@
-import os
 from pathlib import Path
 
-import numpy as np
 import opengate as gate
 from fastapi import HTTPException, status
 
 
-from app.sources.model import Source
 from app.simulations.repository import SimulationRepository
 from app.sources.repository import SourceRepository
-from app.shared.primitives import Rotation, Unit, UNIT_TO_GATE
+from app.shared.primitives import Unit, UNIT_TO_GATE
+from app.sources.schema import BoxPosition, GenericSourceRead
 
 
 async def get_gate_sim(
@@ -35,30 +33,29 @@ async def get_gate_sim(
     sim.from_json_file(str(cfg))
 
     for src in await source_repository.read_all(id):
-        gs = sim.add_source("GenericSource", src.name)
-        gs.particle = src.particle
+        data = GenericSourceRead.model_validate(src)
+        gs = sim.add_source("GenericSource", data.name)
+        gs.particle = data.particle
 
-        pos_factor = UNIT_TO_GATE[Unit(src.position["unit"])]
-        if src.position["type"] == "box":
-            gs.position.type = "box"
-            gs.position.size = [s * pos_factor for s in src.position["size"]]
-            gs.position.translation = [
-                t * pos_factor for t in src.position["translation"]
-            ]
+        pos: BoxPosition = data.position
+        factor_position = UNIT_TO_GATE[Unit(pos.unit.value)]
+        gs.position.type = pos.type
+        gs.position.size = [
+            s * factor_position for s in pos.size
+        ]
+        gs.position.translation = [
+            s * factor_position for s in pos.translation
+        ]
 
-        if src.direction["type"] == "focused":
-            gs.direction.type = "focused"
-            gs.direction.focus_point = [
-                fp * pos_factor for fp in src.direction["focus_point"]
-            ]
+        gs.direction.type = "focused"
+        gs.direction.focus_point = [
+            s * factor_position for s in data.focus_point
+        ]
 
-        e_factor = UNIT_TO_GATE[Unit(src.energy["unit"])]
-        if src.energy["type"] == "mono":
-            gs.energy.type, gs.energy.mono = "mono", src.energy["mono"] * e_factor
+        factor_energy = UNIT_TO_GATE[Unit(data.energy.unit)]
+        gs.energy.mono = data.energy.energy * factor_energy
 
-        if src.activity:
-            gs.activity = src.activity * UNIT_TO_GATE.get(Unit(src.activity_unit), 1)
-        if src.n:
-            gs.n = src.n
+        activity_factor = UNIT_TO_GATE[Unit(data.unit)]
+        gs.activity = data.activity * activity_factor
 
     return sim

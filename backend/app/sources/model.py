@@ -23,16 +23,15 @@ class Source(Base):
         nullable=False,
     )
 
-    name = Column(String, index=True)
-    attached_to = Column(String, default="world")
-    particle = Column(String, default="gamma")
+    name = Column(String, index=True, nullable=False)
+    attached_to = Column(String, default="world", nullable=False)
+    particle = Column(String, default="gamma", nullable=False)
 
-    position = Column(JSON)
-    direction = Column(JSON)
-    energy = Column(JSON)
+    position = Column(JSON, nullable=False)
+    focus_point = Column(JSON, nullable=False)
+    energy = Column(JSON, nullable=False)
 
-    n = Column(Integer, nullable=True)
-    activity = Column(Float, nullable=True)
-    activity_unit = Column(String, default="Bq")
+    activity = Column(Float, default=60.0, nullable=False)
+    unit = Column(String, default="Bq", nullable=False)
 
     simulation = relationship("Simulation", back_populates="sources")

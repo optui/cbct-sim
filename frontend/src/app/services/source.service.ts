@@ -28,15 +28,6 @@ export class SourceService {
   }
 
   /**
-   * GET /api/simulations/:simId/sources/:name
-   */
-  get(simId: number, name: string): Observable<GenericSourceRead> {
-    return this.http.get<GenericSourceRead>(
-      `${this.base}/${simId}/sources/${name}`
-    );
-  }
-
-  /**
    * POST /api/simulations/:simId/sources
    */
   create(
@@ -49,26 +40,26 @@ export class SourceService {
     );
   }
 
-  /**
-   * PUT /api/simulations/:simId/sources/:name
-   */
+  get(simId: number, name: string): Observable<GenericSourceRead> {
+    return this.http.get<GenericSourceRead>(
+      `${this.base}/${simId}/sources/${encodeURIComponent(name)}`
+    );
+  }
+  
   update(
     simId: number,
     name: string,
     source: GenericSourceUpdate
   ): Observable<{ message: string }> {
     return this.http.put<{ message: string }>(
-      `${this.base}/${simId}/sources/${name}`,
+      `${this.base}/${simId}/sources/${encodeURIComponent(name)}`,
       source
     );
   }
-
-  /**
-   * DELETE /api/simulations/:simId/sources/:name
-   */
+  
   delete(simId: number, name: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(
-      `${this.base}/${simId}/sources/${name}`
+      `${this.base}/${simId}/sources/${encodeURIComponent(name)}`
     );
   }
 }

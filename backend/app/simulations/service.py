@@ -90,6 +90,8 @@ class SimulationService:
     ) -> MessageResponse:
         gate_sim = await get_gate_sim(id, self.sim_repo, source_repository)
         gate_sim.visu = True
+        gate_sim.progress_bar = False
+
         gate_sim.run(start_new_process=True)
         return {"message": "Simulation visualization ended"}
 
@@ -99,6 +101,19 @@ class SimulationService:
         gate_sim = await get_gate_sim(id, self.sim_repo, source_repository)
         gate_sim.visu = False
         gate_sim.progress_bar = True
+    
+        hits_actor = gate_sim.add_actor("DigitizerHitsCollectionActor", "Hits")
+        hits_actor.attached_to = "detector"
+        hits_actor.attributes = ['TotalEnergyDeposit', 'PostPosition', 'GlobalTime']
+        hits_actor.output_filename = 'output/hits.root'
+
+        proj_actor = gate_sim.add_actor("DigitizerProjectionActor", "Projection")
+        proj_actor.attached_to = "detector"
+        proj_actor.input_digi_collections = ["Hits"]
+        proj_actor.spacing = [1 * UNIT_TO_GATE[Unit.MM], 1 * UNIT_TO_GATE[Unit.MM]]
+        proj_actor.size = [256, 256]
+        proj_actor.output_filename = 'output/projection.mhd'
+
         gate_sim.run(start_new_process=True)
         return {"message": "Simulation finished running"}
 

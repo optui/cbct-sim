@@ -53,19 +53,17 @@ ActorRead = ActorConfig
 
 
 class SimulationStatisticsActorUpdateConfig(BaseModel):
-    type: Literal["SimulationStatisticsActor"]
+    type: Literal["SimulationStatisticsActor"] = "SimulationStatisticsActor"
     output_filename: Optional[str] = None
 
-
 class DigitizerHitsCollectionActorUpdateConfig(BaseModel):
-    type: Literal["DigitizerHitsCollectionActor"]
+    type: Literal["DigitizerHitsCollectionActor"] = "DigitizerHitsCollectionActor"
     attached_to: Optional[str] = None
     attributes: Optional[List[str]] = None
     output_filename: Optional[str] = None
 
-
 class DigitizerProjectionActorUpdateConfig(BaseModel):
-    type: Literal["DigitizerProjectionActor"]
+    type: Literal["DigitizerProjectionActor"] = "DigitizerProjectionActor"
     attached_to: Optional[str] = None
     input_digi_collections: Optional[List[str]] = None
     spacing: Optional[List[float]] = None

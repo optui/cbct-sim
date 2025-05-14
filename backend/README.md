@@ -52,7 +52,7 @@ API prefix: `/api/`
 
 ```json
 {
-  "name": "CT_Simulation_01",
+  "name": "string",
   "num_runs": 180,
   "run_len": 1
 }
@@ -62,13 +62,7 @@ API prefix: `/api/`
 
 ```json
 {
-  "name": "CT_Simulation_01",
-  "num_runs": 1,
-  "run_len": 1,
-  "id": 1,
-  "created_at": "2025-04-04T10:59:39",
-  "output_dir": "./output/CT_Simulation_001",
-  "json_archive_filename": "CT_Simulation_001.json"
+  "message": "Simulation 'string' created successfully"
 }
 ```
 
@@ -78,16 +72,36 @@ API prefix: `/api/`
 
 ```json
 {
-  "name": "Phantom",
+  "name": "box_vol",
   "mother": "world",
-  "material": "G4_WATER",
-  "translation": [0.0, 0.0, 0.0],
-  "rotation": {"axis": "z", "angle": 0},
-  "color": [0.5, 0.5, 1.0, 1.0],
+  "material": "G4_CONCRETE",
+  "translation": [
+    0,
+    0,
+    0
+  ],
+  "translation_unit": "mm",
+  "rotation": {
+    "axis": "x",
+    "angle": 0
+  },
   "shape": {
+    "unit": "cm",
     "type": "Box",
-    "size": [30, 30, 30],
-    "unit": "cm"
+    "size": [
+      5,
+      5,
+      5
+    ]
+  },
+  "dynamic_params": {
+    "enabled": true,
+    "translation_end": [
+      0,
+      0,
+      0
+    ],
+    "angle_end": 360
   }
 }
 ```
@@ -96,27 +110,46 @@ API prefix: `/api/`
 
 ```json
 {
-  "name": "Phantom"
+  "message": "Volume 'box_vol' created successfully"
 }
 ```
 
-### **Sphere Volume Create (POST `/simulations/{simulation_id}/volumes`)**
+### Detector Volume Create (POST `/simulations/{simulation_id}/volumes`)
 
 **Request:**
 
 ```json
 {
-  "name": "Phantom_Sphere",
+  "name": "detector",
   "mother": "world",
-  "material": "G4_WATER",
-  "translation": [0.0, 0.0, 0.0],
-  "rotation": {"axis": "z", "angle": 0},
-  "color": [0.5, 0.5, 1.0, 1.0],
+  "material": "G4_Si",
+  "translation": [
+    0,
+    0,
+    -0.5
+  ],
+  "translation_unit": "m",
+  "rotation": {
+    "axis": "x",
+    "angle": 0
+  },
   "shape": {
-    "type": "Sphere",
-    "rmin": 0.0,
-    "rmax": 15.0,
-    "unit": "cm"
+    "unit": "cm",
+    "type": "Box",
+    "size": [
+      20,
+      20,
+      0.5
+    ]
+  },
+  "dynamic_params": {
+    "enabled": false,
+    "translation_end": [
+      0,
+      0,
+      0
+    ],
+    "angle_end": 0
   }
 }
 ```
@@ -125,7 +158,7 @@ API prefix: `/api/`
 
 ```json
 {
-  "name": "Phantom_Sphere"
+  "message": "Volume 'detector' created successfully"
 }
 ```
 
@@ -135,27 +168,34 @@ API prefix: `/api/`
 
 ```json
 {
-  "name": "GammaSource",
-  "attached_to": "Phantom",
+  "name": "src",
+  "attached_to": "world",
   "particle": "gamma",
   "position": {
     "type": "box",
-    "translation": [0.0, 0.0, 10.0],
-    "rotation": {"axis": "z", "angle": 0},
-    "size": [5, 5, 5],
-    "unit": "cm"
+    "translation": [
+      0,
+      0,
+      700
+    ],
+    "size": [
+      16,
+      16,
+      0.1
+    ],
+    "unit": "mm"
   },
-  "direction": {
-    "type": "focused",
-    "focus_point": [0.0, 0.0, 0.0]
-  },
+  "focus_point": [
+    0,
+    0,
+    600
+  ],
   "energy": {
-    "type": "mono",
-    "mono": 140.0,
+    "energy": 80,
     "unit": "keV"
   },
-  "activity": 37.0,
-  "activity_unit": "Bq"
+  "activity": 1e4,
+  "unit": "Bq"
 }
 ```
 
@@ -163,7 +203,7 @@ API prefix: `/api/`
 
 ```json
 {
-  "name": "GammaSource"
+  "message": "Source 'src' created successfully"
 }
 ```
 
