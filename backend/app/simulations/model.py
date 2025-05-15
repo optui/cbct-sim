@@ -1,4 +1,5 @@
 from sqlalchemy import (
+    JSON,
     Column,
     Integer,
     String,
@@ -22,6 +23,7 @@ class Simulation(Base):
     created_at = Column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+    actor = Column(JSON, nullable=True)
 
     sources = relationship(
         "Source",

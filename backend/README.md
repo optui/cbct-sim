@@ -39,7 +39,6 @@ API prefix: `/api/`
 
 | Method | Endpoint                                | Description                    | Request Body   | Response                                                   |
 | ------ | --------------------------------------- | ------------------------------ | -------------- | ---------------------------------------------------------- |
-| GET    | `/simulations/{id}/actors`              | Get all actors in a simulation | N/A            | `List[str]` (List of actor names)                          |
 | POST   | `/simulations/{id}/actors/`             | Create a new actor             | `{actor_name}` | `{"message": "Actor '{actor_name}' created successfully"}` |
 | PUT    | `/simulations/{id}/actors/{actor_name}` | Update a specific actor        | `{new_name}`   | `{"message": "Actor '{actor_name}' updated successfully"}` |
 | DELETE | `/simulations/{id}/actors/{actor_name}` | Delete a specific actor        | N/A            | `{"message": "Actor '{actor_name}' deleted successfully"}` |
@@ -52,11 +51,19 @@ API prefix: `/api/`
 
 ```json
 {
-  "name": "string",
+  "name": "CBCT_simulation",
   "num_runs": 180,
-  "run_len": 1
+  "run_len": 1,
+  "actor": {
+      "attached_to": "world",
+      "spacing": [1.0, 1.0],
+      "size": [256, 256],
+      "origin_as_image_center": true
+  }
 }
 ```
+
+> Later on, after adding `detector`, update the simulation's `"attached_to"` field to `"detector"` in order to get projections.
 
 **Response:**
 
@@ -204,91 +211,5 @@ API prefix: `/api/`
 ```json
 {
   "message": "Source 'src' created successfully"
-}
-```
-
-### **Actor Create (POST `/simulations/{simulation_id}/actors/`)**
-
-#### 1. **SimulationStatisticsActor Create**
-
-**Request:**
-
-```json
-{
-  "name": "SimulationStatsActor",
-  "type": "SimulationStatisticsActor",
-  "output_filename": "output/simulation_stats.txt"
-}
-```
-
-**Response:**
-
-```json
-{
-  "name": "SimulationStatsActor",
-  "type": "SimulationStatisticsActor",
-  "output_filename": "output/simulation_stats.txt"
-}
-```
-
----
-
-#### 2. **DigitizerHitsCollectionActor Create**
-
-**Request:**
-
-```json
-{
-  "name": "HitsCollectionActor",
-  "type": "DigitizerHitsCollectionActor",
-  "attached_to": "Phantom",
-  "attributes": ["TotalEnergyDeposit", "PostPosition", "GlobalTime"],
-  "output_filename": "output/hits_collection.root"
-}
-```
-
-**Response:**
-
-```json
-{
-  "name": "HitsCollectionActor",
-  "type": "DigitizerHitsCollectionActor",
-  "attached_to": "Phantom",
-  "attributes": ["TotalEnergyDeposit", "PostPosition", "GlobalTime"],
-  "output_filename": "output/hits_collection.root"
-}
-```
-
----
-
-#### 3. **DigitizerProjectionActor Create**
-
-**Request:**
-
-```json
-{
-  "name": "ProjectionActor",
-  "type": "DigitizerProjectionActor",
-  "attached_to": "Phantom",
-  "input_digi_collections": ["Hits"],
-  "spacing": [1.0, 1.0],
-  "size": [256, 256],
-  "origin_as_image_center": true,
-  "output_filename": "output/projection.mhd"
-}
-```
-
-**Response:**
-
-```json
-{
-  "name": "ProjectionActor",
-  "type": "DigitizerProjectionActor",
-  "attached_to": "Phantom",
-  "input_digi_collections": ["Hits"],
-  "spacing": [1.0, 1.0],
-  "size": [256, 256],
-  "origin_as_image_center": true,
-  "output_filename": "output/projection.mhd"
 }
 ```

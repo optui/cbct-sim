@@ -13,7 +13,7 @@ class SimulationRepository:
     async def create(self, sim_create: SimulationCreate) -> Simulation:
         sim = Simulation(
             **sim_create.model_dump(mode='json'),
-            output_dir=f"./output/{sim_create.name}",
+            output_dir=f"./outputs/{sim_create.name}",
             json_archive_filename=f"{sim_create.name}.json",
         )
         self.session.add(sim)
@@ -41,7 +41,7 @@ class SimulationRepository:
             setattr(sim, key, value)
 
         if "name" in sim_update:
-            sim.output_dir = f"./output/{sim.name}"
+            sim.output_dir = f"./outputs/{sim.name}"
             sim.json_archive_filename = f"{sim.name}.json"
 
         try:

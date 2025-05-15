@@ -9,6 +9,7 @@ from app.shared.utils import get_gate_sim
 import opengate as gate
 
 from app.shared.primitives import UNIT_TO_GATE, Unit
+from app.simulations.model import Simulation
 
 
 class SimulationService:
@@ -30,12 +31,12 @@ class SimulationService:
         return await self.sim_repo.read_all()
 
     async def read_simulation(self, id: int) -> SimulationRead:
-        sim: SimulationRead | None = await self.sim_repo.read(id)
+        sim: Simulation | None = await self.sim_repo.read(id)
         if not sim:
             raise HTTPException(
                 status_code=404, detail=f"Simulation with id {id} not found"
             )
-        return sim
+        return SimulationRead.model_validate(sim)
 
     async def update_simulation(
         self, id: int, sim_update: SimulationUpdate
@@ -86,32 +87,45 @@ class SimulationService:
         return {"message": "Simulation {sim.name} exported successfully!"}
 
     async def view_simulation(
-        self, id: int, source_repository: SourceRepository
+        self, id: int,
+        source_repository: SourceRepository
     ) -> MessageResponse:
-        gate_sim = await get_gate_sim(id, self.sim_repo, source_repository)
+        gate_sim: gate.Simulation = await get_gate_sim(id, self.sim_repo, source_repository)
         gate_sim.visu = True
         gate_sim.progress_bar = False
-
         gate_sim.run(start_new_process=True)
         return {"message": "Simulation visualization ended"}
 
     async def run_simulation(
-        self, id: int, source_repository: SourceRepository
+        self, id: int, 
+        source_repository: SourceRepository
     ) -> MessageResponse:
-        gate_sim = await get_gate_sim(id, self.sim_repo, source_repository)
+        gate_sim: gate.Simulation = await get_gate_sim(id, self.sim_repo, source_repository)
         gate_sim.visu = False
         gate_sim.progress_bar = True
-    
+        gate_sim.verbose_level = "DEBUG"
+
+        sim_read: SimulationRead = await self.read_simulation(id)
+        print(sim_read)
+        print(gate_sim.volume_manager.volume_names)
+        actor = sim_read.actor or {}
+
+        attached_to = actor.attached_to
+        spacing = [s * UNIT_TO_GATE[Unit.MM] for s in actor.spacing]
+        size = actor.size
+        origin = actor.origin_as_image_center
+
         hits_actor = gate_sim.add_actor("DigitizerHitsCollectionActor", "Hits")
-        hits_actor.attached_to = "detector"
+        hits_actor.attached_to = attached_to
         hits_actor.attributes = ['TotalEnergyDeposit', 'PostPosition', 'GlobalTime']
         hits_actor.output_filename = 'output/hits.root'
 
         proj_actor = gate_sim.add_actor("DigitizerProjectionActor", "Projection")
-        proj_actor.attached_to = "detector"
+        proj_actor.attached_to = attached_to
         proj_actor.input_digi_collections = ["Hits"]
-        proj_actor.spacing = [1 * UNIT_TO_GATE[Unit.MM], 1 * UNIT_TO_GATE[Unit.MM]]
-        proj_actor.size = [256, 256]
+        proj_actor.spacing = spacing
+        proj_actor.size = size
+        proj_actor.origin_as_image_center = origin
         proj_actor.output_filename = 'output/projection.mhd'
 
         gate_sim.run(start_new_process=True)
@@ -119,7 +133,7 @@ class SimulationService:
 
     @staticmethod
     def _handle_directory_rename(current, new_name: str) -> None:
-        old_dir, new_dir = current.output_dir, f"./output/{new_name}"
+        old_dir, new_dir = current.output_dir, f"./outputs/{new_name}"
         if old_dir != new_dir and os.path.exists(old_dir):
             os.rename(old_dir, new_dir)
             old_json = os.path.join(new_dir, current.json_archive_filename)

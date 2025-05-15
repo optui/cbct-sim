@@ -8,15 +8,12 @@ from app.simulations.service import SimulationService
 from app.volumes.schema import (
     VolumeCreate,
     VolumeRead,
-    VolumeShape,
-    VolumeType,
     VolumeUpdate,
     BoxShape,
-    SphereShape,
-    DynamicParams
+    SphereShape
 )
 from app.volumes.repository import VolumeRepository
-from app.shared.primitives import Unit, Rotation, Axis, UNIT_TO_GATE
+from app.shared.primitives import UNIT_TO_GATE
 from app.shared.message import MessageResponse
 import opengate as gate
 from opengate.geometry.volumes import VolumeBase

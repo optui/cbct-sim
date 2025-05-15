@@ -1,8 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, JSON, UniqueConstraint
 from sqlalchemy.orm import relationship
 from app.core import Base
-from app.volumes.schema import DynamicParams, VolumeRead, VolumeShape
-from app.shared.primitives import Rotation, Unit
 
 
 class Volume(Base):
