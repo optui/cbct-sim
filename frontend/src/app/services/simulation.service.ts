@@ -1,54 +1,60 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+
 import {
-  SimulationRead,
   SimulationCreate,
-  SimulationUpdate,
-  MessageResponse,
+  SimulationRead,
+  SimulationUpdate
 } from '../interfaces/simulation';
 
+import { MessageResponse } from '../interfaces/message';
+
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SimulationService {
-  private readonly http = inject(HttpClient);
-  private readonly baseUrl = environment.apiBaseUrl + 'simulations/';
+  private baseUrl = `${environment.apiBaseUrl}simulations`;
 
-  list(): Observable<SimulationRead[]> {
-    return this.http.get<SimulationRead[]>(this.baseUrl);
+  constructor(private http: HttpClient) {}
+
+  createSimulation(data: SimulationCreate): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.baseUrl}/`, data);
   }
 
-  get(id: number): Observable<SimulationRead> {
-    return this.http.get<SimulationRead>(`${this.baseUrl}${id}`);
+  getSimulations(): Observable<SimulationRead[]> {
+    return this.http.get<SimulationRead[]>(`${this.baseUrl}/`);
   }
 
-  create(payload: SimulationCreate): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(this.baseUrl, payload);
+  getSimulation(simulationId: number): Observable<SimulationRead> {
+    return this.http.get<SimulationRead>(`${this.baseUrl}/${simulationId}`);
   }
 
-  update(id: number, payload: SimulationUpdate): Observable<MessageResponse> {
-    return this.http.put<MessageResponse>(`${this.baseUrl}${id}`, payload);
+  updateSimulation(
+    simulationId: number,
+    data: SimulationUpdate
+  ): Observable<MessageResponse> {
+    return this.http.put<MessageResponse>(`${this.baseUrl}/${simulationId}`, data);
   }
 
-  delete(id: number): Observable<MessageResponse> {
-    return this.http.delete<MessageResponse>(`${this.baseUrl}${id}`);
+  deleteSimulation(simulationId: number): Observable<MessageResponse> {
+    return this.http.delete<MessageResponse>(`${this.baseUrl}/${simulationId}`);
   }
 
-  importSimulation(id: number): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(`${this.baseUrl}${id}/import`, {});
+  importSimulation(simulationId: number): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.baseUrl}/${simulationId}/import`, {});
   }
 
-  exportSimulation(id: number): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(`${this.baseUrl}${id}/export`, {});
+  exportSimulation(simulationId: number): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.baseUrl}/${simulationId}/export`, {});
   }
 
-  viewSimulation(id: number): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(`${this.baseUrl}${id}/view`, {});
+  viewSimulation(simulationId: number): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.baseUrl}/${simulationId}/view`, {});
   }
 
-  runSimulation(id: number): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(`${this.baseUrl}${id}/run`, {});
+  runSimulation(simulationId: number): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.baseUrl}/${simulationId}/run`, {});
   }
 }

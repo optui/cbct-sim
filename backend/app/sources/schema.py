@@ -64,3 +64,4 @@ class GenericSourceRead(GenericSourceBase):
     model_config = ConfigDict(from_attributes=True)
     
     id: int
+    simulation_id: int

@@ -1,74 +1,77 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { CommonModule, NgIf } from '@angular/common';
-import { Router, ActivatedRoute, RouterModule } from '@angular/router';
+import { Component, OnInit, Input, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+
 import { SourceService } from '../../services/source.service';
 
 @Component({
-  standalone: true,
   selector: 'app-source-list',
-  imports: [CommonModule, RouterModule, NgIf],
+  standalone: true,
+  imports: [CommonModule, RouterModule],
   template: `
-    <div class="container py-4">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="mb-0">Sources</h3>
-        <button class="btn btn-primary" (click)="create()">+ New Source</button>
-      </div>
-
-      <div *ngIf="sources.length === 0" class="alert alert-warning text-center">
-        No sources found
-      </div>
-
-      <ul class="list-group" *ngIf="sources.length > 0">
-        <li *ngFor="let name of sources" class="list-group-item d-flex justify-content-between align-items-center">
-          <span>{{ name }}</span>
-          <div class="btn-group btn-group-sm">
-            <button class="btn btn-outline-primary" (click)="edit(name)">Edit</button>
-            <button class="btn btn-outline-danger" (click)="delete(name)">Delete</button>
+    <div *ngIf="sources.length > 0; else noSources">
+      <div class="card mb-3 shadow-sm" *ngFor="let src of sources">
+        <div class="card-body d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="mb-0">{{ src }}</h5>
           </div>
-        </li>
-      </ul>
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm"
+              [routerLink]="['/simulations', simulationId, 'sources', src]">
+              <i class="bi bi-info-circle"></i>
+            </button>
+
+            <button class="btn btn-outline-primary btn-sm"
+              [routerLink]="['/simulations', simulationId, 'sources', src, 'edit']">
+              <i class="bi bi-pencil"></i>
+            </button>
+
+            <button class="btn btn-outline-danger btn-sm" (click)="deleteSource(src)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <ng-template #noSources>
+      <div class="alert alert-light text-muted">
+        <i class="bi bi-inbox me-2"></i> No sources defined for this simulation.
+      </div>
+    </ng-template>
+
+    <button class="btn btn-sm btn-primary mt-3"
+      [routerLink]="['/simulations', simulationId, 'sources', 'new']">
+      <i class="bi bi-plus-circle me-1"></i> Add Source
+    </button>
   `
 })
 export class SourceListComponent implements OnInit {
-  simId!: number;
+  @Input() simulationId!: number;
   sources: string[] = [];
-  loading = true;
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private svc: SourceService
-  ) {}
+  private readonly sourceService = inject(SourceService);
 
   ngOnInit(): void {
-    this.simId = Number(this.route.parent?.snapshot.paramMap.get('id') || 
-                        this.route.snapshot.paramMap.get('simId'));
-    this.load();
-  }
-
-  load(): void {
-    this.loading = true;
-    this.svc.list(this.simId).subscribe({
-      next: (list) => {
-        this.sources = list;
-        this.loading = false;
-      },
-      error: () => this.loading = false
+    this.sourceService.getSources(this.simulationId).subscribe({
+      next: (data) => (this.sources = data),
+      error: (err) => {
+        console.error('Failed to load sources:', err);
+        this.sources = [];
+      }
     });
   }
 
-  create(): void {
-    this.router.navigate([`/simulations/${this.simId}/sources/create`]);
-  }
+  deleteSource(name: string): void {
+    if (!confirm(`Delete source "${name}"?`)) return;
 
-  edit(name: string): void {
-    this.router.navigate(['sources', encodeURIComponent(name), 'edit'], { relativeTo: this.route.parent });
-  }
-
-  delete(name: string): void {
-    if (!confirm('Delete this source?')) { return; }
-    this.svc.delete(this.simId, name)
-      .subscribe(() => this.load());
+    this.sourceService.deleteSource(this.simulationId, name).subscribe({
+      next: () => {
+        this.sources = this.sources.filter((s) => s !== name);
+      },
+      error: (err) => {
+        alert(`Failed to delete source: ${err.message || err}`);
+      }
+    });
   }
 }

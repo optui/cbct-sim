@@ -1,65 +1,48 @@
-// src/app/services/source.service.ts
-
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
+
 import {
   GenericSourceCreate,
   GenericSourceRead,
   GenericSourceUpdate
 } from '../interfaces/source';
-import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
 
-@Injectable({ providedIn: 'root' })
+import { MessageResponse } from '../interfaces/message';
+
+@Injectable({
+  providedIn: 'root',
+})
 export class SourceService {
-  private readonly http = inject(HttpClient);
+  private baseUrl = `${environment.apiBaseUrl}simulations`;
 
-  // Strip any trailing slash from apiBaseUrl, then append '/simulations'
-  private readonly base =
-    environment.apiBaseUrl.replace(/\/+$/, '') + '/simulations';
+  constructor(private http: HttpClient) {}
 
-  /**
-   * GET /api/simulations/:simId/sources
-   */
-  list(simId: number): Observable<string[]> {
-    return this.http.get<string[]>(
-      `${this.base}/${simId}/sources`
-    );
+  getSources(simulationId: number): Observable<string[]> {
+    return this.http.get<string[]>(`${this.baseUrl}/${simulationId}/sources`);
   }
 
-  /**
-   * POST /api/simulations/:simId/sources
-   */
-  create(
-    simId: number,
+  createSource(
+    simulationId: number,
     source: GenericSourceCreate
-  ): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(
-      `${this.base}/${simId}/sources`,
-      source
-    );
+  ): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.baseUrl}/${simulationId}/sources`, source);
   }
 
-  get(simId: number, name: string): Observable<GenericSourceRead> {
-    return this.http.get<GenericSourceRead>(
-      `${this.base}/${simId}/sources/${encodeURIComponent(name)}`
-    );
+  getSource(simulationId: number, name: string): Observable<GenericSourceRead> {
+    return this.http.get<GenericSourceRead>(`${this.baseUrl}/${simulationId}/sources/${name}`);
   }
-  
-  update(
-    simId: number,
+
+  updateSource(
+    simulationId: number,
     name: string,
     source: GenericSourceUpdate
-  ): Observable<{ message: string }> {
-    return this.http.put<{ message: string }>(
-      `${this.base}/${simId}/sources/${encodeURIComponent(name)}`,
-      source
-    );
+  ): Observable<MessageResponse> {
+    return this.http.put<MessageResponse>(`${this.baseUrl}/${simulationId}/sources/${name}`, source);
   }
-  
-  delete(simId: number, name: string): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(
-      `${this.base}/${simId}/sources/${encodeURIComponent(name)}`
-    );
+
+  deleteSource(simulationId: number, name: string): Observable<MessageResponse> {
+    return this.http.delete<MessageResponse>(`${this.baseUrl}/${simulationId}/sources/${name}`);
   }
 }

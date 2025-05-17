@@ -1,24 +1,21 @@
-export type Unit = 'nm' | 'mm' | 'cm' | 'm';
-export type Vector3 = [number, number, number];
+import { Unit, Vector3, Rotation } from './primitives';
 
-export interface Rotation {
-  axis: 'x' | 'y' | 'z';
-  angle: number;
+export enum VolumeType {
+  BOX = 'Box',
+  SPHERE = 'Sphere'
 }
-
-export type VolumeType = 'Box' | 'Sphere';
 
 export interface BaseShape {
   unit: Unit;
 }
 
 export interface BoxShape extends BaseShape {
-  type: 'Box';
+  type: VolumeType.BOX;
   size: Vector3;
 }
 
 export interface SphereShape extends BaseShape {
-  type: 'Sphere';
+  type: VolumeType.SPHERE;
   rmin: number;
   rmax: number;
 }
@@ -42,7 +39,7 @@ export interface VolumeBase {
   dynamic_params: DynamicParams;
 }
 
-export interface VolumeCreate extends VolumeBase { }
+export interface VolumeCreate extends VolumeBase {}
 
 export interface VolumeUpdate {
   name?: string;

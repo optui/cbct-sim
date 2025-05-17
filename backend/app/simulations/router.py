@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status
 from app.simulations.dependencies import SimulationServiceDep
-from app.sources.dependencies import SourceRepositoryDep
+from app.sources.dependencies import SourceRepositoryDep, SourceServiceDep
 from app.shared.message import MessageResponse
 from app.simulations.schema import (
     SimulationCreate,
@@ -8,6 +8,8 @@ from app.simulations.schema import (
     SimulationRead,
 )
 from typing import List
+
+from app.volumes.dependencies import VolumeRepositoryDep
 
 router = APIRouter(tags=["Simulations"], prefix="/simulations")
 
@@ -83,10 +85,11 @@ async def export_simulation(service: SimulationServiceDep, simulation_id: int):
 )
 async def view_simulation(
     service: SimulationServiceDep,
-    source_repository: SourceRepositoryDep,
+    src_repo: SourceRepositoryDep,
+    vol_repo: VolumeRepositoryDep,
     simulation_id: int,
 ):
-    return await service.view_simulation(simulation_id, source_repository)
+    return await service.view_simulation(simulation_id, src_repo, vol_repo)
 
 
 @router.post(
@@ -96,7 +99,8 @@ async def view_simulation(
 )
 async def run_simulation(
     service: SimulationServiceDep,
-    source_repository: SourceRepositoryDep,
+    src_repo: SourceRepositoryDep,
+    vol_repo: VolumeRepositoryDep,
     simulation_id: int,
 ):
-    return await service.run_simulation(simulation_id, source_repository)
+    return await service.run_simulation(simulation_id, src_repo, vol_repo)

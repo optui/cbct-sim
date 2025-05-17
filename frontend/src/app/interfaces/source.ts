@@ -1,61 +1,42 @@
-export type ParticleType = 'gamma';
-
-export interface Rotation {
-    axis: 'x' | 'y' | 'z';
-    angle: number;
-}
+import { Unit, Vector3 } from './primitives';
 
 export interface BoxPosition {
-    type: 'box';
-    translation: number[];
-    rotation: Rotation;
-    size: number[];
-    unit: 'nm' | 'mm' | 'cm' | 'm';
+  type: 'box';
+  translation: Vector3;
+  size: Vector3;
+  unit: Unit;
 }
-
-export type PositionConfig = BoxPosition;
-
-export interface FocusedDirection {
-    type: 'focused';
-    focus_point: number[];
-}
-
-export type DirectionConfig = FocusedDirection;
 
 export interface MonoEnergy {
-    type: 'mono';
-    mono: number;
-    unit: 'keV' | 'MeV' | 'eV';
+  energy: number;
+  unit: Unit;
 }
-
-export type EnergyConfig = MonoEnergy;
 
 export interface GenericSourceBase {
-    name: string;
-    attached_to: string;
-    particle: ParticleType;
-    position: PositionConfig;
-    direction: DirectionConfig;
-    energy: EnergyConfig;
-    n?: number;
-    activity?: number;
-    activity_unit?: 'Bq' | 'kBq' | 'MBq';
+  name: string;
+  attached_to: string;
+  particle: string;
+  position: BoxPosition;
+  focus_point: Vector3;
+  energy: MonoEnergy;
+  activity: number;
+  unit: Unit;
 }
 
-export interface GenericSourceCreate extends GenericSourceBase { }
+export interface GenericSourceCreate extends GenericSourceBase {}
 
 export interface GenericSourceUpdate {
-    name?: string;
-    attached_to?: string;
-    particle?: ParticleType;
-    position?: PositionConfig;
-    direction?: DirectionConfig;
-    energy?: EnergyConfig;
-    n?: number;
-    activity?: number;
-    activity_unit?: 'Bq' | 'kBq' | 'MBq';
+  name?: string;
+  attached_to?: string;
+  particle?: string;
+  position?: BoxPosition;
+  focus_point?: Vector3;
+  energy?: MonoEnergy;
+  activity?: number;
+  activity_unit?: Unit;
 }
 
 export interface GenericSourceRead extends GenericSourceBase {
-    id: number;
+  id: number;
+  simulation_id: number;
 }

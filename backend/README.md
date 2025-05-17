@@ -55,7 +55,7 @@ API prefix: `/api/`
   "num_runs": 180,
   "run_len": 1,
   "actor": {
-      "attached_to": "world",
+      "attached_to": "detector",
       "spacing": [1.0, 1.0],
       "size": [256, 256],
       "origin_as_image_center": true
@@ -89,7 +89,7 @@ API prefix: `/api/`
   ],
   "translation_unit": "mm",
   "rotation": {
-    "axis": "x",
+    "axis": "y",
     "angle": 0
   },
   "shape": {
@@ -146,7 +146,7 @@ API prefix: `/api/`
     "size": [
       20,
       20,
-      0.5
+      1
     ]
   },
   "dynamic_params": {

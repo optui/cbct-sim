@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import numpy as np
+from scipy.spatial.transform import Rotation as R
 import opengate as gate
 from fastapi import HTTPException, status
 
@@ -9,13 +11,17 @@ from app.sources.repository import SourceRepository
 from app.shared.primitives import Unit, UNIT_TO_GATE
 from app.sources.schema import BoxPosition, GenericSourceRead
 
+from app.volumes.repository import VolumeRepository
+from app.volumes.schema import BoxShape, SphereShape, VolumeRead
+
 
 async def get_gate_sim(
     id: int,
-    simulation_repository: SimulationRepository,
-    source_repository: SourceRepository,
+    sim_repo: SimulationRepository,
+    src_repo: SourceRepository,
+    vol_repo: VolumeRepository
 ) -> gate.Simulation:
-    sim_rec = await simulation_repository.read(id)
+    sim_rec = await sim_repo.read(id)
     if not sim_rec:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -32,7 +38,7 @@ async def get_gate_sim(
     sim = gate.Simulation()
     sim.from_json_file(str(cfg))
 
-    for src in await source_repository.read_all(id):
+    for src in await src_repo.read_all(id):
         data = GenericSourceRead.model_validate(src)
         gs = sim.add_source("GenericSource", data.name)
         gs.particle = data.particle
@@ -52,10 +58,11 @@ async def get_gate_sim(
             s * factor_position for s in data.focus_point
         ]
 
-        factor_energy = UNIT_TO_GATE[Unit(data.energy.unit)]
+        factor_energy = UNIT_TO_GATE[Unit(data.energy.unit.value)]
         gs.energy.mono = data.energy.energy * factor_energy
 
-        activity_factor = UNIT_TO_GATE[Unit(data.unit)]
+        activity_factor = UNIT_TO_GATE[Unit(data.unit.value)]
         gs.activity = data.activity * activity_factor
 
+    print("get_gate_sim:", sim.volume_manager.volumes, sim.run_timing_intervals)
     return sim

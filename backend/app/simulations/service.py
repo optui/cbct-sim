@@ -8,8 +8,12 @@ from app.simulations.schema import SimulationBase, SimulationCreate, SimulationR
 from app.shared.utils import get_gate_sim
 import opengate as gate
 
+import numpy as np
+from scipy.spatial.transform import Rotation as R
 from app.shared.primitives import UNIT_TO_GATE, Unit
 from app.simulations.model import Simulation
+from app.volumes.repository import VolumeRepository
+from app.volumes.schema import VolumeRead
 
 
 class SimulationService:
@@ -88,9 +92,10 @@ class SimulationService:
 
     async def view_simulation(
         self, id: int,
-        source_repository: SourceRepository
+        src_repo: SourceRepository,
+        vol_repo: VolumeRepository
     ) -> MessageResponse:
-        gate_sim: gate.Simulation = await get_gate_sim(id, self.sim_repo, source_repository)
+        gate_sim: gate.Simulation = await get_gate_sim(id, self.sim_repo, src_repo, vol_repo)
         gate_sim.visu = True
         gate_sim.progress_bar = False
         gate_sim.run(start_new_process=True)
@@ -98,16 +103,32 @@ class SimulationService:
 
     async def run_simulation(
         self, id: int, 
-        source_repository: SourceRepository
+        src_repo: SourceRepository,
+        vol_repo: VolumeRepository
     ) -> MessageResponse:
-        gate_sim: gate.Simulation = await get_gate_sim(id, self.sim_repo, source_repository)
+        gate_sim: gate.Simulation = await get_gate_sim(id, self.sim_repo, src_repo, vol_repo)
         gate_sim.visu = False
         gate_sim.progress_bar = True
-        gate_sim.verbose_level = "DEBUG"
 
         sim_read: SimulationRead = await self.read_simulation(id)
-        print(sim_read)
-        print(gate_sim.volume_manager.volume_names)
+
+        for name in gate_sim.volume_manager.volume_names:
+            vol = await vol_repo.read(id, name)
+            data: VolumeRead = VolumeRead.model_validate(vol)
+            vol = gate_sim.volume_manager.get_volume(data.name)
+            if data.dynamic_params.enabled:
+                sim_read = await self.read_simulation(id)
+                num_runs = sim_read.num_runs
+
+                angle_start = data.rotation.angle
+                angle_end = data.dynamic_params.angle_end or angle_start
+                angles = np.linspace(angle_start, angle_end, num_runs, endpoint=False)
+                rotations = [
+                    R.from_euler(data.rotation.axis.value, a, degrees=True).as_matrix()
+                    for a in angles
+                ]
+                vol.add_dynamic_parametrisation(rotation=rotations)
+
         actor = sim_read.actor or {}
 
         attached_to = actor.attached_to
@@ -115,18 +136,20 @@ class SimulationService:
         size = actor.size
         origin = actor.origin_as_image_center
 
-        hits_actor = gate_sim.add_actor("DigitizerHitsCollectionActor", "Hits")
-        hits_actor.attached_to = attached_to
-        hits_actor.attributes = ['TotalEnergyDeposit', 'PostPosition', 'GlobalTime']
-        hits_actor.output_filename = 'output/hits.root'
+        if "Hits" not in gate_sim.actor_manager.actors.keys():
+            hits_actor = gate_sim.add_actor("DigitizerHitsCollectionActor", "Hits")
+            hits_actor.attached_to = attached_to
+            hits_actor.attributes = ['TotalEnergyDeposit', 'PostPosition', 'GlobalTime']
+            hits_actor.output_filename = 'output/hits.root'
 
-        proj_actor = gate_sim.add_actor("DigitizerProjectionActor", "Projection")
-        proj_actor.attached_to = attached_to
-        proj_actor.input_digi_collections = ["Hits"]
-        proj_actor.spacing = spacing
-        proj_actor.size = size
-        proj_actor.origin_as_image_center = origin
-        proj_actor.output_filename = 'output/projection.mhd'
+        if "Projection" not in gate_sim.actor_manager.actors.keys():
+            proj_actor = gate_sim.add_actor("DigitizerProjectionActor", "Projection")
+            proj_actor.attached_to = attached_to
+            proj_actor.input_digi_collections = ["Hits"]
+            proj_actor.spacing = spacing
+            proj_actor.size = size
+            proj_actor.origin_as_image_center = origin
+            proj_actor.output_filename = 'output/projection.mhd'
 
         gate_sim.run(start_new_process=True)
         return {"message": "Simulation finished running"}

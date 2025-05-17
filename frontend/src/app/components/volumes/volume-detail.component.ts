@@ -1,106 +1,113 @@
+import { Component, OnInit, inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterModule, Router } from '@angular/router';
+
 import { VolumeService } from '../../services/volume.service';
-import { VolumeRead, BoxShape, SphereShape, VolumeShape } from '../../interfaces/volume';
+import { VolumeRead, VolumeType, BoxShape, SphereShape } from '../../interfaces/volume';
+import { Unit } from '../../interfaces/primitives';
 
 @Component({
   selector: 'app-volume-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule],
   template: `
-    <div class="container py-4">
-      <button class="btn btn-outline-secondary mb-3" (click)="back()">← Back to volumes</button>
-
-      <div *ngIf="volume; else loading" class="card">
-        <div class="card-body">
-          <h4 class="card-title">Volume: {{ volume.name }}</h4>
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item"><strong>Mother:</strong> {{ volume.mother || 'None' }}</li>
-            <li class="list-group-item"><strong>Type:</strong> {{ volume.shape.type }}</li>
-            <li class="list-group-item"><strong>Material:</strong> {{ volume.material }}</li>
-            <li class="list-group-item"><strong>Translation:</strong>
-              {{ volume.translation[0] }}, {{ volume.translation[1] }}, {{ volume.translation[2] }}
-              {{ volume.translation_unit }}
-            </li>
-            <li class="list-group-item"><strong>Rotation:</strong>
-              axis = {{ volume.rotation.axis }},
-              angle = {{ volume.rotation.angle }}°
-            </li>
-            <li *ngIf="volume.shape.type === 'Box'" class="list-group-item">
-              <ng-container *ngIf="getBoxShape(volume.shape) as box">
-                <strong>Size:</strong>
-                {{ box.size[0] }} × {{ box.size[1] }} × {{ box.size[2] }} {{ box.unit }}
-              </ng-container>
-            </li>
-            <li *ngIf="volume.shape.type === 'Sphere'" class="list-group-item">
-              <ng-container *ngIf="getSphereShape(volume.shape) as sphere">
-                <strong>Inner Radius:</strong> {{ sphere.rmin }} {{ sphere.unit }}<br />
-                <strong>Outer Radius:</strong> {{ sphere.rmax }} {{ sphere.unit }}
-              </ng-container>
-            </li>
-          </ul>
-
-          <div *ngIf="volume.dynamic_params.enabled" class="mt-3">
-            <h5>Dynamic Parameters</h5>
-            <p *ngIf="volume.dynamic_params.translation_end">
-              <strong>End Translation:</strong>
-              {{ volume.dynamic_params.translation_end[0] }},
-              {{ volume.dynamic_params.translation_end[1] }},
-              {{ volume.dynamic_params.translation_end[2] }}
-              {{ volume.translation_unit }}
-            </p>
-            <p *ngIf="volume.dynamic_params.angle_end">
-              <strong>End Angle:</strong> {{ volume.dynamic_params.angle_end }}°
-            </p>
-          </div>
-
-          <div class="mt-4 d-flex gap-2">
-            <button class="btn btn-primary" (click)="edit()">Edit</button>
-            <button class="btn btn-outline-secondary" (click)="back()">← Back</button>
-          </div>
+    <div class="container py-5" *ngIf="volume as vol; else loading">
+      <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+          <h1 class="fw-bold display-6 mb-0">{{ vol.name }}</h1>
+          <p class="text-muted">Volume Details</p>
         </div>
+        <button class="btn btn-secondary btn-sm" (click)="back()">
+          <i class="bi bi-arrow-left me-1"></i> Back
+        </button>
       </div>
 
-      <ng-template #loading>
-        <div class="alert alert-info">Loading volume details…</div>
-      </ng-template>
+      <div class="card shadow-sm">
+        <div class="card-body px-5 py-4">
+          <dl class="row mb-0">
+            <dt class="col-sm-3">Material</dt>
+            <dd class="col-sm-9">{{ vol.material }}</dd>
+
+            <dt class="col-sm-3">Mother</dt>
+            <dd class="col-sm-9">{{ vol.mother }}</dd>
+
+            <dt class="col-sm-3">Translation</dt>
+            <dd class="col-sm-9">
+              {{ vol.translation.join(' × ') }} ({{ vol.translation_unit }})
+            </dd>
+
+            <dt class="col-sm-3">Rotation</dt>
+            <dd class="col-sm-9">
+              {{ vol.rotation.axis }}: {{ vol.rotation.angle }}°
+            </dd>
+
+            <dt class="col-sm-3">Shape</dt>
+            <dd class="col-sm-9">{{ vol.shape.type }} ({{ vol.shape.unit }})</dd>
+
+            <ng-container *ngIf="isBox">
+              <dt class="col-sm-3">Box Size</dt>
+              <dd class="col-sm-9">{{ boxShape?.size?.join(' × ') }}</dd>
+            </ng-container>
+
+            <ng-container *ngIf="isSphere">
+              <dt class="col-sm-3">Inner Radius (rmin)</dt>
+              <dd class="col-sm-9">{{ sphereShape?.rmin }}</dd>
+
+              <dt class="col-sm-3">Outer Radius (rmax)</dt>
+              <dd class="col-sm-9">{{ sphereShape?.rmax }}</dd>
+            </ng-container>
+
+
+            <dt class="col-sm-3">Dynamic?</dt>
+            <dd class="col-sm-9">{{ vol.dynamic_params.enabled ? 'Yes' : 'No' }}</dd>
+          </dl>
+        </div>
+      </div>
     </div>
+
+    <ng-template #loading>
+      <div class="container py-5 text-center text-muted">
+        <div class="spinner-border text-primary mb-3" role="status"></div>
+        <div>Loading volume details…</div>
+      </div>
+    </ng-template>
   `
 })
 export class VolumeDetailComponent implements OnInit {
+  volume: VolumeRead | null = null;
   simulationId!: number;
   volumeName!: string;
-  volume?: VolumeRead;
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private volumeService: VolumeService
-  ) {}
+  private readonly volumeService = inject(VolumeService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   ngOnInit(): void {
-    this.simulationId = Number(this.route.parent?.snapshot.paramMap.get('id') || 
-                               this.route.snapshot.paramMap.get('simId'));
-    this.volumeName = this.route.snapshot.paramMap.get('name') || 
-                      this.route.snapshot.paramMap.get('volumeName')!;
-    this.volumeService.get(this.simulationId, this.volumeName)
-      .subscribe(v => this.volume = v);
+    this.simulationId = Number(this.route.snapshot.paramMap.get('simId'));
+    this.volumeName = this.route.snapshot.paramMap.get('name')!;
+
+    this.volumeService.getVolume(this.simulationId, this.volumeName).subscribe(data => {
+      this.volume = data;
+    });
   }
 
-  getBoxShape(shape: VolumeShape): BoxShape | null {
-    return shape.type === 'Box' ? shape as BoxShape : null;
+  back(): void {
+    this.router.navigate(['/simulations', this.simulationId]);
   }
 
-  getSphereShape(shape: VolumeShape): SphereShape | null {
-    return shape.type === 'Sphere' ? shape as SphereShape : null;
+  get isBox(): boolean {
+    return this.volume?.shape.type === VolumeType.BOX;
   }
 
-  edit() {
-    this.router.navigate([`/simulations/${this.simulationId}/volumes/${this.volumeName}/edit`]);
+  get isSphere(): boolean {
+    return this.volume?.shape.type === VolumeType.SPHERE;
   }
 
-  back() {
-    this.router.navigate([`/simulations/${this.simulationId}/volumes`]);
+  get boxShape(): BoxShape | null {
+  return this.isBox ? this.volume!.shape as BoxShape : null;
+  }
+
+  get sphereShape(): SphereShape | null {
+    return this.isSphere ? this.volume!.shape as SphereShape : null;
   }
 }

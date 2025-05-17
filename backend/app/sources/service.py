@@ -1,5 +1,3 @@
-import json
-import opengate as gate
 from fastapi import HTTPException, status
 from app.sources.model import Source
 from app.simulations.service import SimulationService
@@ -12,7 +10,6 @@ from app.sources.schema import (
 )
 from app.shared.primitives import Unit, UNIT_TO_GATE
 from app.shared.message import MessageResponse
-from app.shared.utils import get_gate_sim
 
 class SourceService:
     def __init__(
@@ -70,8 +67,6 @@ class SourceService:
         activity_factor = UNIT_TO_GATE[Unit(source_data.unit)]
         gate_source.activity = source_data.activity * activity_factor
 
-        gate_sim.to_json_file()
-
         await self.source_repository.create(sim_id, source_data)
 
         return {"message": f"Source '{source_data.name}' created successfully"}
@@ -110,17 +105,6 @@ class SourceService:
         """
         Delete the source from Gate and DB, returning a confirmation message.
         """
-        gate_sim = await get_gate_sim(sim_id, self.sim_service.sim_repo, self.source_repository)
-
-        if name not in gate_sim.source_manager.sources:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Source '{name}' not found in Gate simulation.",
-            )
-        del gate_sim.source_manager.sources[name]
-
-        gate_sim.to_json_file()
-
         source_deleted = await self.source_repository.delete(sim_id, name)
         if not source_deleted:
             raise HTTPException(

@@ -6,8 +6,8 @@ from datetime import datetime
 class ActorBase(BaseModel):
     """Base model for simulation actors with core attributes."""
     attached_to: str = Field("world", description="Entity to which this actor is attached")
-    spacing: List[float] = Field(..., min_length=2, max_length=2, description="Spacing in [x, y] format")
-    size: List[int] = Field(..., min_length=2, max_length=2, description="Size in pixels [width, height]")
+    spacing: List[float] = Field([1, 1], min_length=2, max_length=2, description="Spacing in [x, y] format")
+    size: List[int] = Field([256, 256], min_length=2, max_length=2, description="Size in pixels [width, height]")
     origin_as_image_center: bool = Field(True, description="Whether the origin is at the center of the image")
 
 

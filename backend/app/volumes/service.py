@@ -80,7 +80,7 @@ class VolumeService:
 
             angle_start = vol.rotation.angle
             angle_end = vol.dynamic_params.angle_end or angle_start
-            angles = np.linspace(angle_start, angle_end, num_runs)
+            angles = np.linspace(angle_start, angle_end, num_runs, endpoint=False)
             rotations = [
                 R.from_euler(vol.rotation.axis.value, a, degrees=True).as_matrix()
                 for a in angles

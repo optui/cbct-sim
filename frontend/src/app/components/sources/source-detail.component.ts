@@ -1,95 +1,81 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule, NgIf } from '@angular/common';
-import { RouterModule, Router, ActivatedRoute } from '@angular/router';
+import { Component, OnInit, inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+
 import { SourceService } from '../../services/source.service';
 import { GenericSourceRead } from '../../interfaces/source';
 
 @Component({
-  standalone: true,
   selector: 'app-source-detail',
-  imports: [CommonModule, NgIf, RouterModule],
+  standalone: true,
+  imports: [CommonModule],
   template: `
-    <div class="container py-4" *ngIf="source; else loading">
-      <button class="btn btn-outline-secondary mb-3" (click)="back()">← Back to sources</button>
-      <h3 class="mb-3">Source: {{ source.name }}</h3>
+    <div class="container py-5" *ngIf="source as src; else loading">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+        <h1 class="fw-bold display-6 mb-0">{{ src.name }}</h1>
+        <p class="text-muted">Source Details</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" (click)="back()">
+        <i class="bi bi-arrow-left me-1"></i> Back
+        </button>
+    </div>
 
-      <div class="mb-3">
-        <p><strong>Attached To:</strong> {{ source.attached_to }}</p>
-        <p><strong>Particle Type:</strong> {{ source.particle }}</p>
-      </div>
+    <div class="card shadow-sm">
+        <div class="card-body px-5 py-4">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Attached To</dt>
+            <dd class="col-sm-9">{{ src.attached_to }}</dd>
 
-      <fieldset class="border p-3 rounded mb-3">
-        <legend class="w-auto px-2">Position Configuration</legend>
-        <p><strong>Type:</strong> {{ source.position.type }}</p>
-        <p><strong>Translation:</strong> {{ source.position.translation.join(', ') }} {{ source.position.unit }}</p>
-        <p><strong>Rotation:</strong> Axis {{ source.position.rotation.axis }}, Angle {{ source.position.rotation.angle }}°</p>
-        <p><strong>Size:</strong> {{ source.position.size.join(' × ') }} {{ source.position.unit }}</p>
-      </fieldset>
+            <dt class="col-sm-3">Particle</dt>
+            <dd class="col-sm-9">{{ src.particle }}</dd>
 
-      <fieldset class="border p-3 rounded mb-3">
-        <legend class="w-auto px-2">Direction Configuration</legend>
-        <p><strong>Type:</strong> {{ source.direction.type }}</p>
-        <p><strong>Focus Point:</strong> {{ source.direction.focus_point.join(', ') }}</p>
-      </fieldset>
+            <dt class="col-sm-3">Energy</dt>
+            <dd class="col-sm-9">{{ src.energy.energy }} {{ src.energy.unit }}</dd>
 
-      <fieldset class="border p-3 rounded mb-3">
-        <legend class="w-auto px-2">Energy Configuration</legend>
-        <p><strong>Type:</strong> {{ source.energy.type }}</p>
-        <p><strong>Energy:</strong> {{ source.energy.mono }} {{ source.energy.unit }}</p>
-      </fieldset>
+            <dt class="col-sm-3">Activity</dt>
+            <dd class="col-sm-9">{{ src.activity }} {{ src.unit }}</dd>
 
-      <p><strong>Number of Particles:</strong> {{ source.n }}</p>
-      <p *ngIf="source.activity">
-        <strong>Activity:</strong> {{ source.activity }} {{ source.activity_unit }}
-      </p>
+            <dt class="col-sm-3">Focus Point</dt>
+            <dd class="col-sm-9">{{ src.focus_point.join(' × ') }}</dd>
 
-      <div class="mt-4 d-flex gap-2">
-        <button class="btn btn-primary" (click)="edit()">Edit</button>
-        <button class="btn btn-outline-secondary" (click)="back()">← Back</button>
-      </div>
+            <dt class="col-sm-3">Position (Translation)</dt>
+            <dd class="col-sm-9">{{ src.position.translation.join(' × ') }} {{ src.position.unit }}</dd>
+
+            <dt class="col-sm-3">Size</dt>
+            <dd class="col-sm-9">{{ src.position.size.join(' × ') }} {{ src.position.unit }}</dd>
+        </dl>
+        </div>
+    </div>
     </div>
 
     <ng-template #loading>
-      <div class="container py-4">
-        <div class="alert alert-info text-center">Loading source details…</div>
-      </div>
+    <div class="container py-5 text-center text-muted">
+        <div class="spinner-border text-primary mb-3" role="status"></div>
+        <div>Loading source details…</div>
+    </div>
     </ng-template>
   `
 })
 export class SourceDetailComponent implements OnInit {
+  source: GenericSourceRead | null = null;
   simulationId!: number;
   sourceName!: string;
-  source?: GenericSourceRead;
 
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private svc: SourceService
-  ) {}
+  private readonly sourceService = inject(SourceService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
-  ngOnInit() {
-    // Get simulation ID from parent route
-    this.simulationId = Number(
-      this.route.parent?.snapshot.paramMap.get('id') || 
-      this.route.snapshot.paramMap.get('simId')
-    );
-    
-    this.sourceName = decodeURIComponent(
-      this.route.snapshot.paramMap.get('name')!
-    );
+  ngOnInit(): void {
+    this.simulationId = Number(this.route.snapshot.paramMap.get('simId'));
+    this.sourceName = this.route.snapshot.paramMap.get('name')!;
 
-    this.svc.get(this.simulationId, this.sourceName)
-      .subscribe({
-        next: (s) => this.source = s,
-        error: (err) => console.error('Failed to load source:', err)
-      });
+    this.sourceService.getSource(this.simulationId, this.sourceName).subscribe(data => {
+      this.source = data;
+    });
   }
 
-  edit() {
-    this.router.navigate([`/simulations/${this.simulationId}/sources/${this.sourceName}/edit`]);
-  }
-
-  back() {
-    this.router.navigate([`/simulations/${this.simulationId}/sources`]);
+  back(): void {
+    this.router.navigate(['/simulations', this.simulationId]);
   }
 }
