@@ -31,7 +31,7 @@ Full-stack application for creating tomographic projections. It uses [FastAPI](h
 
 |                              Sinogram of a cube from a CBCT                             |                              Reconstructed middle slice of a cube from a CBCT                             |
 | :-------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------: |
-| <img src="./docs/screenshot_4.png" alt="Sinogram of a cube from a CBCT" height="400px"/> | <img src="./docs/screenshot_5.png" alt="Reconstructed middle slice of a cube from a CBCT" height="400px"/> |
+| <img src="./docs/screenshot_4.png" alt="Sinogram of a cube from a CBCT" height="450px"/> | <img src="./docs/screenshot_5.png" alt="Reconstructed middle slice of a cube from a CBCT" height="450px"/> |
 
 ## Prerequisities
 
