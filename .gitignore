@@ -72,7 +72,8 @@ Desktop.ini
 ehthumbs.db
 
 # ─── Miscellaneous ──────────────────────────────────────────────────────────────
-backend/app/outputs/
-backend/app/outputs/*
+backend/outputs
+backend/outputs
 uv.lock
 *.bak
+backend/LEAP

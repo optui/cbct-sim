@@ -1,10 +1,11 @@
 import os
-from fastapi import APIRouter, BackgroundTasks, status
+from fastapi import APIRouter, BackgroundTasks, HTTPException, status
 from fastapi.responses import FileResponse
 from app.simulations.dependencies import SimulationServiceDep
 from app.sources.dependencies import SourceRepositoryDep, SourceServiceDep
 from app.shared.message import MessageResponse
 from app.simulations.schema import (
+    ReconstructionParams,
     SimulationCreate,
     SimulationUpdate,
     SimulationRead,
@@ -118,3 +119,23 @@ async def run_simulation(
     simulation_id: int,
 ):
     return await service.run_simulation(simulation_id, src_repo, vol_repo)
+
+
+@router.post(
+    "/{simulation_id}/reconstruct",
+    status_code=status.HTTP_202_ACCEPTED,
+    response_model=MessageResponse,
+    responses={404: {"model": MessageResponse}},
+)
+async def reconstruct(
+    simulation_id: int,
+    params: ReconstructionParams,
+    service: SimulationServiceDep,
+):
+    """Trigger FBP reconstruction of the projection stack."""
+    out_path = await service.reconstruct_simulation(
+        simulation_id,
+        params.sod,
+        params.sdd
+    )
+    return {"message": f"Reconstruction started - for result export the simulation"}

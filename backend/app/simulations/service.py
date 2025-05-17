@@ -1,6 +1,8 @@
+from multiprocessing import Process
 import os
 import shutil
 from fastapi import HTTPException
+from fastapi.concurrency import run_in_threadpool
 from app.simulations.repository import SimulationRepository
 from app.sources.repository import SourceRepository
 from app.shared.message import MessageResponse
@@ -14,6 +16,8 @@ from app.shared.primitives import UNIT_TO_GATE, Unit
 from app.simulations.model import Simulation
 from app.volumes.repository import VolumeRepository
 from app.volumes.schema import VolumeRead
+import SimpleITK as sitk
+from leapctype import tomographicModels
 
 
 class SimulationService:
@@ -175,6 +179,60 @@ class SimulationService:
 
         gate_sim.run(start_new_process=True)
         return {"message": "Simulation finished running"}
+
+    async def reconstruct_simulation(self, id: int, sod: float, sdd: float) -> str:
+        sim = await self.read_simulation(id)
+        proj_path = os.path.join(sim.output_dir, "output", "projection.mhd")
+        if not os.path.exists(proj_path):
+            raise HTTPException(404, detail=f"projection.mhd not found at {proj_path}")
+
+        return await run_in_threadpool(
+            self._do_recon,
+            proj_path,
+            sim.output_dir,
+            sod,
+            sdd
+        )
+
+    def _do_recon(
+            self,
+            proj_path: str,
+            out_dir: str,
+            sod: float,
+            sdd: float
+        ) -> str:
+        proj_itk = sitk.ReadImage(proj_path)
+        proj = sitk.GetArrayFromImage(proj_itk).astype(np.float32)
+
+        NUM_ANGLES, NUM_ROWS, NUM_COLS = proj.shape
+        PIX_W, PIX_H, _ = proj_itk.GetSpacing()
+        SOD, SDD = sod, sdd  # adapt as needed
+
+        # — Configure LEAP
+        ct = tomographicModels()
+        phis = ct.setAngleArray(NUM_ANGLES, 360.0)
+        ct.set_conebeam(
+            numAngles=NUM_ANGLES,
+            numRows=NUM_ROWS,
+            numCols=NUM_COLS,
+            pixelWidth=PIX_W,
+            pixelHeight=PIX_H,
+            centerRow=0.5*(NUM_ROWS-1),
+            centerCol=0.5*(NUM_COLS-1),
+            phis=phis,
+            sod=SOD,
+            sdd=SDD
+        )
+        ct.set_default_volume()
+        vol = ct.allocate_volume()
+
+        ct.FBP(proj, vol)
+
+        recon_itk = sitk.GetImageFromArray(vol)
+        out_path = os.path.join(out_dir, "output", "reconstruction.mhd")
+        sitk.WriteImage(recon_itk, out_path)
+
+        return out_path
 
     @staticmethod
     def _handle_directory_rename(current, new_name: str) -> None:

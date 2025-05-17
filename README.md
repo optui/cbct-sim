@@ -13,6 +13,14 @@
 
 Full-stack application for creating tomographic projections. It uses [FastAPI](https://fastapi.tiangolo.com/) for the backend to interface with [GATE 10](https://github.com/OpenGATE/opengate) and [Angular](https://angular.dev/) for the frontend.
 
+## Prerequisities
+
+- Node/npm
+- Python 3.10+
+- gcc compiler
+- cmake version 3.23 or newer
+- CUDA toolkit 11.7 or newer
+
 ## Setup
 
 - Clone the repository
@@ -72,6 +80,36 @@ Full-stack application for creating tomographic projections. It uses [FastAPI](h
 
     ```bash
     pip install -e .
+    ```
+
+#### Integrating LEAP
+
+ProjeCT relies on LLNL’s [LEAP](https://github.com/LLNL/LEAP) library for advanced tomographic simulations.  
+Before running ProjeCT, install and configure LEAP following this [link](https://github.com/LLNL/LEAP/wiki/Installing-LEAP-without-PyTorch).
+
+1. Go to the backend directory
+
+    ```bash
+    cd backend
+    ```
+
+2. Activate virtual environment if it exists
+
+    ```bash
+    source .venv/bin/activate  # Windows: .venv\Scripts\activate
+    ```
+
+3. Clone the repository
+
+    ```bash
+    git clone https://github.com/LLNL/LEAP.git
+    cd LEAP
+    ```
+
+4. From within `backend/LEAP/`, install the LEAP package
+
+    ```bash
+    pip install .
     ```
 
 ### Frontend Setup

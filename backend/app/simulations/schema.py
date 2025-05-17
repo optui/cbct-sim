@@ -3,6 +3,19 @@ from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 
 
+class ReconstructionParams(BaseModel):
+    sod: float = Field(
+        ...,
+        gt=0,
+        description="Source-to-object distance (mm)"
+    )
+    sdd: float = Field(
+        ...,
+        gt=0,
+        description="Source-to-detector distance (mm)"
+    )
+
+
 class ActorBase(BaseModel):
     """Base model for simulation actors with core attributes."""
     attached_to: str = Field("world", description="Entity to which this actor is attached")
