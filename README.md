@@ -23,9 +23,15 @@ Full-stack application for creating tomographic projections. It uses [FastAPI](h
 
 ![Screenshot of a simulation's details plus volumes and sources](./docs/screenshot_2.png)
 
-### Render your simulation before running it
+### View your GATE simulation before running it
 
 ![Screenshot of a source emitting rays in a cone shape towards a cube and a flat-panel detector](./docs/screenshot_3.png)
+
+### Generate projections and reconstruct them
+
+![Sinogram of a cube from a CBCT](./docs/screenshot_4.png)
+
+![Reconstructed middle slice of a cube from a CBCT](./docs/screenshot_5.png)
 
 ## Prerequisities
 
