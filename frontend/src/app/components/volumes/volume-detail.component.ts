@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 
 import { VolumeService } from '../../services/volume.service';
 import { VolumeRead, VolumeType, BoxShape, SphereShape } from '../../interfaces/volume';
-import { Unit } from '../../interfaces/primitives';
 
 @Component({
   selector: 'app-volume-detail',
@@ -22,45 +21,44 @@ import { Unit } from '../../interfaces/primitives';
         </button>
       </div>
 
-      <div class="card shadow-sm">
-        <div class="card-body px-5 py-4">
-          <dl class="row mb-0">
-            <dt class="col-sm-3">Material</dt>
-            <dd class="col-sm-9">{{ vol.material }}</dd>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <h5 class="card-title text-muted mb-3"><i class="bi bi-box-seam me-2"></i>General</h5>
+              <p><strong>Material:</strong> {{ vol.material }}</p>
+              <p><strong>Mother:</strong> {{ vol.mother }}</p>
+              <p><strong>Dynamic:</strong> {{ vol.dynamic_params.enabled ? 'Yes' : 'No' }}</p>
+            </div>
+          </div>
+        </div>
 
-            <dt class="col-sm-3">Mother</dt>
-            <dd class="col-sm-9">{{ vol.mother }}</dd>
+        <div class="col-md-6">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <h5 class="card-title text-muted mb-3"><i class="bi bi-geo-alt me-2"></i>Position & Rotation</h5>
+              <p><strong>Translation:</strong> {{ vol.translation.join(' ' + vol.translation_unit + ' x ') }}<span>{{ ' ' + vol.translation_unit }}</span></p>
+              <p><strong>Rotation:</strong> {{ vol.rotation.axis }}: {{ vol.rotation.angle }}°</p>
+            </div>
+          </div>
+        </div>
 
-            <dt class="col-sm-3">Translation</dt>
-            <dd class="col-sm-9">
-              {{ vol.translation.join(' × ') }} ({{ vol.translation_unit }})
-            </dd>
+        <div class="col-md-12">
+          <div class="card shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title text-muted mb-3"><i class="bi bi-globe me-2"></i>Shape</h5>
+              <p><strong>Type:</strong> {{ vol.shape.type }}</p>
 
-            <dt class="col-sm-3">Rotation</dt>
-            <dd class="col-sm-9">
-              {{ vol.rotation.axis }}: {{ vol.rotation.angle }}°
-            </dd>
+              <div *ngIf="isBox">
+                <p><strong>Box Size:</strong> {{ boxShape?.size?.join(' ' + vol.shape.unit + ' x ') }}<span>{{ ' ' + vol.shape.unit }}</span></p>
+              </div>
 
-            <dt class="col-sm-3">Shape</dt>
-            <dd class="col-sm-9">{{ vol.shape.type }} ({{ vol.shape.unit }})</dd>
-
-            <ng-container *ngIf="isBox">
-              <dt class="col-sm-3">Box Size</dt>
-              <dd class="col-sm-9">{{ boxShape?.size?.join(' × ') }}</dd>
-            </ng-container>
-
-            <ng-container *ngIf="isSphere">
-              <dt class="col-sm-3">Inner Radius (rmin)</dt>
-              <dd class="col-sm-9">{{ sphereShape?.rmin }}</dd>
-
-              <dt class="col-sm-3">Outer Radius (rmax)</dt>
-              <dd class="col-sm-9">{{ sphereShape?.rmax }}</dd>
-            </ng-container>
-
-
-            <dt class="col-sm-3">Dynamic?</dt>
-            <dd class="col-sm-9">{{ vol.dynamic_params.enabled ? 'Yes' : 'No' }}</dd>
-          </dl>
+              <div *ngIf="isSphere">
+                <p><strong>Inner Radius (rmin):</strong> {{ sphereShape?.rmin }}</p>
+                <p><strong>Outer Radius (rmax):</strong> {{ sphereShape?.rmax }}</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -104,7 +102,7 @@ export class VolumeDetailComponent implements OnInit {
   }
 
   get boxShape(): BoxShape | null {
-  return this.isBox ? this.volume!.shape as BoxShape : null;
+    return this.isBox ? this.volume!.shape as BoxShape : null;
   }
 
   get sphereShape(): SphereShape | null {

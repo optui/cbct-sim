@@ -6,7 +6,8 @@ import { environment } from '../../environments/environment';
 import {
   SimulationCreate,
   SimulationRead,
-  SimulationUpdate
+  SimulationUpdate,
+  ReconstructionParams    // ← import the new interface
 } from '../interfaces/simulation';
 
 import { MessageResponse } from '../interfaces/message';
@@ -19,42 +20,51 @@ export class SimulationService {
 
   constructor(private http: HttpClient) {}
 
-  createSimulation(data: SimulationCreate): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(`${this.baseUrl}/`, data);
+  createSimulation(sim: SimulationCreate): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(this.baseUrl, sim);
   }
 
-  getSimulations(): Observable<SimulationRead[]> {
-    return this.http.get<SimulationRead[]>(`${this.baseUrl}/`);
+  readSimulations(): Observable<SimulationRead[]> {
+    return this.http.get<SimulationRead[]>(this.baseUrl);
   }
 
-  getSimulation(simulationId: number): Observable<SimulationRead> {
-    return this.http.get<SimulationRead>(`${this.baseUrl}/${simulationId}`);
+  readSimulation(id: number): Observable<SimulationRead> {
+    return this.http.get<SimulationRead>(`${this.baseUrl}/${id}`);
   }
 
-  updateSimulation(
-    simulationId: number,
-    data: SimulationUpdate
+  updateSimulation(id: number, sim: SimulationUpdate): Observable<MessageResponse> {
+    return this.http.put<MessageResponse>(`${this.baseUrl}/${id}`, sim);
+  }
+
+  deleteSimulation(id: number): Observable<MessageResponse> {
+    return this.http.delete<MessageResponse>(`${this.baseUrl}/${id}`);
+  }
+
+  importSimulation(id: number): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.baseUrl}/${id}/import`, {});
+  }
+
+  exportSimulation(id: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/${id}/export`, {
+      responseType: 'blob',
+    });
+  }
+
+  viewSimulation(id: number): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.baseUrl}/${id}/view`, {});
+  }
+
+  runSimulation(id: number): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(`${this.baseUrl}/${id}/run`, {});
+  }
+
+  reconstructSimulation(
+    id: number,
+    params: ReconstructionParams
   ): Observable<MessageResponse> {
-    return this.http.put<MessageResponse>(`${this.baseUrl}/${simulationId}`, data);
-  }
-
-  deleteSimulation(simulationId: number): Observable<MessageResponse> {
-    return this.http.delete<MessageResponse>(`${this.baseUrl}/${simulationId}`);
-  }
-
-  importSimulation(simulationId: number): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(`${this.baseUrl}/${simulationId}/import`, {});
-  }
-
-  exportSimulation(simulationId: number): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(`${this.baseUrl}/${simulationId}/export`, {});
-  }
-
-  viewSimulation(simulationId: number): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(`${this.baseUrl}/${simulationId}/view`, {});
-  }
-
-  runSimulation(simulationId: number): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(`${this.baseUrl}/${simulationId}/run`, {});
+    return this.http.post<MessageResponse>(
+      `${this.baseUrl}/${id}/reconstruct`,
+      params
+    );
   }
 }

@@ -22,26 +22,34 @@ import {
   template: `
     <div class="container py-5">
       <div class="mb-4">
-        <h1 class="fw-bold display-6">{{ isEdit ? 'Edit' : 'New' }} Simulation</h1>
-        <p class="text-muted">Fill out the fields below to configure your simulation.</p>
+        <h1 class="fw-bold display-6">
+          {{ isEdit ? 'Edit' : 'New' }} Simulation
+        </h1>
+        <p class="text-muted">Configure the core simulation and actor settings.</p>
       </div>
 
       <form [formGroup]="form" (ngSubmit)="save()" novalidate>
         <div class="card shadow-sm mb-4">
           <div class="card-header fw-semibold">General</div>
-          <div class="card-body">
-            <div class="mb-3">
+          <div class="card-body row g-3">
+            <div class="col-md-6">
               <label class="form-label">Name</label>
-              <input type="text" formControlName="name" class="form-control" />
+              <input type="text" class="form-control" formControlName="name" placeholder="e.g. sim_01" />
             </div>
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Number of Runs</label>
-                <input type="number" formControlName="num_runs" class="form-control" />
+
+            <div class="col-md-3">
+              <label class="form-label">Number of Runs</label>
+              <div class="input-group">
+                <input type="number" class="form-control" formControlName="num_runs" />
+                <span class="input-group-text">x</span>
               </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Run Length</label>
-                <input type="number" formControlName="run_len" class="form-control" />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Run Length</label>
+              <div class="input-group">
+                <input type="number" class="form-control" formControlName="run_len" />
+                <span class="input-group-text">sec</span>
               </div>
             </div>
           </div>
@@ -49,46 +57,52 @@ import {
 
         <div class="card shadow-sm mb-4" formGroupName="actor">
           <div class="card-header fw-semibold">Actor</div>
-          <div class="card-body">
-            <div class="mb-3">
+          <div class="card-body row g-3">
+            <div class="col-md-6">
               <label class="form-label">Attached To</label>
-              <input type="text" formControlName="attached_to" class="form-control" />
+              <input type="text" class="form-control" formControlName="attached_to" placeholder="e.g. world" />
             </div>
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Spacing X</label>
-                <input type="number" formControlName="spacing0" class="form-control" />
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Spacing Y</label>
-                <input type="number" formControlName="spacing1" class="form-control" />
+
+            <div class="col-md-3">
+              <label class="form-label">Spacing X</label>
+              <div class="input-group">
+                <input type="number" class="form-control" formControlName="spacing0" />
+                <span class="input-group-text">mm</span>
               </div>
             </div>
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Size X</label>
-                <input type="number" formControlName="size0" class="form-control" />
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label">Size Y</label>
-                <input type="number" formControlName="size1" class="form-control" />
+            <div class="col-md-3">
+              <label class="form-label">Spacing Y</label>
+              <div class="input-group">
+                <input type="number" class="form-control" formControlName="spacing1" />
+                <span class="input-group-text">mm</span>
               </div>
             </div>
-            <div class="form-check mt-3">
-              <input
-                type="checkbox"
-                formControlName="origin_as_image_center"
-                class="form-check-input"
-                id="originCheck"
-              />
-              <label class="form-check-label" for="originCheck">
-                Origin as image center
-              </label>
+
+            <div class="col-md-3">
+              <label class="form-label">Size X</label>
+              <div class="input-group">
+                <input type="number" class="form-control" formControlName="size0" />
+                <span class="input-group-text">mm</span>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Size Y</label>
+              <div class="input-group">
+                <input type="number" class="form-control" formControlName="size1" />
+                <span class="input-group-text">mm</span>
+              </div>
+            </div>
+
+            <div class="col-12 mt-2">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" formControlName="origin_as_image_center" id="originCheck" />
+                <label class="form-check-label" for="originCheck">Origin as image center</label>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 mt-3">
           <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
             <i class="bi bi-check-circle me-1"></i> Save
           </button>
@@ -134,7 +148,7 @@ export class SimulationFormComponent implements OnInit {
       if (this.isEdit) {
         this.simulationId = Number(idParam);
         this.simulationService
-          .getSimulation(this.simulationId)
+          .readSimulation(this.simulationId)
           .subscribe((data) => this.patchForm(data));
       }
     }

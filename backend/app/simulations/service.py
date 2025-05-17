@@ -206,11 +206,11 @@ class SimulationService:
 
         NUM_ANGLES, NUM_ROWS, NUM_COLS = proj.shape
         PIX_W, PIX_H, _ = proj_itk.GetSpacing()
-        SOD, SDD = sod, sdd  # adapt as needed
+        SOD, SDD = sod, sdd
 
-        # — Configure LEAP
         ct = tomographicModels()
         phis = ct.setAngleArray(NUM_ANGLES, 360.0)
+
         ct.set_conebeam(
             numAngles=NUM_ANGLES,
             numRows=NUM_ROWS,
@@ -223,12 +223,15 @@ class SimulationService:
             sod=SOD,
             sdd=SDD
         )
+
         ct.set_default_volume()
-        vol = ct.allocate_volume()
 
-        ct.FBP(proj, vol)
+        g = proj.astype(np.float32)
+        f = ct.allocate_volume()
 
-        recon_itk = sitk.GetImageFromArray(vol)
+        ct.FBP(g, f)
+
+        recon_itk = sitk.GetImageFromArray(f)
         out_path = os.path.join(out_dir, "output", "reconstruction.mhd")
         sitk.WriteImage(recon_itk, out_path)
 

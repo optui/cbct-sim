@@ -22,108 +22,119 @@ import { Unit, Vector3 } from '../../interfaces/primitives';
   imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div class="container py-5">
-    <h1 class="fw-bold display-6 mb-4">{{ isEdit ? 'Edit Source' : 'New Source' }}</h1>
+      <h1 class="fw-bold display-6 mb-4">
+        {{ isEdit ? 'Edit Source' : 'New Source' }}
+      </h1>
 
-    <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <!-- General -->
         <div class="card shadow-sm mb-4">
-        <div class="card-header fw-semibold">Basic Info</div>
-        <div class="card-body">
-            <div class="mb-3">
-            <label class="form-label">Name</label>
-            <input type="text" class="form-control" formControlName="name" />
+          <div class="card-header fw-semibold">General</div>
+          <div class="card-body row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Name</label>
+              <input type="text" class="form-control" formControlName="name" placeholder="e.g. src1" />
             </div>
-
-            <div class="mb-3">
-            <label class="form-label">Attached To</label>
-            <input type="text" class="form-control" formControlName="attached_to" />
+            <div class="col-md-4">
+              <label class="form-label">Attached To</label>
+              <input type="text" class="form-control" formControlName="attached_to" placeholder="e.g. world" />
             </div>
-
-            <div class="mb-3">
-            <label class="form-label">Particle</label>
-            <input type="text" class="form-control" formControlName="particle" />
+            <div class="col-md-4">
+              <label class="form-label">Particle</label>
+              <input type="text" class="form-control" formControlName="particle" placeholder="e.g. gamma" />
             </div>
-        </div>
+          </div>
         </div>
 
+        <!-- Energy & Activity -->
         <div class="card shadow-sm mb-4">
-        <div class="card-header fw-semibold">Energy & Activity</div>
-        <div class="card-body row g-3">
+          <div class="card-header fw-semibold">Energy & Activity</div>
+          <div class="card-body row g-3">
             <div class="col-md-6">
-            <label class="form-label">Energy</label>
-            <div class="input-group">
+              <label class="form-label">Energy</label>
+              <div class="input-group">
                 <input type="number" class="form-control" formControlName="energy" />
                 <select class="form-select" formControlName="energyUnit">
-                <option *ngFor="let unit of unitOptions" [value]="unit">{{ unit }}</option>
+                  <option *ngFor="let unit of unitOptions" [value]="unit">{{ unit }}</option>
                 </select>
-            </div>
+              </div>
             </div>
 
             <div class="col-md-6">
-            <label class="form-label">Activity</label>
-            <div class="input-group">
+              <label class="form-label">Activity</label>
+              <div class="input-group">
                 <input type="number" class="form-control" formControlName="activity" />
                 <select class="form-select" formControlName="activityUnit">
-                <option *ngFor="let unit of unitOptions" [value]="unit">{{ unit }}</option>
+                  <option *ngFor="let unit of unitOptions" [value]="unit">{{ unit }}</option>
                 </select>
+              </div>
             </div>
-            </div>
-        </div>
+          </div>
         </div>
 
+        <!-- Focus Point -->
         <div class="card shadow-sm mb-4">
-        <div class="card-header fw-semibold">Focus Point</div>
-        <div class="card-body row g-2">
+          <div class="card-header fw-semibold">Focus Point</div>
+          <div class="card-body row g-3">
             <div class="col-md-4" *ngFor="let axis of ['X', 'Y', 'Z']">
-            <div class="input-group">
-                <span class="input-group-text">{{ axis }}</span>
+              <div class="input-group">
+                <label class="input-group-text">{{ axis }}</label>
                 <input type="number" class="form-control" [formControlName]="'focus' + axis" />
+                <span class="input-group-text">{{ positionUnitLabel }}</span>
+              </div>
             </div>
-            </div>
-        </div>
+          </div>
         </div>
 
+        <!-- Position -->
         <div class="card shadow-sm mb-4">
-        <div class="card-header fw-semibold">Position</div>
-        <div class="card-body">
-            <div class="row g-2 mb-3">
-            <label class="form-label">Translation</label>
-            <div class="col-md-4" *ngFor="let axis of ['X', 'Y', 'Z']">
+          <div class="card-header fw-semibold">Position</div>
+          <div class="card-body">
+            <label class="form-label mb-2">Translation</label>
+            <div class="row g-3 mb-3">
+              <div class="col-md-4" *ngFor="let axis of ['X', 'Y', 'Z']">
                 <div class="input-group">
-                <span class="input-group-text">{{ axis }}</span>
-                <input type="number" class="form-control" [formControlName]="'translation' + axis" />
+                  <span class="input-group-text">{{ axis }}</span>
+                  <input type="number" class="form-control" [formControlName]="'translation' + axis" />
+                  <span class="input-group-text">{{ positionUnitLabel }}</span>
                 </div>
-            </div>
+              </div>
             </div>
 
-            <div class="row g-2 mb-3">
-            <label class="form-label">Size</label>
-            <div class="col-md-4" *ngFor="let axis of ['X', 'Y', 'Z']">
+
+            <label class="form-label mb-2">Size</label>
+            <div class="row g-3 mb-3">
+              <div class="col-md-4" *ngFor="let axis of ['X', 'Y', 'Z']">
                 <div class="input-group">
-                <span class="input-group-text">{{ axis }}</span>
-                <input type="number" class="form-control" [formControlName]="'size' + axis" />
+                  <span class="input-group-text">{{ axis }}</span>
+                  <input type="number" class="form-control" [formControlName]="'size' + axis" />
+                  <span class="input-group-text">{{ positionUnitLabel }}</span>
                 </div>
+              </div>
             </div>
-            </div>
+
 
             <div class="mb-3">
-            <label class="form-label">Unit</label>
-            <select class="form-select" formControlName="positionUnit">
+              <label class="form-label">Unit</label>
+              <select class="form-select" formControlName="positionUnit">
                 <option *ngFor="let unit of unitOptions" [value]="unit">{{ unit }}</option>
-            </select>
+              </select>
             </div>
-        </div>
+          </div>
         </div>
 
-        <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
+        <!-- Actions -->
+        <div class="d-flex gap-2 mt-3">
+          <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
             <i class="bi bi-check-circle me-1"></i> {{ isEdit ? 'Save Changes' : 'Create Source' }}
-        </button>
-        <button type="button" class="btn btn-secondary" (click)="cancel()">
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="cancel()">
             <i class="bi bi-x-circle me-1"></i> Cancel
-        </button>
+          </button>
         </div>
-    </form>
+      </form>
     </div>
+
   `
 })
 export class SourceFormComponent implements OnInit {
@@ -233,5 +244,9 @@ export class SourceFormComponent implements OnInit {
 
   cancel(): void {
     this.router.navigate(['/simulations', this.simulationId]);
+  }
+
+  get positionUnitLabel(): string {
+    return this.form?.get('positionUnit')?.value ?? 'mm';
   }
 }

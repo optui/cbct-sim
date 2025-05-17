@@ -4,8 +4,8 @@ import { CommonModule } from '@angular/common';
 
 import { SimulationService } from '../../services/simulation.service';
 import { SimulationRead } from '../../interfaces/simulation';
-import { VolumeListComponent } from "../volumes/volume-list.component";
-import { SourceListComponent } from "../sources/source-list.component";
+import { VolumeListComponent } from '../volumes/volume-list.component';
+import { SourceListComponent } from '../sources/source-list.component';
 
 @Component({
   selector: 'app-simulation-detail',
@@ -13,60 +13,77 @@ import { SourceListComponent } from "../sources/source-list.component";
   imports: [CommonModule, VolumeListComponent, SourceListComponent],
   template: `
     <div class="container py-5" *ngIf="simulation as sim; else loading">
+      <!-- Header -->
       <div class="d-flex justify-content-between align-items-end mb-4">
         <div>
-          <h1 class="fw-bold display-6 mb-1">{{ sim.name }}</h1>
-          <p class="text-muted">Details for selected simulation</p>
+          <h1 class="fw-bold display-6 mb-1 d-flex align-items-center">
+            {{ sim.name }}
+          </h1>
+          <p class="text-muted">Detailed simulation configuration overview</p>
         </div>
-        <div class="d-flex">
+        <div>
           <button class="btn btn-secondary btn-sm" (click)="back()">
             <i class="bi bi-arrow-left me-1"></i> Back
           </button>
         </div>
       </div>
 
-      <div class="card shadow-sm">
-        <div class="card-body px-5 py-4">
-          <dl class="row mb-0">
-            <dt class="col-sm-3 fw-semibold">Number of Runs</dt>
-            <dd class="col-sm-9">{{ sim.num_runs }}</dd>
-
-            <dt class="col-sm-3 fw-semibold">Run Length</dt>
-            <dd class="col-sm-9">{{ sim.run_len }}</dd>
-
-            <dt class="col-sm-3 fw-semibold">Actor - Attached To</dt>
-            <dd class="col-sm-9">{{ sim.actor.attached_to }}</dd>
-
-            <dt class="col-sm-3 fw-semibold">Actor - Spacing</dt>
-            <dd class="col-sm-9">{{ sim.actor.spacing[0] }} × {{ sim.actor.spacing[1] }}</dd>
-
-            <dt class="col-sm-3 fw-semibold">Actor - Size</dt>
-            <dd class="col-sm-9">{{ sim.actor.size[0] }} × {{ sim.actor.size[1] }}</dd>
-
-            <dt class="col-sm-3 fw-semibold">Actor - Origin Center?</dt>
-            <dd class="col-sm-9">{{ sim.actor.origin_as_image_center ? 'Yes' : 'No' }}</dd>
-
-            <dt class="col-sm-3 fw-semibold">Created</dt>
-            <dd class="col-sm-9">{{ sim.created_at | date : 'medium' }}</dd>
-
-            <dt class="col-sm-3 fw-semibold">Output Directory</dt>
-            <dd class="col-sm-9">{{ sim.output_dir }}</dd>
-
-            <dt class="col-sm-3 fw-semibold">Archive File</dt>
-            <dd class="col-sm-9">{{ sim.json_archive_filename }}</dd>
-          </dl>
+      <!-- Minimalist collapsible section: Simulation Configuration -->
+      <div class="mb-4">
+        <h5 class="fw-semibold mb-2 cursor-pointer user-select-none" data-bs-toggle="collapse" data-bs-target="#simulationConfig">
+          Simulation Configuration
+        </h5>
+        <div class="collapse show" id="simulationConfig">
+          <div class="row g-3">
+            <div class="col-md-6" *ngFor="let item of generalInfoItems">
+              <div class="border rounded p-3 h-100">
+                <div class="small text-muted mb-1">
+                  <i class="bi me-1" [ngClass]="'bi-' + item.icon"></i> {{ item.label }}
+                </div>
+                <div class="fs-6">{{ item.value }}</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <hr class="mt-4 mb-3">
+      <!-- Minimalist collapsible section: Actor Configuration -->
+      <div class="mb-4">
+        <h5 class="fw-semibold mb-2 cursor-pointer user-select-none" data-bs-toggle="collapse" data-bs-target="#actorConfig">
+          Actor Configuration
+        </h5>
+        <div class="collapse show" id="actorConfig">
+          <div class="row g-3">
+            <div class="col-md-6" *ngFor="let item of actorConfigItems">
+              <div class="border rounded p-3 h-100">
+                <div class="small text-muted mb-1">
+                  <i class="bi me-1" [ngClass]="'bi-' + item.icon"></i> {{ item.label }}
+                </div>
+                <div class="fs-6">{{ item.value }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <h2 class="fw-bold">Volumes</h2>
-      <app-volume-list [simulationId]="sim.id"></app-volume-list>
+      <!-- Tabs -->
+      <ul class="nav nav-tabs mt-5" id="simTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="volumes-tab" data-bs-toggle="tab" data-bs-target="#volumes" type="button" role="tab">Volumes</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="sources-tab" data-bs-toggle="tab" data-bs-target="#sources" type="button" role="tab">Sources</button>
+        </li>
+      </ul>
 
-      <hr class="mt-4 mb-3">
-
-      <h2 class="fw-bold">Sources</h2>
-      <app-source-list [simulationId]="sim.id"></app-source-list>
+      <div class="tab-content border border-top-0 p-4 rounded-bottom shadow-sm">
+        <div class="tab-pane fade show active" id="volumes" role="tabpanel">
+          <app-volume-list [simulationId]="sim.id"></app-volume-list>
+        </div>
+        <div class="tab-pane fade" id="sources" role="tabpanel">
+          <app-source-list [simulationId]="sim.id"></app-source-list>
+        </div>
+      </div>
     </div>
 
     <ng-template #loading>
@@ -75,21 +92,35 @@ import { SourceListComponent } from "../sources/source-list.component";
         <div>Loading simulation details…</div>
       </div>
     </ng-template>
+
   `,
+  styles: `
+    .nav-tabs .nav-link {
+      cursor: pointer;
+    }
+    .cursor-pointer {
+      cursor: pointer;
+    }
+
+    .collapse-toggle-icon {
+      transition: transform 0.2s ease;
+    }
+
+    .collapse:not(.show) + .collapse-toggle-icon {
+      transform: rotate(-90deg);
+    }
+  `
 })
 export class SimulationDetailComponent implements OnInit {
   simulation: SimulationRead | null = null;
   private readonly simulationService = inject(SimulationService);
 
-  constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-  ) {}
+  constructor(private route: ActivatedRoute, private router: Router) {}
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       const id = Number(params.get('id'));
-      this.simulationService.getSimulation(id).subscribe(data => {
+      this.simulationService.readSimulation(id).subscribe(data => {
         this.simulation = data;
       });
     });
@@ -97,5 +128,28 @@ export class SimulationDetailComponent implements OnInit {
 
   back(): void {
     this.router.navigate(['/simulations']);
+  }
+
+  get generalInfoItems() {
+    if (!this.simulation) return [];
+    const sim = this.simulation;
+    return [
+      { label: 'Number of Runs', value: sim.num_runs, icon: 'graph-up' },
+      { label: 'Run Length', value: `${sim.run_len} second(s)`, icon: 'clock' },
+      { label: 'Created', value: new Date(sim.created_at).toLocaleString(), icon: 'calendar' },
+      { label: 'Output Directory', value: sim.output_dir, icon: 'folder' },
+      { label: 'Archive File', value: sim.json_archive_filename, icon: 'file-earmark-zip' },
+    ];
+  }
+
+  get actorConfigItems() {
+    if (!this.simulation) return [];
+    const actor = this.simulation.actor;
+    return [
+      { label: 'Attached To', value: actor.attached_to, icon: 'link' },
+      { label: 'Spacing', value: `${actor.spacing[0]} mm x ${actor.spacing[1]} mm`, icon: 'arrows-expand' },
+      { label: 'Size', value: `${actor.size[0]} mm x ${actor.size[1]} mm`, icon: 'bounding-box' },
+      { label: 'Origin as Center?', value: actor.origin_as_image_center ? 'Yes' : 'No', icon: 'bullseye' },
+    ];
   }
 }

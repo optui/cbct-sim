@@ -36,3 +36,8 @@ export interface SimulationRead extends SimulationBase {
   output_dir: string;
   json_archive_filename: string;
 }
+
+export interface ReconstructionParams {
+  sod: number;
+  sdd: number;
+}

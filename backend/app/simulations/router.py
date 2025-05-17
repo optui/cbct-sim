@@ -138,4 +138,4 @@ async def reconstruct(
         params.sod,
         params.sdd
     )
-    return {"message": f"Reconstruction started - for result export the simulation"}
+    return {"message": f"Reconstruction finished - for results export the simulation"}

@@ -51,8 +51,11 @@ import { MessageResponse } from '../../interfaces/message';
               <button class="btn btn-success btn-sm" (click)="runSimulation(sim.id)" title="Run Simulation">
                 <i class="bi bi-play-fill me-1"></i> Run
               </button>
-              <button class="btn btn-secondary btn-sm" title="Reconstruct" disabled>
+              <button class="btn btn-warning btn-sm" (click)="reconstruct(sim.id)" title="Reconstruct">
                 <i class="bi bi-gear-fill me-1"></i> Reconstruct
+              </button>
+              <button class="btn btn-secondary btn-sm" (click)="exportSimulation(sim.id)" title="Export ZIP">
+                <i class="bi bi-download me-1"></i> Export
               </button>
             </div>
           </div>
@@ -102,7 +105,7 @@ export class SimulationListComponent implements OnInit {
   }
   
   loadAll(): void {
-    this.simulationService.getSimulations()
+    this.simulationService.readSimulations()
       .subscribe((data) => (this.simulations = data));
   }
   
@@ -144,10 +147,42 @@ export class SimulationListComponent implements OnInit {
   create(): void {
     this.router.navigate(['/simulations', 'new']);
   }
+
+  /**
+   * Prompt the user for sod/sdd, then POST to /{id}/reconstruct
+   */
+  reconstruct(id: number): void {
+    const sodInput = prompt('Enter SOD (source–object distance):', '0');
+    const sddInput = prompt('Enter SDD (source–detector distance):', '0');
+    const sod = parseFloat(sodInput ?? '');
+    const sdd = parseFloat(sddInput ?? '');
+    if (isNaN(sod) || isNaN(sdd)) {
+      this.showToast('Invalid SOD or SDD.', 'danger');
+      return;
+    }
+    this.simulationService.reconstructSimulation(id, { sod, sdd })
+      .subscribe((res: MessageResponse) => {
+        this.showToast(res.message, 'info');
+      });
+  }
+
+  /**
+   * GET the zip from /{id}/export and trigger browser download
+   */
+  exportSimulation(id: number): void {
+    this.simulationService.exportSimulation(id)
+      .subscribe((blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `sim_${id}.zip`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      });
+  }
   
-  // Simple toast implementation - you might want to replace this with a proper toast service
+  // Simple toast implementation - you might want to replace with a real service
   private showToast(message: string, type: 'success' | 'info' | 'warning' | 'danger'): void {
-    // This is a placeholder. In a real app, you would use a toast service or component
-    alert(message); // For now, we'll just use alert until you implement a proper toast component
+    alert(message);
   }
 }

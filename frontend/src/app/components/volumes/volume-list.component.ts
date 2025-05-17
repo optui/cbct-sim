@@ -16,21 +16,18 @@ import { VolumeService } from '../../services/volume.service';
           </div>
 
           <div class="d-flex gap-2">
-            <!-- 🔍 Detail -->
             <button class="btn btn-outline-secondary btn-sm"
               [routerLink]="['/simulations', simulationId, 'volumes', vol]"
               title="Details">
               <i class="bi bi-info-circle"></i>
             </button>
 
-            <!-- ✏️ Edit -->
             <button class="btn btn-outline-primary btn-sm"
               [routerLink]="['/simulations', simulationId, 'volumes', vol, 'edit']"
               title="Edit">
               <i class="bi bi-pencil"></i>
             </button>
 
-            <!-- ❌ Delete -->
             <button class="btn btn-outline-danger btn-sm"
               (click)="deleteVolume(vol)"
               title="Delete">
@@ -47,7 +44,6 @@ import { VolumeService } from '../../services/volume.service';
       </div>
     </ng-template>
 
-    <!-- ➕ Add Volume -->
     <button class="btn btn-sm btn-primary mt-3"
       [routerLink]="['/simulations', simulationId, 'volumes', 'new']">
       <i class="bi bi-plus-circle me-1"></i> Add Volume

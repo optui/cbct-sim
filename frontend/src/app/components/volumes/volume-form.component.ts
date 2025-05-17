@@ -22,158 +22,155 @@ import { Axis, Unit, Vector3, Rotation } from '../../interfaces/primitives';
   template: `
     <div class="container py-5">
       <div class="mb-4">
-        <h1 class="fw-bold display-6">{{ isEdit ? 'Edit' : 'New' }} Volume</h1>
-        <p class="text-muted">Configure the volume properties for your simulation.</p>
+        <h1 class="fw-bold display-6">
+          {{ isEdit ? 'Edit' : 'New' }} Volume
+        </h1>
+        <p class="text-muted">Configure spatial and material settings for your volume.</p>
       </div>
 
       <form [formGroup]="form" (ngSubmit)="save()" novalidate>
-        <!-- 🧱 Basic Info -->
+        <!-- General Info -->
         <div class="card shadow-sm mb-4">
-          <div class="card-header fw-semibold">Basic Information</div>
-          <div class="card-body">
-            <div class="mb-3">
+          <div class="card-header fw-semibold">General</div>
+          <div class="card-body row g-3">
+            <div class="col-md-4">
               <label class="form-label">Name</label>
-              <input type="text" class="form-control" formControlName="name" placeholder="Enter volume name" />
-              <div class="text-danger small mt-1" *ngIf="form.get('name')?.invalid && form.get('name')?.touched">
-                Name is required
-              </div>
+              <input type="text" class="form-control" formControlName="name" placeholder="e.g. detector_1" />
             </div>
-
-            <div class="mb-3">
+            <div class="col-md-4">
               <label class="form-label">Mother Volume</label>
               <input type="text" class="form-control" formControlName="mother" placeholder="e.g. world" />
             </div>
-
-            <div class="mb-3">
+            <div class="col-md-4">
               <label class="form-label">Material</label>
               <input type="text" class="form-control" formControlName="material" placeholder="e.g. G4_WATER" />
-              <div class="text-danger small mt-1" *ngIf="form.get('material')?.invalid && form.get('material')?.touched">
-                Material is required
-              </div>
             </div>
           </div>
         </div>
 
-        <!-- 📍 Positioning -->
+        <!-- Positioning -->
         <div class="card shadow-sm mb-4">
-          <div class="card-header fw-semibold">Positioning</div>
-          <div class="card-body">
-            <div class="mb-3">
-              <label class="form-label">Translation</label>
-              <div class="row g-2">
-                <div class="col-md-4" *ngFor="let axis of ['X', 'Y', 'Z']; let i = index">
-                  <div class="input-group">
-                    <span class="input-group-text">{{ axis }}</span>
-                    <input type="number" class="form-control" [formControlName]="'translation' + axis" />
-                  </div>
-                </div>
+          <div class="card-header fw-semibold">Position & Rotation</div>
+          <div class="card-body row g-3">
+            <div class="col-md-4" *ngFor="let axis of ['X', 'Y', 'Z']">
+              <label class="form-label">Translation {{ axis }}</label>
+              <div class="input-group">
+                <span class="input-group-text">{{ axis }}</span>
+                <input type="number" class="form-control" [formControlName]="'translation' + axis" />
+                <span class="input-group-text">{{ translationUnitLabel }}</span>
               </div>
             </div>
 
-            <div class="mb-3">
+            <div class="col-md-4">
               <label class="form-label">Translation Unit</label>
               <select class="form-select" formControlName="translation_unit">
                 <option *ngFor="let unit of unitOptions" [value]="unit">{{ unit }}</option>
               </select>
             </div>
 
-            <div class="mb-3">
-              <label class="form-label">Rotation</label>
-              <div class="row g-2">
-                <div class="col-md-4">
-                  <label class="form-label small">Axis</label>
-                  <select class="form-select" formControlName="rotationAxis">
-                    <option *ngFor="let axis of axisOptions" [value]="axis">{{ axis }}</option>
-                  </select>
-                </div>
-                <div class="col-md-8">
-                  <label class="form-label small">Angle (°)</label>
-                  <input type="number" class="form-control" formControlName="rotationAngle" />
-                </div>
+            <div class="col-md-4">
+              <label class="form-label">Rotation Axis</label>
+              <select class="form-select" formControlName="rotationAxis">
+                <option *ngFor="let axis of axisOptions" [value]="axis">{{ axis }}</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Rotation Angle</label>
+              <div class="input-group">
+                <input type="number" class="form-control" formControlName="rotationAngle" />
+                <span class="input-group-text">°</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 🧩 Shape -->
+        <!-- Shape -->
         <div class="card shadow-sm mb-4">
-          <div class="card-header fw-semibold">Shape Properties</div>
-          <div class="card-body">
-            <div class="mb-3">
+          <div class="card-header fw-semibold">Shape</div>
+          <div class="card-body row g-3">
+            <!-- Shape type selector -->
+            <div class="col-md-6">
               <label class="form-label">Shape Type</label>
               <select class="form-select" formControlName="shapeType">
                 <option *ngFor="let type of shapeTypes" [value]="type">{{ type }}</option>
               </select>
             </div>
 
-            <div class="mb-3">
+            <!-- Shape unit on its own row -->
+            <div class="col-6">
               <label class="form-label">Shape Unit</label>
               <select class="form-select" formControlName="shapeUnit">
                 <option *ngFor="let unit of unitOptions" [value]="unit">{{ unit }}</option>
               </select>
             </div>
 
-            <!-- 📦 Box Fields -->
+            <!-- Box shape fields -->
             <ng-container *ngIf="isBox">
-              <label class="form-label">Box Dimensions</label>
-              <div class="row g-2 mb-3">
-                <div class="col-md-4" *ngFor="let axis of ['X', 'Y', 'Z']">
-                  <div class="input-group">
-                    <span class="input-group-text">{{ axis }}</span>
-                    <input type="number" class="form-control" [formControlName]="'size' + axis" />
-                  </div>
+              <div class="col-md-4" *ngFor="let axis of ['X', 'Y', 'Z']">
+                <label class="form-label">Size {{ axis }}</label>
+                <div class="input-group">
+                  <span class="input-group-text">{{ axis }}</span>
+                  <input type="number" class="form-control" [formControlName]="'size' + axis" />
+                  <span class="input-group-text">{{ shapeUnitLabel }}</span>
                 </div>
               </div>
             </ng-container>
 
-            <!-- 🟣 Sphere Fields -->
+            <!-- Sphere shape fields -->
             <ng-container *ngIf="isSphere">
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label class="form-label">Inner Radius (rmin)</label>
+              <div class="col-md-6">
+                <label class="form-label">Inner Radius (rmin)</label>
+                <div class="input-group">
                   <input type="number" class="form-control" formControlName="rmin" />
+                  <span class="input-group-text">{{ shapeUnitLabel }}</span>
                 </div>
-                <div class="col-md-6 mb-3">
-                  <label class="form-label">Outer Radius (rmax)</label>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Outer Radius (rmax)</label>
+                <div class="input-group">
                   <input type="number" class="form-control" formControlName="rmax" />
+                  <span class="input-group-text">{{ shapeUnitLabel }}</span>
                 </div>
               </div>
             </ng-container>
           </div>
         </div>
 
-        <!-- ⚙️ Dynamic Parameters -->
+
+        <!-- Dynamic -->
         <div class="card shadow-sm mb-4">
           <div class="card-header fw-semibold">Dynamic Parameters</div>
-          <div class="card-body">
-            <div class="form-check mb-3">
-              <input type="checkbox" class="form-check-input" formControlName="dynamicEnabled" id="dynCheck" />
-              <label class="form-check-label" for="dynCheck">Enable dynamic properties</label>
+          <div class="card-body row g-3">
+            <div class="col-md-12">
+              <div class="form-check">
+                <input type="checkbox" class="form-check-input" formControlName="dynamicEnabled" id="dynCheck" />
+                <label class="form-check-label" for="dynCheck">Enable dynamic movement</label>
+              </div>
             </div>
 
             <ng-container *ngIf="form.get('dynamicEnabled')?.value">
-              <div class="mb-3">
-                <label class="form-label">Translation End</label>
-                <div class="row g-2">
-                  <div class="col-md-4" *ngFor="let axis of ['X', 'Y', 'Z']">
-                    <div class="input-group">
-                      <span class="input-group-text">{{ axis }}</span>
-                      <input type="number" class="form-control" [formControlName]="'translationEnd' + axis" />
-                    </div>
-                  </div>
+              <div class="col-md-4" *ngFor="let axis of ['X', 'Y', 'Z']">
+                <label class="form-label">End Translation {{ axis }}</label>
+                <div class="input-group">
+                  <span class="input-group-text">{{ axis }}</span>
+                  <input type="number" class="form-control" [formControlName]="'translationEnd' + axis" />
+                  <span class="input-group-text">{{ translationUnitLabel }}</span>
                 </div>
               </div>
 
-              <div class="mb-3">
-                <label class="form-label">Angle End (°)</label>
-                <input type="number" class="form-control" formControlName="angleEnd" />
+              <div class="col-md-4">
+                <label class="form-label">End Rotation Angle</label>
+                <div class="input-group">
+                  <input type="number" class="form-control" formControlName="angleEnd" />
+                  <span class="input-group-text">°</span>
+                </div>
               </div>
             </ng-container>
           </div>
         </div>
 
-        <!-- ✅ Actions -->
-        <div class="d-flex gap-2">
+        <!-- Actions -->
+        <div class="d-flex gap-2 mt-3">
           <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
             <i class="bi bi-check-circle me-1"></i> {{ isEdit ? 'Save Changes' : 'Create Volume' }}
           </button>
@@ -183,6 +180,7 @@ import { Axis, Unit, Vector3, Rotation } from '../../interfaces/primitives';
         </div>
       </form>
     </div>
+
   `
 })
 export class VolumeFormComponent implements OnInit {
@@ -375,5 +373,13 @@ export class VolumeFormComponent implements OnInit {
 
   get isSphere(): boolean {
     return this.form?.get('shapeType')?.value === VolumeType.SPHERE;
+  }
+
+  get shapeUnitLabel(): string {
+    return this.form?.get('shapeUnit')?.value ?? 'mm';
+  }
+
+  get translationUnitLabel(): string {
+    return this.form?.get('translation_unit')?.value ?? 'mm';
   }
 }

@@ -22,10 +22,23 @@ import { CommonModule } from '@angular/common';
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto">
             <li class="nav-item">
-              <a class="nav-link" routerLink="/simulations" routerLinkActive="active">Simulations</a>
+              <a
+                class="nav-link"
+                routerLink="/simulations"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }"
+              >
+                Simulations
+              </a>
             </li>
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
                 Documentation
               </a>
               <ul class="dropdown-menu dropdown-menu-dark">
@@ -37,7 +50,10 @@ import { CommonModule } from '@angular/common';
         </div>
       </div>
     </nav>
-    <router-outlet />
+
+    <main class="container">
+      <router-outlet></router-outlet>
+    </main>
   `,
   styles: []
 })
