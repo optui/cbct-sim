@@ -13,11 +13,24 @@
 
 Full-stack application for creating tomographic projections. It uses [FastAPI](https://fastapi.tiangolo.com/) for the backend to interface with [GATE 10](https://github.com/OpenGATE/opengate) and [Angular](https://angular.dev/) for the frontend.
 
+## Features
+
+### Keep track of your GATE simulations
+
+![Screenshot of 3 list items representing simulation names with buttons](./docs/screenshot_1.png)
+
+### Manage your GATE simulations
+
+![Screenshot of a simulation's details plus volumes and sources](./docs/screenshot_2.png)
+
+### Render your simulation before running it
+
+![Screenshot of a source emitting rays in a cone shape towards a cube and a flat-panel detector](./docs/screenshot_3.png)
+
 ## Prerequisities
 
-- Node/npm
 - Python 3.10+
-- gcc compiler
+- Node v22.15.0 or newer
 - cmake version 3.23 or newer
 - CUDA toolkit 11.7 or newer
 
