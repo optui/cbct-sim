@@ -29,9 +29,10 @@ Full-stack application for creating tomographic projections. It uses [FastAPI](h
 
 ### Generate projections and reconstruct them
 
-![Sinogram of a cube from a CBCT](./docs/screenshot_4.png)
-
-![Reconstructed middle slice of a cube from a CBCT](./docs/screenshot_5.png)
+<p align="center">
+    <img src="./docs/screenshot_4.png" alt="Sinogram of a cube from a CBCT"/>
+    <img src="./docs/screenshot_5.png" alt="Reconstructed middle slice of a cube from a CBCT"/>
+</p>
 
 ## Prerequisities
 
