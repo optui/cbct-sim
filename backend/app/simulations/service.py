@@ -28,7 +28,17 @@ class SimulationService:
 
     async def create_simulation(self, sim_create: SimulationCreate) -> MessageResponse:
         sim: SimulationRead = await self.sim_repo.create(sim_create)
-        await self.export_simulation(sim)
+        run_intervals = self._compute_run_timing_intervals(sim.num_runs, sim.run_len)
+        gate_sim = gate.Simulation(
+            name=sim.name,
+            output_dir=sim.output_dir,
+            json_archive_filename=sim.json_archive_filename,
+            run_timing_intervals=run_intervals,
+        )
+        try:
+            gate_sim.to_json_file()
+        except OSError as e:
+            raise HTTPException(500, detail=f"Failed to write simulation archive: {e}")
         return {"message": f"Simulation '{sim.name}' created successfully"}
 
     async def read_simulations(self) -> list[SimulationRead]:
@@ -48,7 +58,17 @@ class SimulationService:
         existing_sim: SimulationRead = await self.read_simulation(id)
         self._handle_directory_rename(existing_sim, sim_update.name)
         updated_sim = await self.sim_repo.update(id, sim_update)
-        await self.export_simulation(updated_sim)
+        run_intervals = self._compute_run_timing_intervals(updated_sim.num_runs, updated_sim.run_len)
+        gate_sim = gate.Simulation(
+            name=updated_sim.name,
+            output_dir=updated_sim.output_dir,
+            json_archive_filename=updated_sim.json_archive_filename,
+            run_timing_intervals=run_intervals,
+        )
+        try:
+            gate_sim.to_json_file()
+        except OSError as e:
+            raise HTTPException(500, detail=f"Failed to write simulation archive: {e}")
         return {"message": f"Simulation '{existing_sim.name}' updated successfully"}
 
     async def delete_simulation(self, id: int) -> MessageResponse:
@@ -64,6 +84,7 @@ class SimulationService:
     async def import_simulation(self, id: int) -> MessageResponse:
         sim = await self.read_simulation(id)
         try:
+            # TODO: GET .JSON FILE & CREATE A NEW SIMULATION
             gate_sim = gate.Simulation()
             gate_sim.from_json_file(f"{sim.output_dir}/{sim.json_archive_filename}")
         except KeyError as e:
@@ -76,19 +97,20 @@ class SimulationService:
             )
         return {"message": "Simulation {sim.name} imported successfully!"}
 
-    async def export_simulation(self, sim: SimulationBase) -> MessageResponse:
-        run_intervals = self._compute_run_timing_intervals(sim.num_runs, sim.run_len)
-        gate_sim = gate.Simulation(
-            name=sim.name,
-            output_dir=sim.output_dir,
-            json_archive_filename=sim.json_archive_filename,
-            run_timing_intervals=run_intervals,
-        )
+    async def export_simulation(self, id: int) -> MessageResponse:
+        sim = await self.read_simulation(id)
+        output_dir = os.path.abspath(sim.output_dir)
+        zip_path = f"{output_dir}.zip"
+
+        if os.path.exists(zip_path):
+            os.remove(zip_path)
+
         try:
-            gate_sim.to_json_file()
+            shutil.make_archive(base_name=output_dir, format="zip", root_dir=output_dir)
         except OSError as e:
-            raise HTTPException(500, detail=f"Failed to write simulation archive: {e}")
-        return {"message": "Simulation {sim.name} exported successfully!"}
+            raise HTTPException(500, detail=f"Failed to compress outputs: {e}")
+
+        return zip_path
 
     async def view_simulation(
         self, id: int,

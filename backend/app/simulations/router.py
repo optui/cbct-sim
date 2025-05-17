@@ -1,4 +1,6 @@
-from fastapi import APIRouter, status
+import os
+from fastapi import APIRouter, BackgroundTasks, status
+from fastapi.responses import FileResponse
 from app.simulations.dependencies import SimulationServiceDep
 from app.sources.dependencies import SourceRepositoryDep, SourceServiceDep
 from app.shared.message import MessageResponse
@@ -69,13 +71,25 @@ async def import_simulation(service: SimulationServiceDep, simulation_id: int):
     return await service.import_simulation(simulation_id)
 
 
-@router.post(
+@router.get(
     "/{simulation_id}/export",
-    status_code=status.HTTP_501_NOT_IMPLEMENTED,
-    responses={501: {"model": MessageResponse}},
+    response_class=FileResponse,
+    responses={404: {"model": MessageResponse}},
 )
-async def export_simulation(service: SimulationServiceDep, simulation_id: int):
-    return await service.export_simulation(simulation_id)
+async def export_simulation(
+    background_tasks: BackgroundTasks,
+    service: SimulationServiceDep,
+    simulation_id: int
+    ):
+    zip_path = await service.export_simulation(simulation_id)
+
+    background_tasks.add_task(os.remove, zip_path)
+
+    return FileResponse(
+        path=zip_path,
+        media_type="application/zip",
+        filename=os.path.basename(zip_path),
+    )
 
 
 @router.post(

@@ -64,5 +64,4 @@ async def get_gate_sim(
         activity_factor = UNIT_TO_GATE[Unit(data.unit.value)]
         gs.activity = data.activity * activity_factor
 
-    print("get_gate_sim:", sim.volume_manager.volumes, sim.run_timing_intervals)
     return sim
