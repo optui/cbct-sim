@@ -97,7 +97,7 @@ Full-stack application for creating tomographic projections. It uses [FastAPI](h
 
 #### Integrating LEAP
 
-ProjeCT relies on LLNL’s [LEAP](https://github.com/LLNL/LEAP) library for advanced tomographic simulations.  
+ProjeCT relies on LLNL’s [LEAP](https://github.com/LLNL/LEAP) library for reconstructing generated projections.  
 Before running ProjeCT, install and configure LEAP following this [link](https://github.com/LLNL/LEAP/wiki/Installing-LEAP-without-PyTorch).
 
 1. Go to the backend directory
