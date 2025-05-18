@@ -11,7 +11,7 @@
     <img src="https://img.shields.io/badge/License-GPL--3.0-blue?style=flat" alt="License"/>
 </p>
 
-Full-stack application for creating tomographic projections. It uses [FastAPI](https://fastapi.tiangolo.com/) for the backend to interface with [GATE 10](https://github.com/OpenGATE/opengate) and [LEAP](https://github.com/LLNL/LEAP) and [Angular](https://angular.dev/) for the frontend.
+Full-stack application for creating tomographic projections. It uses [FastAPI](https://fastapi.tiangolo.com/) for the backend to interface with [GATE 10](https://github.com/OpenGATE/opengate) and [LEAP](https://github.com/LLNL/LEAP), and [Angular](https://angular.dev/) for the frontend.
 
 <p align="center">
     <img src="./docs/cube_rotate.gif" alt="Sinogram of a cube from a CBCT"/>
