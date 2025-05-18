@@ -35,54 +35,54 @@ async def read_simulations(service: SimulationServiceDep):
 
 
 @router.get(
-    "/{simulation_id}",
+    "/{sim_id}",
     response_model=SimulationRead,
     responses={404: {"model": MessageResponse}},
 )
-async def read_simulation(service: SimulationServiceDep, simulation_id: int):
-    return await service.read_simulation(simulation_id)
+async def read_simulation(service: SimulationServiceDep, sim_id: int):
+    return await service.read_simulation(sim_id)
 
 
 @router.put(
-    "/{simulation_id}",
+    "/{sim_id}",
     response_model=MessageResponse,
     responses={404: {"model": MessageResponse}, 409: {"model": MessageResponse}},
 )
 async def update_simulation(
-    service: SimulationServiceDep, simulation_id: int, simulation: SimulationUpdate
+    service: SimulationServiceDep, sim_id: int, simulation: SimulationUpdate
 ):
-    return await service.update_simulation(simulation_id, simulation)
+    return await service.update_simulation(sim_id, simulation)
 
 
 @router.delete(
-    "/{simulation_id}",
+    "/{sim_id}",
     response_model=MessageResponse,
     responses={404: {"model": MessageResponse}},
 )
-async def delete_simulation(service: SimulationServiceDep, simulation_id: int):
-    return await service.delete_simulation(simulation_id)
+async def delete_simulation(service: SimulationServiceDep, sim_id: int):
+    return await service.delete_simulation(sim_id)
 
 
 @router.post(
-    "/{simulation_id}/import",
+    "/{sim_id}/import",
     status_code=status.HTTP_501_NOT_IMPLEMENTED,
     responses={501: {"model": MessageResponse}},
 )
-async def import_simulation(service: SimulationServiceDep, simulation_id: int):
-    return await service.import_simulation(simulation_id)
+async def import_simulation(service: SimulationServiceDep, sim_id: int):
+    return await service.import_simulation(sim_id)
 
 
 @router.get(
-    "/{simulation_id}/export",
+    "/{sim_id}/export",
     response_class=FileResponse,
     responses={404: {"model": MessageResponse}},
 )
 async def export_simulation(
     background_tasks: BackgroundTasks,
     service: SimulationServiceDep,
-    simulation_id: int
+    sim_id: int
     ):
-    zip_path = await service.export_simulation(simulation_id)
+    zip_path = await service.export_simulation(sim_id)
 
     background_tasks.add_task(os.remove, zip_path)
 
@@ -94,7 +94,7 @@ async def export_simulation(
 
 
 @router.post(
-    "/{simulation_id}/view",
+    "/{sim_id}/view",
     status_code=status.HTTP_200_OK,
     responses={404: {"model": MessageResponse}},
 )
@@ -102,13 +102,13 @@ async def view_simulation(
     service: SimulationServiceDep,
     src_repo: SourceRepositoryDep,
     vol_repo: VolumeRepositoryDep,
-    simulation_id: int,
+    sim_id: int,
 ):
-    return await service.view_simulation(simulation_id, src_repo, vol_repo)
+    return await service.view_simulation(sim_id, src_repo, vol_repo)
 
 
 @router.post(
-    "/{simulation_id}/run",
+    "/{sim_id}/run",
     status_code=status.HTTP_200_OK,
     responses={404: {"model": MessageResponse}},
 )
@@ -116,25 +116,25 @@ async def run_simulation(
     service: SimulationServiceDep,
     src_repo: SourceRepositoryDep,
     vol_repo: VolumeRepositoryDep,
-    simulation_id: int,
+    sim_id: int,
 ):
-    return await service.run_simulation(simulation_id, src_repo, vol_repo)
+    return await service.run_simulation(sim_id, src_repo, vol_repo)
 
 
 @router.post(
-    "/{simulation_id}/reconstruct",
+    "/{sim_id}/reconstruct",
     status_code=status.HTTP_202_ACCEPTED,
     response_model=MessageResponse,
     responses={404: {"model": MessageResponse}},
 )
 async def reconstruct(
-    simulation_id: int,
+    sim_id: int,
     params: ReconstructionParams,
     service: SimulationServiceDep,
 ):
     """Trigger FBP reconstruction of the projection stack."""
     out_path = await service.reconstruct_simulation(
-        simulation_id,
+        sim_id,
         params.sod,
         params.sdd
     )

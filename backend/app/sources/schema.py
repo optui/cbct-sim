@@ -31,7 +31,7 @@ class SourceBase(BaseModel):
     )
     energy: MonoEnergy
 
-    activity: float = 60.0
+    activity: float = 1e4
     unit: Unit = Unit.BQ
 
     model_config = ConfigDict(from_attributes=True)

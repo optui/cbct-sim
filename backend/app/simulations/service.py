@@ -24,8 +24,8 @@ class SimulationService:
     def __init__(self, simulation_repository: SimulationRepository):
         self.sim_repo = simulation_repository
 
-    async def get_gate_sim_without_sources(self, sim_id: int) -> gate.Simulation:
-        sim = await self.read_simulation(sim_id)
+    async def get_gate_sim_without_sources(self, id: int) -> gate.Simulation:
+        sim = await self.read_simulation(id)
         gate_sim = gate.Simulation()
         gate_sim.from_json_file(f"{sim.output_dir}/{sim.json_archive_filename}")
         return gate_sim
@@ -150,13 +150,14 @@ class SimulationService:
                 angle_end = data.dynamic_params.angle_end or angle_start
                 angles = np.linspace(angle_start, angle_end, num_runs, endpoint=False)
                 rotations = [
-                    R.from_euler(data.rotation.axis.value, a, degrees=True).as_matrix()
+                    R.from_euler(
+                        data.rotation.axis.value, a, degrees=True
+                    ).as_matrix()
                     for a in angles
                 ]
                 vol.add_dynamic_parametrisation(rotation=rotations)
 
-        actor = sim_read.actor or {}
-
+        actor = sim_read.actor
         attached_to = actor.attached_to
         spacing = [s * UNIT_TO_GATE[Unit.MM] for s in actor.spacing]
         size = actor.size
@@ -180,11 +181,16 @@ class SimulationService:
         gate_sim.run(start_new_process=True)
         return {"message": "Simulation finished running"}
 
-    async def reconstruct_simulation(self, id: int, sod: float, sdd: float) -> str:
+    async def reconstruct_simulation(
+            self, id: int, sod: float, sdd: float
+    ) -> str:
         sim = await self.read_simulation(id)
         proj_path = os.path.join(sim.output_dir, "output", "projection.mhd")
         if not os.path.exists(proj_path):
-            raise HTTPException(404, detail=f"projection.mhd not found at {proj_path}")
+            raise HTTPException(
+                404,
+                detail=f"projection.mhd not found at {proj_path}"
+            )
 
         return await run_in_threadpool(
             self._do_recon,

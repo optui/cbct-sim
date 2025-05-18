@@ -16,17 +16,25 @@ class BaseShape(BaseModel):
 
 
 class BoxShape(BaseShape):
-    type: Literal[VolumeType.BOX] = Field(VolumeType.BOX, frozen=True)
-    size: Vector3 = Field(default_factory=lambda: [10.0, 10.0, 10.0])
+    type: Literal[VolumeType.BOX] = Field(
+        VolumeType.BOX, frozen=True
+    )
+    size: Vector3 = Field(
+        default_factory=lambda: [10.0, 10.0, 10.0]
+    )
 
 
 class SphereShape(BaseShape):
-    type: Literal[VolumeType.SPHERE] = Field(VolumeType.SPHERE, frozen=True)
+    type: Literal[VolumeType.SPHERE] = Field(
+        VolumeType.SPHERE, frozen=True
+    )
     rmin: float = Field(0.0, ge=0.0)  # 0.0 means solid sphere
     rmax: float = Field(1.0, gt=0.0)
 
 
-VolumeShape = Annotated[Union[BoxShape, SphereShape], Field(discriminator="type")]
+VolumeShape = Annotated[
+    Union[BoxShape, SphereShape], Field(discriminator="type")
+]
 
 
 class DynamicParams(BaseModel):
