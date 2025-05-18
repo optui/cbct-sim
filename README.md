@@ -184,7 +184,3 @@ Before running ProjeCT, install and configure LEAP following this [link](https:/
 
 See the backend's [README](./backend/README.md) for API details.
 See the frontend's [README](./frontend/README.md) for GUI details.
-
-## License
-
-Read [`LICENSE`](LICENSE).
