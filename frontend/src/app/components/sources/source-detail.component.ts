@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 import { SourceService } from '../../services/source.service';
-import { GenericSourceRead } from '../../interfaces/source';
+import { SourceRead } from '../../interfaces/source';
 
 @Component({
   selector: 'app-source-detail',
@@ -56,7 +56,7 @@ import { GenericSourceRead } from '../../interfaces/source';
   `
 })
 export class SourceDetailComponent implements OnInit {
-  source: GenericSourceRead | null = null;
+  source: SourceRead | null = null;
   simulationId!: number;
   sourceName!: string;
 

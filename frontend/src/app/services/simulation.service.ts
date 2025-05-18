@@ -18,9 +18,11 @@ import { MessageResponse } from '../interfaces/message';
 export class SimulationService {
   private baseUrl = `${environment.apiBaseUrl}simulations`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  createSimulation(sim: SimulationCreate): Observable<MessageResponse> {
+  createSimulation(
+    sim: SimulationCreate
+  ): Observable<MessageResponse> {
     return this.http.post<MessageResponse>(this.baseUrl, sim);
   }
 
@@ -32,16 +34,27 @@ export class SimulationService {
     return this.http.get<SimulationRead>(`${this.baseUrl}/${id}`);
   }
 
-  updateSimulation(id: number, sim: SimulationUpdate): Observable<MessageResponse> {
-    return this.http.put<MessageResponse>(`${this.baseUrl}/${id}`, sim);
+  updateSimulation(
+    id: number,
+    sim: SimulationUpdate
+  ): Observable<MessageResponse> {
+    return this.http.put<MessageResponse>(
+      `${this.baseUrl}/${id}`,
+      sim
+    );
   }
 
   deleteSimulation(id: number): Observable<MessageResponse> {
-    return this.http.delete<MessageResponse>(`${this.baseUrl}/${id}`);
+    return this.http.delete<MessageResponse>(
+      `${this.baseUrl}/${id}`
+    );
   }
 
   importSimulation(id: number): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(`${this.baseUrl}/${id}/import`, {});
+    return this.http.post<MessageResponse>(
+      `${this.baseUrl}/${id}/import`,
+      {}
+    );
   }
 
   exportSimulation(id: number): Observable<Blob> {
@@ -51,11 +64,17 @@ export class SimulationService {
   }
 
   viewSimulation(id: number): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(`${this.baseUrl}/${id}/view`, {});
+    return this.http.post<MessageResponse>(
+      `${this.baseUrl}/${id}/view`,
+      {}
+    );
   }
 
   runSimulation(id: number): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(`${this.baseUrl}/${id}/run`, {});
+    return this.http.post<MessageResponse>(
+      `${this.baseUrl}/${id}/run`,
+      {}
+    );
   }
 
   reconstructSimulation(

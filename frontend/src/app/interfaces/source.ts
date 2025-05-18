@@ -12,7 +12,7 @@ export interface MonoEnergy {
   unit: Unit;
 }
 
-export interface GenericSourceBase {
+export interface SourceBase {
   name: string;
   attached_to: string;
   particle: string;
@@ -23,9 +23,9 @@ export interface GenericSourceBase {
   unit: Unit;
 }
 
-export interface GenericSourceCreate extends GenericSourceBase {}
+export interface SourceCreate extends SourceBase {}
 
-export interface GenericSourceUpdate {
+export interface SourceUpdate {
   name?: string;
   attached_to?: string;
   particle?: string;
@@ -36,7 +36,7 @@ export interface GenericSourceUpdate {
   activity_unit?: Unit;
 }
 
-export interface GenericSourceRead extends GenericSourceBase {
+export interface SourceRead extends SourceBase {
   id: number;
   simulation_id: number;
 }

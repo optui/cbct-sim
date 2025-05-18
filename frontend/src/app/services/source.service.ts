@@ -4,9 +4,9 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 import {
-  GenericSourceCreate,
-  GenericSourceRead,
-  GenericSourceUpdate
+  SourceCreate,
+  SourceRead,
+  SourceUpdate
 } from '../interfaces/source';
 
 import { MessageResponse } from '../interfaces/message';
@@ -25,19 +25,19 @@ export class SourceService {
 
   createSource(
     simulationId: number,
-    source: GenericSourceCreate
+    source: SourceCreate
   ): Observable<MessageResponse> {
     return this.http.post<MessageResponse>(`${this.baseUrl}/${simulationId}/sources`, source);
   }
 
-  getSource(simulationId: number, name: string): Observable<GenericSourceRead> {
-    return this.http.get<GenericSourceRead>(`${this.baseUrl}/${simulationId}/sources/${name}`);
+  getSource(simulationId: number, name: string): Observable<SourceRead> {
+    return this.http.get<SourceRead>(`${this.baseUrl}/${simulationId}/sources/${name}`);
   }
 
   updateSource(
     simulationId: number,
     name: string,
-    source: GenericSourceUpdate
+    source: SourceUpdate
   ): Observable<MessageResponse> {
     return this.http.put<MessageResponse>(`${this.baseUrl}/${simulationId}/sources/${name}`, source);
   }

@@ -10,9 +10,9 @@ import { CommonModule } from '@angular/common';
 
 import { SourceService } from '../../services/source.service';
 import {
-  GenericSourceCreate,
-  GenericSourceRead,
-  GenericSourceUpdate,
+  SourceCreate,
+  SourceRead,
+  SourceUpdate,
 } from '../../interfaces/source';
 import { Unit, Vector3 } from '../../interfaces/primitives';
 
@@ -189,7 +189,7 @@ export class SourceFormComponent implements OnInit {
   }
 
   private loadSource(): void {
-    this.sourceService.getSource(this.simulationId, this.sourceName!).subscribe((data: GenericSourceRead) => {
+    this.sourceService.getSource(this.simulationId, this.sourceName!).subscribe((data: SourceRead) => {
       this.form.patchValue({
         name: data.name,
         attached_to: data.attached_to,
@@ -217,7 +217,7 @@ export class SourceFormComponent implements OnInit {
 
     const f = this.form.value;
 
-    const payload: GenericSourceCreate = {
+    const payload: SourceCreate = {
       name: f.name,
       attached_to: f.attached_to,
       particle: f.particle,
