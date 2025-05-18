@@ -19,7 +19,7 @@ class MonoEnergy(BaseModel):
     unit: Unit = Unit.KEV
 
 
-class GenericSourceBase(BaseModel):
+class SourceBase(BaseModel):
     name: str
     attached_to: str = "world"
     particle: str = "gamma"
@@ -38,12 +38,12 @@ class GenericSourceBase(BaseModel):
 
 
 # Create schema (identical to base for now)
-class GenericSourceCreate(GenericSourceBase):
+class SourceCreate(SourceBase):
     pass
 
 
 # Update schema (all fields optional for PATCH-like updates)
-class GenericSourceUpdate(BaseModel):
+class SourceUpdate(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     name: str | None = None
@@ -60,7 +60,7 @@ class GenericSourceUpdate(BaseModel):
 
 
 # Read schema includes ID
-class GenericSourceRead(GenericSourceBase):
+class SourceRead(SourceBase):
     model_config = ConfigDict(from_attributes=True)
     
     id: int

@@ -3,14 +3,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
 from app.sources.model import Source
-from app.sources.schema import GenericSourceCreate
+from app.sources.schema import SourceCreate
 
 
 class SourceRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create(self, sim_id: int, source_create: GenericSourceCreate) -> Source:
+    async def create(self, sim_id: int, source_create: SourceCreate) -> Source:
         source = Source(
             simulation_id=sim_id,
             **source_create.model_dump(mode='json')

@@ -3,9 +3,9 @@ from app.sources.model import Source
 from app.simulations.service import SimulationService
 from app.sources.repository import SourceRepository
 from app.sources.schema import (
-    GenericSourceCreate,
-    GenericSourceRead,
-    GenericSourceUpdate,
+    SourceCreate,
+    SourceRead,
+    SourceUpdate,
     BoxPosition
 )
 from app.shared.primitives import Unit, UNIT_TO_GATE
@@ -23,7 +23,7 @@ class SourceService:
         return [source.name for source in sources]
 
     async def create_source(
-        self, sim_id: int, source_data: GenericSourceCreate
+        self, sim_id: int, source_data: SourceCreate
     ) -> MessageResponse:
         """
         Create a new Gate source and save it in the database.
@@ -71,7 +71,7 @@ class SourceService:
 
         return {"message": f"Source '{source_data.name}' created successfully"}
 
-    async def read_source(self, sim_id: int, name: str) -> GenericSourceRead:
+    async def read_source(self, sim_id: int, name: str) -> SourceRead:
         """
         Load the source from DB and return it as GenericSourceRead.
         """
@@ -81,10 +81,10 @@ class SourceService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Source '{name}' not found in simulation '{sim_id}'.",
             )
-        return GenericSourceRead.model_validate(source)
+        return SourceRead.model_validate(source)
 
     async def update_source(
-        self, sim_id: int, name: str, update: GenericSourceUpdate
+        self, sim_id: int, name: str, update: SourceUpdate
     ) -> MessageResponse:
         existing: Source = await self.source_repository.read(
             sim_id, name

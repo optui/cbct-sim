@@ -2,9 +2,9 @@ from fastapi import APIRouter, status
 from typing import List
 from app.sources.dependencies import SourceServiceDep
 from app.sources.schema import (
-    GenericSourceCreate,
-    GenericSourceRead,
-    GenericSourceUpdate,
+    SourceCreate,
+    SourceRead,
+    SourceUpdate,
 )
 from app.shared.message import MessageResponse
 
@@ -22,12 +22,12 @@ async def read_sources(service: SourceServiceDep, simulation_id: int):
     response_model=MessageResponse,
 )
 async def create_source(
-    service: SourceServiceDep, simulation_id: int, source: GenericSourceCreate
+    service: SourceServiceDep, simulation_id: int, source: SourceCreate
 ):
     return await service.create_source(simulation_id, source)
 
 
-@router.get("/{simulation_id}/sources/{name}", response_model=GenericSourceRead)
+@router.get("/{simulation_id}/sources/{name}", response_model=SourceRead)
 async def read_source(service: SourceServiceDep, simulation_id: int, name: str):
     return await service.read_source(simulation_id, name)
 
@@ -37,7 +37,7 @@ async def update_source(
     service: SourceServiceDep,
     simulation_id: int,
     name: str,
-    source_update: GenericSourceUpdate,
+    source_update: SourceUpdate,
 ):
     return await service.update_source(simulation_id, name, source_update)
 

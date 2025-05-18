@@ -1,7 +1,5 @@
 from pathlib import Path
 
-import numpy as np
-from scipy.spatial.transform import Rotation as R
 import opengate as gate
 from fastapi import HTTPException, status
 
@@ -9,10 +7,9 @@ from fastapi import HTTPException, status
 from app.simulations.repository import SimulationRepository
 from app.sources.repository import SourceRepository
 from app.shared.primitives import Unit, UNIT_TO_GATE
-from app.sources.schema import BoxPosition, GenericSourceRead
+from app.sources.schema import BoxPosition, SourceRead
 
 from app.volumes.repository import VolumeRepository
-from app.volumes.schema import BoxShape, SphereShape, VolumeRead
 
 
 async def get_gate_sim(
@@ -39,7 +36,7 @@ async def get_gate_sim(
     sim.from_json_file(str(cfg))
 
     for src in await src_repo.read_all(id):
-        data = GenericSourceRead.model_validate(src)
+        data = SourceRead.model_validate(src)
         gs = sim.add_source("GenericSource", data.name)
         gs.particle = data.particle
 
