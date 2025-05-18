@@ -13,6 +13,10 @@
 
 Full-stack application for creating tomographic projections. It uses [FastAPI](https://fastapi.tiangolo.com/) for the backend to interface with [GATE 10](https://github.com/OpenGATE/opengate) and [Angular](https://angular.dev/) for the frontend.
 
+<p align="center">
+    <img src="./docs/cube_rotate.gif" alt="Sinogram of a cube from a CBCT"/>
+</p>
+
 ## Features
 
 ### Keep track of your GATE simulations
