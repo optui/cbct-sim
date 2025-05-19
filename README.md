@@ -10,11 +10,11 @@
   <img src="https://img.shields.io/badge/License-GPL--3.0-blue?style=flat" alt="License"/>
 </p>
 
-ProjeCT is an open-source, browser-based full-stack application that serves as a simulation platform supporting the complete imaging workflow of cone-beam computed tomography (CBCT). It uses [FastAPI](https://fastapi.tiangolo.com/) for the backend to interface with [GATE 10](https://github.com/OpenGATE/opengate) and [LEAP](https://github.com/LLNL/LEAP), while utilizing [Angular](https://angular.dev/) for a user-friendly frontend.
-
 <p align="center">
     <img src="./media/cube_rotate.gif" alt="Sinogram of a cube from a CBCT" height="250px"/>
 </p>
+
+ProjeCT is an open-source, browser-based full-stack application that serves as a simulation platform supporting the complete imaging workflow of cone-beam computed tomography (CBCT). It uses [FastAPI](https://fastapi.tiangolo.com/) for the backend to interface with [GATE 10](https://github.com/OpenGATE/opengate) and [LEAP](https://github.com/LLNL/LEAP), while utilizing [Angular](https://angular.dev/) for a user-friendly frontend.
 
 ## Features
 
@@ -30,7 +30,7 @@ ProjeCT is an open-source, browser-based full-stack application that serves as a
 
 |                              Sinogram of a cube from a CBCT                               |                              Reconstructed middle slice of a cube from a CBCT                               |
 | :---------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------: |
-| <img src="./media/screenshot_4.png" alt="Sinogram of a cube from a CBCT" height="450px"/> | <img src="./media/screenshot_5.png" alt="Reconstructed middle slice of a cube from a CBCT" height="450px"/> |
+| <img src="./media/screenshot_4.png" alt="Sinogram of a cube from a CBCT" height="500px"/> | <img src="./media/screenshot_5.png" alt="Reconstructed middle slice of a cube from a CBCT" height="500px"/> |
 
 ## Setup
 
