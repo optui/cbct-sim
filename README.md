@@ -30,7 +30,7 @@ ProjeCT is an open-source, browser-based full-stack application that serves as a
 
 |                              Sinogram of a cube from a CBCT                               |                              Reconstructed middle slice of a cube from a CBCT                               |
 | :---------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------: |
-| <img src="./media/screenshot_4.png" alt="Sinogram of a cube from a CBCT" height="400px"/> | <img src="./media/screenshot_5.png" alt="Reconstructed middle slice of a cube from a CBCT" height="400px"/> |
+| <img src="./media/screenshot_4.png" alt="Sinogram of a cube from a CBCT" height="450px"/> | <img src="./media/screenshot_5.png" alt="Reconstructed middle slice of a cube from a CBCT" height="450px"/> |
 
 ## Setup
 
