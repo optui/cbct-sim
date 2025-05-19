@@ -1,3 +1,11 @@
+# .dockerignore
+node_modules
+__pycache__
+*.pyc
+.vscode
+.git
+.env
+
 # ─── Node / Angular build artifacts ─────────────────────────────────────────────
 frontend/node_modules/
 /dist/
