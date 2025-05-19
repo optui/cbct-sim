@@ -133,7 +133,7 @@ async def reconstruct(
     service: SimulationServiceDep,
 ):
     """Trigger FBP reconstruction of the projection stack."""
-    out_path = await service.reconstruct_simulation(
+    await service.reconstruct_simulation(
         sim_id,
         params.sod,
         params.sdd

@@ -124,7 +124,7 @@ class SimulationService:
         gate_sim: gate.Simulation = await get_gate_sim(id, self.sim_repo, src_repo, vol_repo)
         gate_sim.visu = True
         gate_sim.progress_bar = False
-        gate_sim.run(start_new_process=True)
+        await run_in_threadpool(gate_sim.run, start_new_process=True)
         return {"message": "Simulation visualization ended"}
 
     async def run_simulation(
@@ -178,7 +178,7 @@ class SimulationService:
             proj_actor.origin_as_image_center = origin
             proj_actor.output_filename = 'output/projection.mhd'
 
-        gate_sim.run(start_new_process=True)
+        await run_in_threadpool(gate_sim.run, start_new_process=True)
         return {"message": "Simulation finished running"}
 
     async def reconstruct_simulation(
