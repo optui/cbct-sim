@@ -148,7 +148,7 @@ export class SimulationDetailComponent implements OnInit {
     return [
       { label: 'Attached To', value: actor.attached_to, icon: 'link' },
       { label: 'Spacing', value: `${actor.spacing[0]} mm x ${actor.spacing[1]} mm`, icon: 'arrows-expand' },
-      { label: 'Size', value: `${actor.size[0]} mm x ${actor.size[1]} mm`, icon: 'bounding-box' },
+      { label: 'Size', value: `${actor.size[0]} px x ${actor.size[1]} px`, icon: 'bounding-box' },
       { label: 'Origin as Center?', value: actor.origin_as_image_center ? 'Yes' : 'No', icon: 'bullseye' },
     ];
   }

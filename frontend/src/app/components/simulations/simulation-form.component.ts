@@ -82,14 +82,14 @@ import {
               <label class="form-label">Size X</label>
               <div class="input-group">
                 <input type="number" class="form-control" formControlName="size0" />
-                <span class="input-group-text">mm</span>
+                <span class="input-group-text">px</span>
               </div>
             </div>
             <div class="col-md-3">
               <label class="form-label">Size Y</label>
               <div class="input-group">
                 <input type="number" class="form-control" formControlName="size1" />
-                <span class="input-group-text">mm</span>
+                <span class="input-group-text">px</span>
               </div>
             </div>
 
