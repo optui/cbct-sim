@@ -217,6 +217,9 @@ class SimulationService:
         ct = tomographicModels()
         phis = ct.setAngleArray(NUM_ANGLES, 360.0)
 
+        if not (sod > 0 and sdd > 0 and sdd > sod):
+            raise ValueError(f"Invalid geometry: SOD={sod}, SDD={sdd}. Must satisfy 0 < SOD < SDD.")
+
         ct.set_conebeam(
             numAngles=NUM_ANGLES,
             numRows=NUM_ROWS,

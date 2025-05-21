@@ -214,7 +214,7 @@ export class VolumeFormComponent implements OnInit {
   private buildForm(): void {
     this.form = this.fb.group({
       name: ['', Validators.required],
-      mother: ['world'],
+      mother: [],
       material: ['G4_AIR', Validators.required],
       translationX: [0],
       translationY: [0],
@@ -348,7 +348,7 @@ export class VolumeFormComponent implements OnInit {
 
     return {
       name: v.name,
-      mother: v.mother || 'world',
+      mother: v.mother,
       material: v.material,
       translation: [v.translationX, v.translationY, v.translationZ] as Vector3,
       translation_unit: v.translation_unit,
