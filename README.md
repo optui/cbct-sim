@@ -6,7 +6,6 @@
   <img src="https://img.shields.io/badge/Python-3.10+-blue?style=flat&logo=python&logoColor=white" alt="Python"/>
   <img src="https://img.shields.io/badge/FastAPI-0.115.12-009688?style=flat&logo=fastapi&logoColor=white" alt="FastAPI"/>
   <img src="https://img.shields.io/badge/Angular-19.2.4-f12286?style=flat&logo=angular" alt="Angular"/>
-  <img src="https://img.shields.io/badge/Docker-20.10+-1d63ed?style=flat&logo=docker&logoColor=white" alt="Docker"/>
   <img src="https://img.shields.io/badge/License-GPL--3.0-blue?style=flat" alt="License"/>
 </p>
 
