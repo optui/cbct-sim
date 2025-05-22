@@ -9,6 +9,7 @@ from app.shared.message import MessageResponse
 from app.simulations.schema import SimulationBase, SimulationCreate, SimulationRead, SimulationUpdate
 from app.shared.utils import get_gate_sim
 import opengate as gate
+from opengate.geometry.volumes import VolumeBase as VolumeGATE
 
 import numpy as np
 from scipy.spatial.transform import Rotation as R
@@ -118,10 +119,9 @@ class SimulationService:
 
     async def view_simulation(
         self, id: int,
-        src_repo: SourceRepository,
-        vol_repo: VolumeRepository
+        src_repo: SourceRepository
     ) -> MessageResponse:
-        gate_sim: gate.Simulation = await get_gate_sim(id, self.sim_repo, src_repo, vol_repo)
+        gate_sim: gate.Simulation = await get_gate_sim(id, self.sim_repo, src_repo)
         gate_sim.visu = True
         gate_sim.progress_bar = False
         await run_in_threadpool(gate_sim.run, start_new_process=True)
@@ -132,60 +132,28 @@ class SimulationService:
         src_repo: SourceRepository,
         vol_repo: VolumeRepository
     ) -> MessageResponse:
-        gate_sim: gate.Simulation = await get_gate_sim(id, self.sim_repo, src_repo, vol_repo)
+        sim_read: SimulationRead = await self.read_simulation(id)
+        gate_sim: gate.Simulation = await get_gate_sim(
+            id,
+            self.sim_repo,
+            src_repo
+        )
+
         gate_sim.visu = False
         gate_sim.progress_bar = True
 
-        sim_read: SimulationRead = await self.read_simulation(id)
-
-        for name in gate_sim.volume_manager.volume_names:
-            vol = await vol_repo.read(id, name)
-            data: VolumeRead = VolumeRead.model_validate(vol)
-            vol = gate_sim.volume_manager.get_volume(data.name)
-            if data.dynamic_params.enabled:
-                sim_read = await self.read_simulation(id)
-                num_runs = sim_read.num_runs
-
-                angle_start = data.rotation.angle
-                angle_end = data.dynamic_params.angle_end or angle_start
-                angles = np.linspace(angle_start, angle_end, num_runs, endpoint=False)
-                rotations = [
-                    R.from_euler(
-                        data.rotation.axis.value, a, degrees=True
-                    ).as_matrix()
-                    for a in angles
-                ]
-                vol.add_dynamic_parametrisation(rotation=rotations)
-
-        actor = sim_read.actor
-        attached_to = actor.attached_to
-        spacing = [s * UNIT_TO_GATE[Unit.MM] for s in actor.spacing]
-        size = actor.size
-        origin = actor.origin_as_image_center
-
-        if "Hits" not in gate_sim.actor_manager.actors.keys():
-            hits_actor = gate_sim.add_actor("DigitizerHitsCollectionActor", "Hits")
-            hits_actor.attached_to = attached_to
-            hits_actor.attributes = ['TotalEnergyDeposit', 'PostPosition', 'GlobalTime']
-            hits_actor.output_filename = 'output/hits.root'
-
-        if "Projection" not in gate_sim.actor_manager.actors.keys():
-            proj_actor = gate_sim.add_actor("DigitizerProjectionActor", "Projection")
-            proj_actor.attached_to = attached_to
-            proj_actor.input_digi_collections = ["Hits"]
-            proj_actor.spacing = spacing
-            proj_actor.size = size
-            proj_actor.origin_as_image_center = origin
-            proj_actor.output_filename = 'output/projection.mhd'
+        await self._init_volumes(id, sim_read, gate_sim, vol_repo)
+        self._init_actors(sim_read, gate_sim)
 
         await run_in_threadpool(gate_sim.run, start_new_process=True)
+        
         return {"message": "Simulation finished running"}
 
     async def reconstruct_simulation(
             self, id: int, sod: float, sdd: float
     ) -> str:
         sim = await self.read_simulation(id)
-        proj_path = os.path.join(sim.output_dir, "output", "projection.mhd")
+        proj_path = os.path.join(sim.output_dir, "output/projection.mhd")
         if not os.path.exists(proj_path):
             raise HTTPException(
                 404,
@@ -199,26 +167,83 @@ class SimulationService:
             sod,
             sdd
         )
+    
+    @staticmethod
+    async def _init_volumes(id, sim_read, gate_sim, vol_repo):
+        for name in gate_sim.volume_manager.volume_names:
+            vol = await vol_repo.read(id, name)
+            data: VolumeRead = VolumeRead.model_validate(vol)
+            vol: VolumeGATE = gate_sim.volume_manager.get_volume(data.name)
+            if data.dynamic_params.enabled:
+                num_runs = sim_read.num_runs
 
+                angle_start = data.rotation.angle
+                angle_end = data.dynamic_params.angle_end or angle_start
+                angles = np.linspace(
+                    angle_start,
+                    angle_end,
+                    num_runs,
+                    endpoint=False
+                )
+                rotations = [
+                    R.from_euler(
+                        data.rotation.axis.value, a, degrees=True
+                    ).as_matrix()
+                    for a in angles
+                ]
+                vol.add_dynamic_parametrisation(rotation=rotations)
+
+    
+    @staticmethod
+    def _init_actors(sim_read, gate_sim):
+        actor = sim_read.actor
+        attached_to = actor.attached_to
+        spacing = [s * UNIT_TO_GATE[Unit.MM] for s in actor.spacing]
+        size = actor.size
+        origin = actor.origin_as_image_center
+
+        if "Hits" not in gate_sim.actor_manager.actors.keys():
+            hits_actor = gate_sim.add_actor(
+                "DigitizerHitsCollectionActor",
+                "Hits"
+            )
+            hits_actor.attached_to = attached_to
+            hits_actor.attributes = [
+                'TotalEnergyDeposit',
+                'PostPosition',
+                'GlobalTime'
+            ]
+            hits_actor.output_filename = 'output/hits.root'
+
+        if "Projection" not in gate_sim.actor_manager.actors.keys():
+            proj_actor = gate_sim.add_actor(
+                "DigitizerProjectionActor",
+                "Projection"
+            )
+            proj_actor.attached_to = attached_to
+            proj_actor.input_digi_collections = ["Hits"]
+            proj_actor.spacing = spacing
+            proj_actor.size = size
+            proj_actor.origin_as_image_center = origin
+            proj_actor.output_filename = 'output/projection.mhd'
+
+    @staticmethod
     def _do_recon(
-            self,
             proj_path: str,
             out_dir: str,
-            sod: float,
-            sdd: float
+            SOD: float,
+            SDD: float
         ) -> str:
         proj_itk = sitk.ReadImage(proj_path)
         proj = sitk.GetArrayFromImage(proj_itk).astype(np.float32)
-
         NUM_ANGLES, NUM_ROWS, NUM_COLS = proj.shape
         PIX_W, PIX_H, _ = proj_itk.GetSpacing()
-        SOD, SDD = sod, sdd
 
         ct = tomographicModels()
         phis = ct.setAngleArray(NUM_ANGLES, 360.0)
 
-        if not (sod > 0 and sdd > 0 and sdd > sod):
-            raise ValueError(f"Invalid geometry: SOD={sod}, SDD={sdd}. Must satisfy 0 < SOD < SDD.")
+        if not (SOD > 0 and SDD > 0 and SDD > SOD):
+            raise ValueError(f"Must satisfy 0 < SOD={SOD} < SDD={SDD}.")
 
         ct.set_conebeam(
             numAngles=NUM_ANGLES,
@@ -232,18 +257,15 @@ class SimulationService:
             sod=SOD,
             sdd=SDD
         )
-
         ct.set_default_volume()
 
         g = proj.astype(np.float32)
         f = ct.allocate_volume()
-
         ct.FBP(g, f)
 
         recon_itk = sitk.GetImageFromArray(f)
-        out_path = os.path.join(out_dir, "output", "reconstruction.mhd")
+        out_path = os.path.join(out_dir, "output/reconstruction.mhd")
         sitk.WriteImage(recon_itk, out_path)
-
         return out_path
 
     @staticmethod

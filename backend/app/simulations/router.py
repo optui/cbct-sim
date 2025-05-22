@@ -101,10 +101,9 @@ async def export_simulation(
 async def view_simulation(
     service: SimulationServiceDep,
     src_repo: SourceRepositoryDep,
-    vol_repo: VolumeRepositoryDep,
     sim_id: int,
 ):
-    return await service.view_simulation(sim_id, src_repo, vol_repo)
+    return await service.view_simulation(sim_id, src_repo)
 
 
 @router.post(

@@ -9,14 +9,11 @@ from app.sources.repository import SourceRepository
 from app.shared.primitives import Unit, UNIT_TO_GATE
 from app.sources.schema import BoxPosition, SourceRead
 
-from app.volumes.repository import VolumeRepository
-
 
 async def get_gate_sim(
     id: int,
     sim_repo: SimulationRepository,
-    src_repo: SourceRepository,
-    vol_repo: VolumeRepository
+    src_repo: SourceRepository
 ) -> gate.Simulation:
     sim_rec = await sim_repo.read(id)
     if not sim_rec:
