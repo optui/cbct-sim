@@ -16,7 +16,7 @@ import { MessageResponse } from '../interfaces/message';
   providedIn: 'root',
 })
 export class SimulationService {
-  private baseUrl = `${environment.apiBaseUrl}simulations`;
+  private baseUrl = `${environment.apiBaseUrl}simulations/`;
 
   constructor(private http: HttpClient) { }
 
@@ -31,7 +31,7 @@ export class SimulationService {
   }
 
   readSimulation(id: number): Observable<SimulationRead> {
-    return this.http.get<SimulationRead>(`${this.baseUrl}/${id}`);
+    return this.http.get<SimulationRead>(`${this.baseUrl}${id}`);
   }
 
   updateSimulation(
@@ -39,40 +39,40 @@ export class SimulationService {
     sim: SimulationUpdate
   ): Observable<MessageResponse> {
     return this.http.put<MessageResponse>(
-      `${this.baseUrl}/${id}`,
+      `${this.baseUrl}${id}`,
       sim
     );
   }
 
   deleteSimulation(id: number): Observable<MessageResponse> {
     return this.http.delete<MessageResponse>(
-      `${this.baseUrl}/${id}`
+      `${this.baseUrl}${id}`
     );
   }
 
   importSimulation(id: number): Observable<MessageResponse> {
     return this.http.post<MessageResponse>(
-      `${this.baseUrl}/${id}/import`,
+      `${this.baseUrl}${id}/import`,
       {}
     );
   }
 
   exportSimulation(id: number): Observable<Blob> {
-    return this.http.get(`${this.baseUrl}/${id}/export`, {
+    return this.http.get(`${this.baseUrl}${id}/export`, {
       responseType: 'blob',
     });
   }
 
   viewSimulation(id: number): Observable<MessageResponse> {
     return this.http.post<MessageResponse>(
-      `${this.baseUrl}/${id}/view`,
+      `${this.baseUrl}${id}/view`,
       {}
     );
   }
 
   runSimulation(id: number): Observable<MessageResponse> {
     return this.http.post<MessageResponse>(
-      `${this.baseUrl}/${id}/run`,
+      `${this.baseUrl}${id}/run`,
       {}
     );
   }
@@ -82,7 +82,7 @@ export class SimulationService {
     params: ReconstructionParams
   ): Observable<MessageResponse> {
     return this.http.post<MessageResponse>(
-      `${this.baseUrl}/${id}/reconstruct`,
+      `${this.baseUrl}${id}/reconstruct`,
       params
     );
   }
