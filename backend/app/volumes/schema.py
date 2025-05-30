@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Annotated, Literal, Union, List
+from typing import Annotated, Literal, Union
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -16,18 +16,12 @@ class BaseShape(BaseModel):
 
 
 class BoxShape(BaseShape):
-    type: Literal[VolumeType.BOX] = Field(
-        VolumeType.BOX, frozen=True
-    )
-    size: Vector3 = Field(
-        default_factory=lambda: [10.0, 10.0, 10.0]
-    )
+    type: Literal[VolumeType.BOX] = Field(VolumeType.BOX, frozen=True)
+    size: Vector3 = Field(default_factory=lambda: [10.0, 10.0, 10.0])
 
 
 class SphereShape(BaseShape):
-    type: Literal[VolumeType.SPHERE] = Field(
-        VolumeType.SPHERE, frozen=True
-    )
+    type: Literal[VolumeType.SPHERE] = Field(VolumeType.SPHERE, frozen=True)
     rmin: float = Field(0.0, ge=0.0)  # 0.0 means solid sphere
     rmax: float = Field(1.0, gt=0.0)
 
@@ -71,6 +65,6 @@ class VolumeUpdate(BaseModel):
 
 class VolumeRead(VolumeBase):
     model_config = ConfigDict(from_attributes=True)
-    
+
     id: int
     simulation_id: int

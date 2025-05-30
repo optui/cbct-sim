@@ -11,9 +11,7 @@ from app.sources.schema import BoxPosition, SourceRead
 
 
 async def get_gate_sim(
-    id: int,
-    sim_repo: SimulationRepository,
-    src_repo: SourceRepository
+    id: int, sim_repo: SimulationRepository, src_repo: SourceRepository
 ) -> gate.Simulation:
     sim_rec = await sim_repo.read(id)
     if not sim_rec:
@@ -40,9 +38,7 @@ async def get_gate_sim(
         pos: BoxPosition = data.position
         factor_position = UNIT_TO_GATE[Unit(pos.unit.value)]
         gs.position.type = pos.type
-        gs.position.size = [
-            s * factor_position for s in pos.size
-        ]
+        gs.position.size = [s * factor_position for s in pos.size]
         gs.position.translation = [
             s * factor_position for s in pos.translation
         ]

@@ -1,8 +1,8 @@
 import os
-from fastapi import APIRouter, BackgroundTasks, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, status
 from fastapi.responses import FileResponse
 from app.simulations.dependencies import SimulationServiceDep
-from app.sources.dependencies import SourceRepositoryDep, SourceServiceDep
+from app.sources.dependencies import SourceRepositoryDep
 from app.shared.message import MessageResponse
 from app.simulations.schema import (
     ReconstructionParams,
@@ -46,7 +46,10 @@ async def read_simulation(service: SimulationServiceDep, sim_id: int):
 @router.put(
     "/{sim_id}",
     response_model=MessageResponse,
-    responses={404: {"model": MessageResponse}, 409: {"model": MessageResponse}},
+    responses={
+        404: {"model": MessageResponse},
+        409: {"model": MessageResponse},
+    },
 )
 async def update_simulation(
     service: SimulationServiceDep, sim_id: int, simulation: SimulationUpdate
@@ -80,8 +83,8 @@ async def import_simulation(service: SimulationServiceDep, sim_id: int):
 async def export_simulation(
     background_tasks: BackgroundTasks,
     service: SimulationServiceDep,
-    sim_id: int
-    ):
+    sim_id: int,
+):
     zip_path = await service.export_simulation(sim_id)
 
     background_tasks.add_task(os.remove, zip_path)
@@ -132,9 +135,7 @@ async def reconstruct(
     service: SimulationServiceDep,
 ):
     """Trigger FBP reconstruction of the projection stack."""
-    await service.reconstruct_simulation(
-        sim_id,
-        params.sod,
-        params.sdd
-    )
-    return {"message": f"Reconstruction finished - for results export the simulation"}
+    await service.reconstruct_simulation(sim_id, params.sod, params.sdd)
+    return {
+        "message": "Reconstruction finished, for results export the simulation"
+    }

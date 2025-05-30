@@ -1,4 +1,11 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, JSON, UniqueConstraint
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    ForeignKey,
+    JSON,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import relationship
 from app.core import Base
 
@@ -19,13 +26,13 @@ class Volume(Base):
     mother = Column(String, default="world", nullable=True)
     material = Column(String, default="G4_AIR", nullable=False)
 
-    translation      = Column(JSON, nullable=False)
+    translation = Column(JSON, nullable=False)
     translation_unit = Column(String, nullable=False)
 
-    rotation         = Column(JSON, nullable=False)
+    rotation = Column(JSON, nullable=False)
 
-    shape            = Column(JSON, nullable=False)
+    shape = Column(JSON, nullable=False)
 
-    dynamic_params   = Column(JSON, nullable=False)
+    dynamic_params = Column(JSON, nullable=False)
 
     simulation = relationship("Simulation", back_populates="volumes")

@@ -26,8 +26,7 @@ class SourceBase(BaseModel):
 
     position: BoxPosition
     focus_point: List[float] = Field(
-        default_factory=lambda: [0.0, 0.0, 0.0],
-        min_items=3, max_items=3
+        default_factory=lambda: [0.0, 0.0, 0.0], min_items=3, max_items=3
     )
     energy: MonoEnergy
 
@@ -58,10 +57,9 @@ class SourceUpdate(BaseModel):
     activity_unit: Unit | None = None
 
 
-
 # Read schema includes ID
 class SourceRead(SourceBase):
     model_config = ConfigDict(from_attributes=True)
-    
+
     id: int
     simulation_id: int

@@ -6,14 +6,17 @@ from app.sources.schema import (
     SourceCreate,
     SourceRead,
     SourceUpdate,
-    BoxPosition
+    BoxPosition,
 )
 from app.shared.primitives import Unit, UNIT_TO_GATE
 from app.shared.message import MessageResponse
 
+
 class SourceService:
     def __init__(
-        self, simulation_service: SimulationService, source_repository: SourceRepository
+        self,
+        simulation_service: SimulationService,
+        source_repository: SourceRepository,
     ):
         self.sim_service = simulation_service
         self.source_repository = source_repository
@@ -46,9 +49,7 @@ class SourceService:
         pos: BoxPosition = source_data.position
         factor_position = UNIT_TO_GATE[Unit(pos.unit)]
         gate_source.position.type = pos.type
-        gate_source.position.size = [
-            s * factor_position for s in pos.size
-        ]
+        gate_source.position.size = [s * factor_position for s in pos.size]
         gate_source.position.translation = [
             s * factor_position for s in pos.translation
         ]
@@ -86,11 +87,11 @@ class SourceService:
     async def update_source(
         self, sim_id: int, name: str, update: SourceUpdate
     ) -> MessageResponse:
-        existing: Source = await self.source_repository.read(
-            sim_id, name
-        )
+        existing: Source = await self.source_repository.read(sim_id, name)
         if not existing:
-            raise HTTPException(status_code=404, detail=f"Source '{name}' not found")
+            raise HTTPException(
+                status_code=404, detail=f"Source '{name}' not found"
+            )
 
         update_data = update.model_dump(exclude_unset=True)
 

@@ -1,4 +1,3 @@
-from multiprocessing import Process
 import os
 import shutil
 from fastapi import HTTPException
@@ -6,7 +5,11 @@ from fastapi.concurrency import run_in_threadpool
 from app.simulations.repository import SimulationRepository
 from app.sources.repository import SourceRepository
 from app.shared.message import MessageResponse
-from app.simulations.schema import SimulationBase, SimulationCreate, SimulationRead, SimulationUpdate
+from app.simulations.schema import (
+    SimulationCreate,
+    SimulationRead,
+    SimulationUpdate,
+)
 from app.shared.utils import get_gate_sim
 import opengate as gate
 from opengate.geometry.volumes import VolumeBase as VolumeGATE
@@ -28,12 +31,18 @@ class SimulationService:
     async def get_gate_sim_without_sources(self, id: int) -> gate.Simulation:
         sim = await self.read_simulation(id)
         gate_sim = gate.Simulation()
-        gate_sim.from_json_file(f"{sim.output_dir}/{sim.json_archive_filename}")
+        gate_sim.from_json_file(
+            f"{sim.output_dir}/{sim.json_archive_filename}"
+        )
         return gate_sim
 
-    async def create_simulation(self, sim_create: SimulationCreate) -> MessageResponse:
+    async def create_simulation(
+        self, sim_create: SimulationCreate
+    ) -> MessageResponse:
         sim: SimulationRead = await self.sim_repo.create(sim_create)
-        run_intervals = self._compute_run_timing_intervals(sim.num_runs, sim.run_len)
+        run_intervals = self._compute_run_timing_intervals(
+            sim.num_runs, sim.run_len
+        )
         gate_sim = gate.Simulation(
             name=sim.name,
             output_dir=sim.output_dir,
@@ -43,7 +52,9 @@ class SimulationService:
         try:
             gate_sim.to_json_file()
         except OSError as e:
-            raise HTTPException(500, detail=f"Failed to write simulation archive: {e}")
+            raise HTTPException(
+                500, detail=f"Failed to write simulation archive: {e}"
+            )
         return {"message": f"Simulation '{sim.name}' created successfully"}
 
     async def read_simulations(self) -> list[SimulationRead]:
@@ -63,7 +74,9 @@ class SimulationService:
         existing_sim: SimulationRead = await self.read_simulation(id)
         self._handle_directory_rename(existing_sim, sim_update.name)
         updated_sim = await self.sim_repo.update(id, sim_update)
-        run_intervals = self._compute_run_timing_intervals(updated_sim.num_runs, updated_sim.run_len)
+        run_intervals = self._compute_run_timing_intervals(
+            updated_sim.num_runs, updated_sim.run_len
+        )
         gate_sim = gate.Simulation(
             name=updated_sim.name,
             output_dir=updated_sim.output_dir,
@@ -73,8 +86,12 @@ class SimulationService:
         try:
             gate_sim.to_json_file()
         except OSError as e:
-            raise HTTPException(500, detail=f"Failed to write simulation archive: {e}")
-        return {"message": f"Simulation '{existing_sim.name}' updated successfully"}
+            raise HTTPException(
+                500, detail=f"Failed to write simulation archive: {e}"
+            )
+        return {
+            "message": f"Simulation '{existing_sim.name}' updated successfully"
+        }
 
     async def delete_simulation(self, id: int) -> MessageResponse:
         sim: SimulationRead | None = await self.sim_repo.delete(id)
@@ -91,14 +108,16 @@ class SimulationService:
         try:
             # TODO: GET .JSON FILE & CREATE A NEW SIMULATION
             gate_sim = gate.Simulation()
-            gate_sim.from_json_file(f"{sim.output_dir}/{sim.json_archive_filename}")
+            gate_sim.from_json_file(
+                f"{sim.output_dir}/{sim.json_archive_filename}"
+            )
         except KeyError as e:
             raise HTTPException(
                 status_code=400,
                 detail=(
                     f"Simulation JSON is invalid or out-of-sync: "
                     f"missing volume '{e.args[0]}' in archive."
-                )
+                ),
             )
         return {"message": "Simulation {sim.name} imported successfully!"}
 
@@ -111,32 +130,31 @@ class SimulationService:
             os.remove(zip_path)
 
         try:
-            shutil.make_archive(base_name=output_dir, format="zip", root_dir=output_dir)
+            shutil.make_archive(
+                base_name=output_dir, format="zip", root_dir=output_dir
+            )
         except OSError as e:
             raise HTTPException(500, detail=f"Failed to compress outputs: {e}")
 
         return zip_path
 
     async def view_simulation(
-        self, id: int,
-        src_repo: SourceRepository
+        self, id: int, src_repo: SourceRepository
     ) -> MessageResponse:
-        gate_sim: gate.Simulation = await get_gate_sim(id, self.sim_repo, src_repo)
+        gate_sim: gate.Simulation = await get_gate_sim(
+            id, self.sim_repo, src_repo
+        )
         gate_sim.visu = True
         gate_sim.progress_bar = False
         await run_in_threadpool(gate_sim.run, start_new_process=True)
         return {"message": "Simulation visualization ended"}
 
     async def run_simulation(
-        self, id: int, 
-        src_repo: SourceRepository,
-        vol_repo: VolumeRepository
+        self, id: int, src_repo: SourceRepository, vol_repo: VolumeRepository
     ) -> MessageResponse:
         sim_read: SimulationRead = await self.read_simulation(id)
         gate_sim: gate.Simulation = await get_gate_sim(
-            id,
-            self.sim_repo,
-            src_repo
+            id, self.sim_repo, src_repo
         )
 
         gate_sim.visu = False
@@ -146,28 +164,23 @@ class SimulationService:
         self._init_actors(sim_read, gate_sim)
 
         await run_in_threadpool(gate_sim.run, start_new_process=True)
-        
+
         return {"message": "Simulation finished running"}
 
     async def reconstruct_simulation(
-            self, id: int, sod: float, sdd: float
+        self, id: int, sod: float, sdd: float
     ) -> str:
         sim = await self.read_simulation(id)
         proj_path = os.path.join(sim.output_dir, "output/projection.mhd")
         if not os.path.exists(proj_path):
             raise HTTPException(
-                404,
-                detail=f"projection.mhd not found at {proj_path}"
+                404, detail=f"projection.mhd not found at {proj_path}"
             )
 
         return await run_in_threadpool(
-            self._do_recon,
-            proj_path,
-            sim.output_dir,
-            sod,
-            sdd
+            self._do_recon, proj_path, sim.output_dir, sod, sdd
         )
-    
+
     @staticmethod
     async def _init_volumes(id, sim_read, gate_sim, vol_repo):
         for name in gate_sim.volume_manager.volume_names:
@@ -180,10 +193,7 @@ class SimulationService:
                 angle_start = data.rotation.angle
                 angle_end = data.dynamic_params.angle_end or angle_start
                 angles = np.linspace(
-                    angle_start,
-                    angle_end,
-                    num_runs,
-                    endpoint=False
+                    angle_start, angle_end, num_runs, endpoint=False
                 )
                 rotations = [
                     R.from_euler(
@@ -193,7 +203,6 @@ class SimulationService:
                 ]
                 vol.add_dynamic_parametrisation(rotation=rotations)
 
-    
     @staticmethod
     def _init_actors(sim_read, gate_sim):
         actor = sim_read.actor
@@ -204,36 +213,29 @@ class SimulationService:
 
         if "Hits" not in gate_sim.actor_manager.actors.keys():
             hits_actor = gate_sim.add_actor(
-                "DigitizerHitsCollectionActor",
-                "Hits"
+                "DigitizerHitsCollectionActor", "Hits"
             )
             hits_actor.attached_to = attached_to
             hits_actor.attributes = [
-                'TotalEnergyDeposit',
-                'PostPosition',
-                'GlobalTime'
+                "TotalEnergyDeposit",
+                "PostPosition",
+                "GlobalTime",
             ]
-            hits_actor.output_filename = 'output/hits.root'
+            hits_actor.output_filename = "output/hits.root"
 
         if "Projection" not in gate_sim.actor_manager.actors.keys():
             proj_actor = gate_sim.add_actor(
-                "DigitizerProjectionActor",
-                "Projection"
+                "DigitizerProjectionActor", "Projection"
             )
             proj_actor.attached_to = attached_to
             proj_actor.input_digi_collections = ["Hits"]
             proj_actor.spacing = spacing
             proj_actor.size = size
             proj_actor.origin_as_image_center = origin
-            proj_actor.output_filename = 'output/projection.mhd'
+            proj_actor.output_filename = "output/projection.mhd"
 
     @staticmethod
-    def _do_recon(
-            proj_path: str,
-            out_dir: str,
-            SOD: float,
-            SDD: float
-        ) -> str:
+    def _do_recon(proj_path: str, out_dir: str, SOD: float, SDD: float) -> str:
         proj_itk = sitk.ReadImage(proj_path)
         proj = sitk.GetArrayFromImage(proj_itk).astype(np.float32)
         NUM_ANGLES, NUM_ROWS, NUM_COLS = proj.shape
@@ -251,11 +253,11 @@ class SimulationService:
             numCols=NUM_COLS,
             pixelWidth=PIX_W,
             pixelHeight=PIX_H,
-            centerRow=0.5*(NUM_ROWS-1),
-            centerCol=0.5*(NUM_COLS-1),
+            centerRow=0.5 * (NUM_ROWS - 1),
+            centerCol=0.5 * (NUM_COLS - 1),
             phis=phis,
             sod=SOD,
-            sdd=SDD
+            sdd=SDD,
         )
         ct.set_default_volume()
 
@@ -278,7 +280,9 @@ class SimulationService:
                 os.remove(old_json)
 
     @staticmethod
-    def _compute_run_timing_intervals(num_runs: int, run_len: float) -> list[list[float]]:
+    def _compute_run_timing_intervals(
+        num_runs: int, run_len: float
+    ) -> list[list[float]]:
         return [
             [
                 i * run_len * UNIT_TO_GATE[Unit.SEC],

@@ -23,4 +23,6 @@ def get_simulation_service(
 SimulationRepositoryDep = Annotated[
     SimulationRepository, Depends(get_simulation_repository)
 ]
-SimulationServiceDep = Annotated[SimulationService, Depends(get_simulation_service)]
+SimulationServiceDep = Annotated[
+    SimulationService, Depends(get_simulation_service)
+]

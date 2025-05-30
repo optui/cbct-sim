@@ -12,8 +12,7 @@ class SourceRepository:
 
     async def create(self, sim_id: int, source_create: SourceCreate) -> Source:
         source = Source(
-            simulation_id=sim_id,
-            **source_create.model_dump(mode='json')
+            simulation_id=sim_id, **source_create.model_dump(mode="json")
         )
         self.session.add(source)
         try:

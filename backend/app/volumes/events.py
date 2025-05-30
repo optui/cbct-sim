@@ -20,7 +20,7 @@ WORLD_VOLUME = {
     "dynamic_params": {
         "enabled": False,
         "translation_end": None,
-        "angle_end": None
+        "angle_end": None,
     },
 }
 

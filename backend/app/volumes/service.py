@@ -10,7 +10,7 @@ from app.volumes.schema import (
     VolumeRead,
     VolumeUpdate,
     BoxShape,
-    SphereShape
+    SphereShape,
 )
 from app.volumes.repository import VolumeRepository
 from app.shared.primitives import UNIT_TO_GATE
@@ -26,19 +26,23 @@ class VolumeService:
         volume_repository: VolumeRepository,
     ):
         self.sim_service = simulation_service
-        self.vol_repo    = volume_repository
+        self.vol_repo = volume_repository
 
-    async def create_volume(self, sim_id: int, vol_create: VolumeCreate) -> MessageResponse:
-        gate_sim: gate.Simulation = await self.sim_service.get_gate_sim_without_sources(sim_id)
+    async def create_volume(
+        self, sim_id: int, vol_create: VolumeCreate
+    ) -> MessageResponse:
+        gate_sim: gate.Simulation = (
+            await self.sim_service.get_gate_sim_without_sources(sim_id)
+        )
 
         if vol_create.name in gate_sim.volume_manager.volume_names:
             raise HTTPException(
-                status_code=409, detail=f"Volume '{vol_create.name}' already exists"
+                status_code=409,
+                detail=f"Volume '{vol_create.name}' already exists",
             )
-        
+
         gate_vol: VolumeBase = gate_sim.add_volume(
-            vol_create.shape.type.value,
-            vol_create.name
+            vol_create.shape.type.value, vol_create.name
         )
 
         # process the new volume into the Gate simulation
@@ -52,8 +56,12 @@ class VolumeService:
 
         return {"message": f"Volume '{vol_create.name}' created successfully"}
 
-    async def _process_vol(self, sim_id: int, gate_vol: VolumeBase, vol: VolumeCreate | VolumeUpdate):
-        # common logic for both create and update, using the Pydantic model `vol`
+    async def _process_vol(
+        self,
+        sim_id: int,
+        gate_vol: VolumeBase,
+        vol: VolumeCreate | VolumeUpdate,
+    ):
         gate_vol.mother = vol.mother
         gate_vol.material = vol.material
 
@@ -61,9 +69,7 @@ class VolumeService:
         gate_vol.translation = [t * translation_unit for t in vol.translation]
 
         gate_vol.rotation = R.from_euler(
-            vol.rotation.axis.value,
-            vol.rotation.angle,
-            degrees=True
+            vol.rotation.axis.value, vol.rotation.angle, degrees=True
         ).as_matrix()
 
         shape_unit = UNIT_TO_GATE[vol.shape.unit]
@@ -80,9 +86,13 @@ class VolumeService:
 
             angle_start = vol.rotation.angle
             angle_end = vol.dynamic_params.angle_end or angle_start
-            angles = np.linspace(angle_start, angle_end, num_runs, endpoint=False)
+            angles = np.linspace(
+                angle_start, angle_end, num_runs, endpoint=False
+            )
             rotations = [
-                R.from_euler(vol.rotation.axis.value, a, degrees=True).as_matrix()
+                R.from_euler(
+                    vol.rotation.axis.value, a, degrees=True
+                ).as_matrix()
                 for a in angles
             ]
 
@@ -108,10 +118,12 @@ class VolumeService:
         # 2) load the Gate simulation and volume handle
         gate_sim = await self.sim_service.get_gate_sim_without_sources(sim_id)
         if name not in gate_sim.volume_manager.volume_names:
-            data = vol_read.model_dump(mode="json", exclude={"id", "simulation_id"})
+            data = vol_read.model_dump(
+                mode="json", exclude={"id", "simulation_id"}
+            )
             vol_create = VolumeCreate.model_validate(data)
             await self.create_volume(sim_id, vol_create)
-        
+
         gate_vol = gate_sim.volume_manager.get_volume(name)
 
         # 3) re-process the volume into Gate using the Pydantic update model

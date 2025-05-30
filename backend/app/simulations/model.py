@@ -30,7 +30,7 @@ class Simulation(Base):
         back_populates="simulation",
         cascade="all, delete-orphan",
     )
-    
+
     volumes = relationship(
         "Volume",
         back_populates="simulation",

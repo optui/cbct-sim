@@ -7,10 +7,12 @@ from app.volumes.repository import VolumeRepository
 from app.volumes.service import VolumeService
 from app.simulations.dependencies import SimulationServiceDep
 
+
 def get_volume_repository(
     db: Annotated[AsyncSession, Depends(get_session)],
 ) -> VolumeRepository:
     return VolumeRepository(db)
+
 
 def get_volume_service(
     sim_svc: SimulationServiceDep,
@@ -19,5 +21,7 @@ def get_volume_service(
     return VolumeService(sim_svc, repo)
 
 
-VolumeRepositoryDep = Annotated[VolumeRepository, Depends(get_volume_repository)]
-VolumeServiceDep    = Annotated[VolumeService,    Depends(get_volume_service)]
+VolumeRepositoryDep = Annotated[
+    VolumeRepository, Depends(get_volume_repository)
+]
+VolumeServiceDep = Annotated[VolumeService, Depends(get_volume_service)]
