@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 
-// Import all components
 import { SimulationListComponent } from './components/simulations/simulation-list.component'
 import { SimulationDetailComponent } from './components/simulations/simulation-detail.component';
 import { SimulationFormComponent } from './components/simulations/simulation-form.component';
@@ -11,7 +10,6 @@ import { SourceListComponent } from './components/sources/source-list.component'
 import { SourceFormComponent } from './components/sources/source-form.component';
 import { SourceDetailComponent } from './components/sources/source-detail.component';
 
-// routes.ts
 export const routes: Routes = [
   { path: '', redirectTo: 'simulations', pathMatch: 'full' },
 
