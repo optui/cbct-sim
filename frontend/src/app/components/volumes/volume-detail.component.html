@@ -1,0 +1,61 @@
+<div class="container py-5" *ngIf="volume as vol; else loading">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h1 class="fw-bold display-6 mb-0">{{ vol.name }}</h1>
+            <p class="text-muted">Volume Details</p>
+        </div>
+        <button class="btn btn-secondary btn-sm" (click)="back()">
+            <i class="bi bi-arrow-left me-1"></i> Back
+        </button>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title text-muted mb-3"><i class="bi bi-box-seam me-2"></i>General</h5>
+                    <p><strong>Material:</strong> {{ vol.material }}</p>
+                    <p><strong>Mother:</strong> {{ vol.mother }}</p>
+                    <p><strong>Dynamic:</strong> {{ vol.dynamic_params.enabled ? 'Yes' : 'No' }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title text-muted mb-3"><i class="bi bi-geo-alt me-2"></i>Position & Rotation</h5>
+                    <p><strong>Translation:</strong> {{ vol.translation.join(' ' + vol.translation_unit + ' x ')
+                        }}<span>{{ ' ' + vol.translation_unit }}</span></p>
+                    <p><strong>Rotation:</strong> {{ vol.rotation.axis }}: {{ vol.rotation.angle }}°</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-muted mb-3"><i class="bi bi-globe me-2"></i>Shape</h5>
+                    <p><strong>Type:</strong> {{ vol.shape.type }}</p>
+
+                    <div *ngIf="isBox">
+                        <p><strong>Box Size:</strong> {{ boxShape?.size?.join(' ' + vol.shape.unit + ' x ') }}<span>{{ '
+                                ' + vol.shape.unit }}</span></p>
+                    </div>
+
+                    <div *ngIf="isSphere">
+                        <p><strong>Inner Radius (rmin):</strong> {{ sphereShape?.rmin }}</p>
+                        <p><strong>Outer Radius (rmax):</strong> {{ sphereShape?.rmax }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #loading>
+    <div class="container py-5 text-center text-muted">
+        <div class="spinner-border text-primary mb-3" role="status"></div>
+        <div>Loading volume details…</div>
+    </div>
+</ng-template>
