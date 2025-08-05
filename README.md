@@ -1,5 +1,5 @@
 <h1 align="center">
-  ProjeCT
+  cbct-lab
 </h1>
 
 <p align="center">
