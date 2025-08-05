@@ -13,7 +13,7 @@
     <img src="./media/cube_rotate.gif" alt="Sinogram of a cube from a CBCT" height="250px"/>
 </p>
 
-ProjeCT is an open-source, browser-based full-stack application that serves as a simulation platform supporting the complete imaging workflow of cone-beam computed tomography (CBCT). It uses [FastAPI](https://fastapi.tiangolo.com/) for the backend to interface with [GATE 10](https://github.com/OpenGATE/opengate) and [LEAP](https://github.com/LLNL/LEAP), while utilizing [Angular](https://angular.dev/) for a user-friendly frontend.
+An open-source, browser-based full-stack application that serves as a simulation platform supporting the complete imaging workflow of cone-beam computed tomography (CBCT). It uses [FastAPI](https://fastapi.tiangolo.com/) for the backend to interface with [GATE 10](https://github.com/OpenGATE/opengate) and [LEAP](https://github.com/LLNL/LEAP), while utilizing [Angular](https://angular.dev/) for a user-friendly frontend.
 
 ## Features
 
