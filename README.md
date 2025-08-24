@@ -17,11 +17,11 @@ An open-source, browser-based full-stack application that serves as a simulation
 
 ## Features
 
-### Keep track of your GATE simulations
+### Manage your GATE simulations
 
 ![Screenshot of 3 list items representing simulation names with buttons](./media/screenshot_1.png)
 
-### View your GATE simulation before running it
+### View your existing GATE simulations
 
 ![Screenshot of a source emitting rays in a cone shape towards a cube and a flat-panel detector](./media/screenshot_3.png)
 
@@ -33,4 +33,4 @@ An open-source, browser-based full-stack application that serves as a simulation
 
 ## Setup
 
-For setup check out the [GitHub Wiki](https://github.com/optui/ProjeCT/wiki)
+For setup check out the [GitHub Wiki](https://github.com/optui/ProjeCT/wiki).
