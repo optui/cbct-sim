@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  An open-source application that simulates the imaging workflow of cone-beam computed tomography (CBCT). It uses **FastAPI** for the backend to interface with **GATE 10** and **LEAP** and uses **Angular** as the frontend.
+  An open-source application that simulates the imaging workflow of cone-beam computed tomography (CBCT). It uses FastAPI for the backend to interface with GATE 10 and LEAP and also Angular for the frontend.
 </p>
 
 ## Features
