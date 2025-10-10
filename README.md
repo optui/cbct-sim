@@ -1,5 +1,5 @@
 <h1 align="center">
-  cbct-lab
+  cbct-simulation
 </h1>
 
 <p align="center">
